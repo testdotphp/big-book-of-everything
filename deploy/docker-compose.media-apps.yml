@@ -1,0 +1,103 @@
+##############################################################################
+# Media Apps — Audiobookshelf, Kavita, Calibre, Calibre-Web, Readarr
+# Deploy on Unraid (.110)
+#
+# Prerequisites:
+#   - Create appdata dirs: /mnt/appdata/{audiobookshelf,kavita,calibre,calibre-web,readarr}
+#   - Unraid media shares accessible at /mnt/user/media/
+#   - GluetunVPN container already running for Readarr
+#   - CA cert available at /mnt/appdata/certs/teedge-local-ca/ca.crt
+##############################################################################
+
+networks:
+  br0:
+    external: true
+    driver: macvlan
+    driver_opts:
+      parent: br0
+
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.127
+    environment:
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/audiobookshelf/config:/config
+      - /mnt/appdata/audiobookshelf/metadata:/metadata
+      - /mnt/user/media/audiobooks:/audiobooks:ro
+      - /mnt/user/media/podcasts:/podcasts:ro
+    ports:
+      - "80:80"
+
+  kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.128
+    environment:
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/kavita:/kavita/config
+      - /mnt/user/media/books:/books:ro
+      - /mnt/user/media/comics:/comics:ro
+      - /mnt/user/media/manga:/manga:ro
+    ports:
+      - "5000:5000"
+
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    restart: unless-stopped
+    environment:
+      PUID: 99
+      PGID: 100
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/calibre:/config
+      - /mnt/user/media/ebooks:/books
+    ports:
+      - "8081:8080"
+      - "8181:8181"
+
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.129
+    environment:
+      PUID: 99
+      PGID: 100
+      TZ: "America/Chicago"
+      DOCKER_MODS: "linuxserver/mods:universal-calibre"
+    volumes:
+      - /mnt/appdata/calibre-web:/config
+      - /mnt/user/media/ebooks:/books:ro
+    ports:
+      - "8083:8083"
+    depends_on:
+      - calibre
+
+  # Readarr joins the existing GluetunVPN network stack
+  # It does NOT get its own network — it piggybacks on gluetun
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    restart: unless-stopped
+    network_mode: "container:gluetun"
+    environment:
+      PUID: 99
+      PGID: 100
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/readarr:/config
+      - /mnt/user/media/ebooks:/books
+      - /mnt/user/downloads:/downloads

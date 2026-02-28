@@ -1,0 +1,224 @@
+{
+  "name": "Homelab Management",
+  "icon": "server",
+  "theme": "#2196F3",
+  "homepage": "https://homepage.teedge.local",
+  "items": [
+    {
+      "slug": "label-observe",
+      "label": "Observe",
+      "icon": "bar-chart",
+      "children": [
+        {
+          "slug": "dashboards",
+          "label": "Dashboards",
+          "icon": "bar-chart",
+          "url": "https://grafana.teedge.local"
+        },
+        {
+          "slug": "monitoring",
+          "label": "Monitoring",
+          "icon": "activity",
+          "url": "https://kuma.teedge.local"
+        },
+        {
+          "slug": "containers",
+          "label": "Containers",
+          "icon": "box",
+          "url": "https://cadvisor.teedge.local"
+        },
+        {
+          "slug": "logs",
+          "label": "Logs",
+          "icon": "scroll-text",
+          "url": "https://dozzle.teedge.local"
+        },
+        {
+          "slug": "prometheus",
+          "label": "Prometheus",
+          "icon": "database",
+          "url": "https://prometheus.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-infra",
+      "label": "Infrastructure",
+      "icon": "server",
+      "children": [
+        {
+          "slug": "server",
+          "label": "Server",
+          "icon": "cpu",
+          "url": "https://unraid.teedge.local"
+        },
+        {
+          "slug": "firewall",
+          "label": "Firewall",
+          "icon": "router",
+          "url": "https://pfsense.teedge.local"
+        },
+        {
+          "slug": "network",
+          "label": "Network",
+          "icon": "globe",
+          "url": "https://netbox.teedge.local"
+        },
+        {
+          "slug": "proxy",
+          "label": "Proxy",
+          "icon": "shield",
+          "url": "https://npm.teedge.local"
+        },
+        {
+          "slug": "dns",
+          "label": "DNS",
+          "icon": "wifi",
+          "url": "https://adguard.teedge.local"
+        },
+        {
+          "slug": "auth",
+          "label": "Auth",
+          "icon": "lock",
+          "url": "https://authentik.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-media-backend",
+      "label": "Media Backend",
+      "icon": "film",
+      "children": [
+        {
+          "slug": "sonarr",
+          "label": "Sonarr",
+          "icon": "tv",
+          "url": "https://sonarr.teedge.local"
+        },
+        {
+          "slug": "radarr",
+          "label": "Radarr",
+          "icon": "film",
+          "url": "https://radarr.teedge.local"
+        },
+        {
+          "slug": "readarr",
+          "label": "Readarr",
+          "icon": "book",
+          "url": "https://readarr.teedge.local"
+        },
+        {
+          "slug": "prowlarr",
+          "label": "Prowlarr",
+          "icon": "search",
+          "url": "https://prowlarr.teedge.local"
+        },
+        {
+          "slug": "whisparr",
+          "label": "Whisparr",
+          "icon": "eye-off",
+          "url": "https://whisparr.teedge.local"
+        },
+        {
+          "slug": "tdarr",
+          "label": "Tdarr",
+          "icon": "zap",
+          "url": "https://tdarr.teedge.local"
+        },
+        {
+          "slug": "flaresolverr",
+          "label": "Flaresolverr",
+          "icon": "globe",
+          "url": "https://flaresolverr.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-downloads",
+      "label": "Downloads",
+      "icon": "download",
+      "children": [
+        {
+          "slug": "sabnzbd",
+          "label": "SABnzbd",
+          "icon": "download",
+          "url": "https://sabnzbd.teedge.local"
+        },
+        {
+          "slug": "qbittorrent",
+          "label": "qBittorrent",
+          "icon": "hard-drive",
+          "url": "https://qbittorrent.teedge.local"
+        },
+        {
+          "slug": "ytdl",
+          "label": "YouTube-DL",
+          "icon": "youtube",
+          "url": "https://ytdl.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-comics",
+      "label": "Comics Backend",
+      "icon": "book-open",
+      "children": [
+        {
+          "slug": "kapowarr-kids",
+          "label": "Kapowarr Kids",
+          "icon": "book-open",
+          "url": "https://kapowarr-kids.teedge.local"
+        },
+        {
+          "slug": "comixed",
+          "label": "ComiXed",
+          "icon": "book-open",
+          "url": "https://comixed.teedge.local"
+        },
+        {
+          "slug": "comixed-kids",
+          "label": "ComiXed Kids",
+          "icon": "book-open",
+          "url": "https://comixed-kids.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-manage",
+      "label": "Manage",
+      "icon": "settings",
+      "children": [
+        {
+          "slug": "automation",
+          "label": "Automation",
+          "icon": "workflow",
+          "url": "https://n8n.teedge.local"
+        },
+        {
+          "slug": "code",
+          "label": "Code",
+          "icon": "git-branch",
+          "url": "https://gitea.teedge.local"
+        },
+        {
+          "slug": "docs",
+          "label": "Docs",
+          "icon": "file-text",
+          "url": "https://bookstack.teedge.local"
+        },
+        {
+          "slug": "homepage",
+          "label": "Homepage",
+          "icon": "layout",
+          "url": "https://homepage.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "tools",
+      "label": "Tools",
+      "icon": "wrench",
+      "url": "https://it-tools.teedge.local"
+    }
+  ]
+}

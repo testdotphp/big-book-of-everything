@@ -1,0 +1,198 @@
+##############################################################################
+# Home Management Apps
+# Deploy on Unraid (.110) with macvlan networking
+#
+# Prerequisites:
+#   - Create databases in PostgreSQL 16 (authentik-db at .110:5433):
+#       CREATE DATABASE homechart;
+#       CREATE DATABASE paperless;
+#       CREATE DATABASE vikunja;
+#   - Create appdata dirs:
+#       mkdir -p /mnt/appdata/{homechart,mealie,actual,paperless/{data,media,export,consume}}
+#       mkdir -p /mnt/appdata/{homebox,grocy,vikunja,homehub}
+#   - CA cert available at /mnt/appdata/certs/teedge-local-ca/ca.crt
+##############################################################################
+
+networks:
+  br0:
+    external: true
+    driver: macvlan
+    driver_opts:
+      parent: br0
+
+services:
+  homechart:
+    image: ghcr.io/candiddev/homechart:latest
+    container_name: homechart
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.124
+    environment:
+      HOMECHART_APP_BASEURL: "https://homechart.teedge.local"
+      HOMECHART_POSTGRESQL_HOSTNAME: "192.168.150.110"
+      HOMECHART_POSTGRESQL_PORT: "5433"
+      HOMECHART_POSTGRESQL_DATABASE: "homechart"
+      HOMECHART_POSTGRESQL_USERNAME: "authentik"
+      # HOMECHART_POSTGRESQL_PASSWORD: <set from pass show homelab/authentik-db/password>
+      # OIDC config — set after Authentik provider is created:
+      # HOMECHART_OIDC_CLIENTID: <from Authentik>
+      # HOMECHART_OIDC_CLIENTSECRET: <from Authentik>
+      # HOMECHART_OIDC_ISSUER: "https://authentik.teedge.local/application/o/homechart/"
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/homechart:/data
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "8080:8080"
+
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.125
+    environment:
+      ALLOW_SIGNUP: "false"
+      TZ: "America/Chicago"
+      BASE_URL: "https://mealie.teedge.local"
+      OIDC_AUTH_ENABLED: "true"
+      OIDC_SIGNUP_ENABLED: "true"
+      OIDC_CONFIGURATION_URL: "https://authentik.teedge.local/application/o/mealie/.well-known/openid-configuration"
+      OIDC_AUTO_REDIRECT: "true"
+      OIDC_PROVIDER_NAME: "Authentik"
+      # OIDC_CLIENT_ID: <from Authentik>
+      NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+    volumes:
+      - /mnt/appdata/mealie:/app/data
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "9000:9000"
+
+  actual-budget:
+    image: ghcr.io/actualbudget/actual-server:latest
+    container_name: actual-budget
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.126
+    environment:
+      TZ: "America/Chicago"
+      ACTUAL_LOGIN_METHOD: "openid"
+      # ACTUAL_OPENID_DISCOVERY_URL: "https://authentik.teedge.local/application/o/actual-budget/.well-known/openid-configuration"
+      # ACTUAL_OPENID_CLIENT_ID: <from Authentik>
+      # ACTUAL_OPENID_CLIENT_SECRET: <from Authentik>
+      NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+    volumes:
+      - /mnt/appdata/actual:/data
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "5006:5006"
+
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-ngx
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.133
+    environment:
+      PAPERLESS_URL: "https://paperless.teedge.local"
+      PAPERLESS_DBHOST: "192.168.150.110"
+      PAPERLESS_DBPORT: "5433"
+      PAPERLESS_DBNAME: "paperless"
+      PAPERLESS_DBUSER: "authentik"
+      # PAPERLESS_DBPASS: <set from pass show homelab/authentik-db/password>
+      PAPERLESS_REDIS: "redis://:REDISPASSWORD@192.168.150.110:6379"
+      PAPERLESS_TIME_ZONE: "America/Chicago"
+      PAPERLESS_OCR_LANGUAGE: "eng"
+      PAPERLESS_CONSUMER_POLLING: "30"
+      # OIDC via django-allauth (Paperless v2.x+):
+      PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+      # PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"APPS":[{"provider_id":"authentik","name":"Authentik","client_id":"<from Authentik>","secret":"<from Authentik>","settings":{"server_url":"https://authentik.teedge.local/application/o/paperless/.well-known/openid-configuration"}}]}}'
+      PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
+      PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
+      # Trust self-signed CA
+      REQUESTS_CA_BUNDLE: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+    volumes:
+      - /mnt/appdata/paperless/data:/usr/src/paperless/data
+      - /mnt/appdata/paperless/media:/usr/src/paperless/media
+      - /mnt/appdata/paperless/export:/usr/src/paperless/export
+      - /mnt/appdata/paperless/consume:/usr/src/paperless/consume
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "8000:8000"
+
+  homebox:
+    image: ghcr.io/sysadminsmedia/homebox:latest
+    container_name: homebox
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.134
+    environment:
+      TZ: "America/Chicago"
+      HBOX_WEB_MAX_UPLOAD_SIZE: "50"
+    volumes:
+      - /mnt/appdata/homebox:/data
+    ports:
+      - "7745:7745"
+
+  grocy:
+    image: lscr.io/linuxserver/grocy:latest
+    container_name: grocy
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.135
+    environment:
+      PUID: 99
+      PGID: 100
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/grocy:/config
+    ports:
+      - "9283:80"
+
+  vikunja:
+    image: vikunja/vikunja:latest
+    container_name: vikunja
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.137
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: "https://vikunja.teedge.local"
+      VIKUNJA_SERVICE_TIMEZONE: "America/Chicago"
+      VIKUNJA_DATABASE_TYPE: "postgres"
+      VIKUNJA_DATABASE_HOST: "192.168.150.110"
+      VIKUNJA_DATABASE_PORT: "5433"
+      VIKUNJA_DATABASE_DATABASE: "vikunja"
+      VIKUNJA_DATABASE_USER: "authentik"
+      # VIKUNJA_DATABASE_PASSWORD: <set from pass show homelab/authentik-db/password>
+      # OIDC config:
+      VIKUNJA_AUTH_OPENID_ENABLED: "true"
+      # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_NAME: "Authentik"
+      # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_AUTHURL: "https://authentik.teedge.local/application/o/authorize/"
+      # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTID: <from Authentik>
+      # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTSECRET: <from Authentik>
+    volumes:
+      - /mnt/appdata/vikunja:/app/vikunja/files
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "3456:3456"
+
+  homehub:
+    image: surajverma/homehub:latest
+    container_name: homehub
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.138
+    environment:
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/homehub:/app/data
+    ports:
+      - "3050:3000"

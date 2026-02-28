@@ -1,0 +1,101 @@
+{
+  "name": "Home Management",
+  "icon": "home",
+  "theme": "#4CAF50",
+  "homepage": "https://homepage.teedge.local",
+  "items": [
+    {
+      "slug": "dashboard",
+      "label": "Dashboard",
+      "icon": "layout",
+      "url": "https://homehub.teedge.local"
+    },
+    {
+      "slug": "label-organize",
+      "label": "Organization",
+      "icon": "check-circle",
+      "children": [
+        {
+          "slug": "chores",
+          "label": "Chores",
+          "icon": "check-circle",
+          "url": "https://homechart.teedge.local"
+        },
+        {
+          "slug": "calendar",
+          "label": "Calendar",
+          "icon": "calendar",
+          "url": "https://homechart.teedge.local/#/calendar"
+        },
+        {
+          "slug": "kids",
+          "label": "Kids",
+          "icon": "star",
+          "url": "https://homechart.teedge.local/#/rewards"
+        },
+        {
+          "slug": "projects",
+          "label": "Projects",
+          "icon": "kanban",
+          "url": "https://vikunja.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-food",
+      "label": "Food",
+      "icon": "utensils",
+      "children": [
+        {
+          "slug": "meals",
+          "label": "Meals",
+          "icon": "utensils",
+          "url": "https://mealie.teedge.local"
+        },
+        {
+          "slug": "pantry",
+          "label": "Pantry",
+          "icon": "package",
+          "url": "https://grocy.teedge.local"
+        },
+        {
+          "slug": "shopping",
+          "label": "Shopping",
+          "icon": "shopping-cart",
+          "url": "https://homechart.teedge.local/#/shopping"
+        }
+      ]
+    },
+    {
+      "slug": "label-records",
+      "label": "Records",
+      "icon": "file-text",
+      "children": [
+        {
+          "slug": "documents",
+          "label": "Documents",
+          "icon": "file-text",
+          "url": "https://paperless.teedge.local"
+        },
+        {
+          "slug": "inventory",
+          "label": "Inventory",
+          "icon": "clipboard",
+          "url": "https://homebox.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "finances",
+      "label": "Finances",
+      "icon": "dollar-sign",
+      "url": "https://actual.teedge.local"
+    },
+    {
+      "slug": "photos",
+      "label": "Photos",
+      "icon": "camera",
+      "url": "https://immich.teedge.local"
+    }
+  ]
+}

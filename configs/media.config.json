@@ -1,0 +1,71 @@
+{
+  "name": "Media",
+  "icon": "play",
+  "theme": "#E91E63",
+  "homepage": "https://homepage.teedge.local",
+  "items": [
+    {
+      "slug": "label-watch",
+      "label": "Watch",
+      "icon": "play",
+      "children": [
+        {
+          "slug": "streaming",
+          "label": "Streaming",
+          "icon": "play",
+          "url": "https://plex.teedge.local"
+        },
+        {
+          "slug": "requests",
+          "label": "Requests",
+          "icon": "message-circle",
+          "url": "https://overseerr.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-read",
+      "label": "Read",
+      "icon": "book",
+      "children": [
+        {
+          "slug": "books",
+          "label": "Books",
+          "icon": "book",
+          "url": "https://kavita.teedge.local"
+        },
+        {
+          "slug": "ebooks",
+          "label": "Ebooks",
+          "icon": "book-open",
+          "url": "https://calibre.teedge.local"
+        },
+        {
+          "slug": "comics",
+          "label": "Comics",
+          "icon": "book-open",
+          "url": "https://kapowarr.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-listen",
+      "label": "Listen",
+      "icon": "headphones",
+      "children": [
+        {
+          "slug": "audiobooks",
+          "label": "Audiobooks",
+          "icon": "headphones",
+          "url": "https://audiobookshelf.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "adult",
+      "label": "Adult",
+      "icon": "eye-off",
+      "url": "https://whisparr.teedge.local"
+    }
+  ]
+}
