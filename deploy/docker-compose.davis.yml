@@ -1,0 +1,32 @@
+networks:
+  br0:
+    external: true
+    driver: macvlan
+    driver_opts:
+      parent: br0
+
+services:
+  davis:
+    image: ghcr.io/tchapi/davis-standalone:latest
+    container_name: davis
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.150.157
+    environment:
+      APP_ENV: prod
+      APP_SECRET: e3b4a206e783ba8287fd53379d505ec42
+      DATABASE_DRIVER: sqlite
+      DATABASE_URL: "sqlite:////var/www/davis/var/davis.db"
+      CALDAV_ENABLED: "true"
+      CARDDAV_ENABLED: "true"
+      WEBDAV_ENABLED: "false"
+      ADMIN_LOGIN: admin
+      ADMIN_PASSWORD: admin
+      AUTH_REALM: teedge.local
+      TZ: America/Chicago
+    volumes:
+      - /mnt/appdata/davis/data:/var/www/davis/var
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.webui: "https://davis.teedge.local"

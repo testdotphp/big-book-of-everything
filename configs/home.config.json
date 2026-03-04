@@ -8,7 +8,7 @@
       "slug": "dashboard",
       "label": "Dashboard",
       "icon": "layout",
-      "url": "https://homehub.teedge.local"
+      "url": "https://homepage.teedge.local"
     },
     {
       "slug": "label-organize",
@@ -19,19 +19,13 @@
           "slug": "chores",
           "label": "Chores",
           "icon": "check-circle",
-          "url": "https://homechart.teedge.local"
+          "url": "https://donetick.teedge.local"
         },
         {
           "slug": "calendar",
           "label": "Calendar",
           "icon": "calendar",
-          "url": "https://homechart.teedge.local/#/calendar"
-        },
-        {
-          "slug": "kids",
-          "label": "Kids",
-          "icon": "star",
-          "url": "https://homechart.teedge.local/#/rewards"
+          "url": "https://davis.teedge.local"
         },
         {
           "slug": "projects",
@@ -57,12 +51,6 @@
           "label": "Pantry",
           "icon": "package",
           "url": "https://grocy.teedge.local"
-        },
-        {
-          "slug": "shopping",
-          "label": "Shopping",
-          "icon": "shopping-cart",
-          "url": "https://homechart.teedge.local/#/shopping"
         }
       ]
     },
@@ -78,10 +66,28 @@
           "url": "https://paperless.teedge.local"
         },
         {
+          "slug": "pdf-tools",
+          "label": "PDF Tools",
+          "icon": "scroll-text",
+          "url": "https://stirling.teedge.local"
+        },
+        {
           "slug": "inventory",
           "label": "Inventory",
           "icon": "clipboard",
           "url": "https://homebox.teedge.local"
+        },
+        {
+          "slug": "fasten",
+          "label": "Health Records",
+          "icon": "heart-pulse",
+          "url": "https://fasten.teedge.local"
+        },
+        {
+          "slug": "docspace",
+          "label": "Office Suite",
+          "icon": "file-text",
+          "url": "https://docspace.teedge.local"
         }
       ]
     },
@@ -96,6 +102,25 @@
       "label": "Photos",
       "icon": "camera",
       "url": "https://immich.teedge.local"
+    },
+    {
+      "slug": "tickets",
+      "label": "Tickets",
+      "icon": "clipboard",
+      "url": "https://peppermint.teedge.local"
+    },
+    {
+      "slug": "label-hobby",
+      "label": "Hobby",
+      "icon": "scissors",
+      "children": [
+        {
+          "slug": "yarnl",
+          "label": "Yarnl",
+          "icon": "scissors",
+          "url": "https://yarnl.teedge.local"
+        }
+      ]
     }
   ]
 }
