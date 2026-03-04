@@ -102,12 +102,6 @@
           "url": "https://radarr.teedge.local"
         },
         {
-          "slug": "readarr",
-          "label": "Readarr",
-          "icon": "book",
-          "url": "https://readarr.teedge.local"
-        },
-        {
           "slug": "prowlarr",
           "label": "Prowlarr",
           "icon": "search",
@@ -211,14 +205,82 @@
           "label": "Homepage",
           "icon": "layout",
           "url": "https://homepage.teedge.local"
+        },
+        {
+          "slug": "guacamole",
+          "label": "Guacamole",
+          "icon": "monitor",
+          "url": "https://guacamole.teedge.local"
+        },
+        {
+          "slug": "fleet",
+          "label": "FleetDM",
+          "icon": "laptop",
+          "url": "https://fleet.teedge.local"
+        },
+        {
+          "slug": "headwind",
+          "label": "Headwind MDM",
+          "icon": "smartphone",
+          "url": "https://headwind.teedge.local"
+        },
+        {
+          "slug": "fasten",
+          "label": "Health Records",
+          "icon": "heart-pulse",
+          "url": "https://fasten.teedge.local"
+        },
+        {
+          "slug": "docspace",
+          "label": "DocSpace",
+          "icon": "file-text",
+          "url": "https://docspace.teedge.local"
         }
       ]
     },
     {
-      "slug": "tools",
+      "slug": "label-tools",
       "label": "Tools",
       "icon": "wrench",
-      "url": "https://it-tools.teedge.local"
+      "children": [
+        {
+          "slug": "it-tools",
+          "label": "IT Tools",
+          "icon": "wrench",
+          "url": "https://it-tools.teedge.local"
+        },
+        {
+          "slug": "webcheck",
+          "label": "Web Check",
+          "icon": "globe",
+          "url": "https://webcheck.teedge.local"
+        },
+        {
+          "slug": "speedtest",
+          "label": "Speedtest",
+          "icon": "gauge",
+          "url": "https://speedtest.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-security",
+      "label": "Security",
+      "icon": "shield-alert",
+      "children": [
+        {
+          "slug": "crowdsec",
+          "label": "CrowdSec",
+          "icon": "shield",
+          "url": "https://crowdsec.teedge.local"
+        },
+        {
+          "slug": "kopia",
+          "label": "Kopia",
+          "icon": "archive",
+          "url": "https://kopia.teedge.local"
+        }
+      ]
     }
   ]
 }

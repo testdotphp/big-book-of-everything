@@ -6,23 +6,34 @@
 
 | IP | Container | Port | Image | Portal |
 |---|---|---|---|---|
-| .150.124 | Homechart | 8080 | `ghcr.io/candiddev/homechart:latest` | Home |
-| .150.125 | Mealie | 9000 | `ghcr.io/mealie-recipes/mealie:latest` | Home |
+| .150.124 | Homechart | 3000 | `ghcr.io/candiddev/homechart:latest` | Home |
+| .150.141 | Mealie | 9000 | `ghcr.io/mealie-recipes/mealie:latest` | Home |
 | .150.126 | Actual Budget | 5006 | `ghcr.io/actualbudget/actual-server:latest` | Home |
 | .150.127 | Audiobookshelf | 80 | `ghcr.io/advplyr/audiobookshelf:latest` | Media |
-| .150.128 | Kavita | 5000 | `jvmilazz0/kavita:latest` | Media |
+| .150.144 | Kavita | 5000 | `jvmilazz0/kavita:latest` | Media |
 | .150.129 | Calibre-Web | 8083 | `lscr.io/linuxserver/calibre-web:latest` | Media |
 | .150.130 | Home Portal | 3000 | Custom SvelteKit | — |
 | .150.131 | Media Portal | 3000 | Custom SvelteKit | — |
 | .150.132 | Homelab Portal | 3000 | Custom SvelteKit | — |
-| .150.133 | Paperless-ngx | 8000 | `ghcr.io/paperless-ngx/paperless-ngx:latest` | Home |
+| .150.142 | Paperless-ngx | 8000 | `ghcr.io/paperless-ngx/paperless-ngx:latest` | Home |
 | .150.134 | Homebox | 7745 | `ghcr.io/sysadminsmedia/homebox:latest` | Home |
-| .150.135 | Grocy | 80 | `lscr.io/linuxserver/grocy:latest` | Home |
+| .150.143 | Grocy | 80 | `lscr.io/linuxserver/grocy:latest` | Home |
 | .150.136 | Immich | 2283 | `ghcr.io/immich-app/immich-server:latest` | Home |
 | .150.137 | Vikunja | 3456 | `vikunja/vikunja:latest` | Home |
-| .150.138 | HomeHub | 3000 | `surajverma/homehub:latest` | Home |
+| ~~.150.138~~ | ~~HomeHub~~ | ~~3000~~ | ~~`surajverma/homehub:latest`~~ | ~~Home~~ (image not found) |
 | .150.139 | n8n | 5678 | `n8nio/n8n:latest` | Lab |
 | .150.140 | IT-Tools | 80 | `corentinth/it-tools:latest` | Lab |
+| .150.145 | Stirling PDF | 8080 | `stirlingtools/stirling-pdf:latest` | Home |
+| .150.146 | Headwind MDM | 8080 | `headwindmdm/hmdm:latest` | Lab (needs interactive setup) |
+| .150.147 | Ntfy | 80 | `binwiederhier/ntfy:latest` | Lab |
+| .150.148 | CrowdSec | 8080 | `crowdsecurity/crowdsec:latest` | Lab |
+| .150.149 | Kopia | 51515 | `kopia/kopia:latest` | Lab |
+| .150.150 | Speedtest Tracker | 80 | `lscr.io/linuxserver/speedtest-tracker:latest` | Lab |
+| .150.152 | Webcheck | 3000 | `lissy93/web-check:latest` | Lab |
+| .150.153 | Peppermint | 3000 | `pepperlabs/peppermint:latest` | Home |
+| .150.154 | Guacamole | 8080 | `guacamole/guacamole:1.6.0` | Lab |
+| .150.155 | FleetDM | 8080 | `fleetdm/fleet:v4.81.0` | Lab |
+| .150.156 | Fasten Health | 8080 (HTTPS) | `ghcr.io/fastenhealth/fasten-onprem:main` | Home |
 
 ### New Containers — Bridge
 
@@ -35,6 +46,8 @@
 | Immich ML | 3003 | `ghcr.io/immich-app/immich-machine-learning:latest` | Sidecar for Immich |
 | Immich Redis | 6379 | `redis:7-alpine` | Sidecar for Immich |
 | Immich PostgreSQL | 5432 | `tensorchord/pgvecto-rs:pg16-v0.2.0` | Sidecar for Immich (pgvecto.rs) |
+| guacd | 4822 | `guacamole/guacd:1.6.0` | Backend for Guacamole |
+| fleet-mysql | 3306 | `mysql:8.0` | MySQL for FleetDM |
 
 ### New Containers — GluetunVPN
 
@@ -63,8 +76,8 @@
 | .150.110 | ComiXed | 7172 | Lab |
 | .150.110 | ComiXed Kids | 7171 | Lab |
 
-**Total new containers**: 25
-**Total sidebar entries across all portals**: 44
+**Total new containers**: 33
+**Total sidebar entries across all portals**: 48
 
 ---
 
@@ -119,16 +132,17 @@ scp configs/lab.config.json root@192.168.150.110:/mnt/appdata/portal/configs/
 ### 1.4 Deploy containers
 
 ```bash
-# Home apps (Homechart, Mealie, Actual, Paperless, Homebox, Grocy, Vikunja, HomeHub)
-docker compose -f docker-compose.home-apps.yml up -d
-# Verify: curl http://192.168.150.124:8080  (Homechart)
-# Verify: curl http://192.168.150.125:9000  (Mealie)
+# Home apps (Homechart, Mealie, Actual, Paperless, Homebox, Grocy, Vikunja)
+# Requires .env file with PG_PASSWORD, REDIS_PASSWORD, HOMEAPPS_PG_PASSWORD
+docker-compose -f docker-compose.home-apps.yml up -d
+# Verify: curl http://192.168.150.124:3000  (Homechart — listens on 3000, not 8080)
+# Verify: curl http://192.168.150.141:9000  (Mealie — moved from .125)
 # Verify: curl http://192.168.150.126:5006  (Actual)
-# Verify: curl http://192.168.150.133:8000  (Paperless-ngx)
+# Verify: curl http://192.168.150.142:8000  (Paperless-ngx — moved from .133)
 # Verify: curl http://192.168.150.134:7745  (Homebox)
-# Verify: curl http://192.168.150.135:9283  (Grocy)
+# Verify: curl http://192.168.150.143:80    (Grocy — moved from .135, port 80)
 # Verify: curl http://192.168.150.137:3456  (Vikunja)
-# Verify: curl http://192.168.150.138:3050  (HomeHub)
+# Note: HomeHub commented out — image surajverma/homehub doesn't exist
 
 # Immich (server + ML + Redis + PostgreSQL)
 docker compose -f docker-compose.immich.yml up -d
@@ -159,7 +173,7 @@ docker compose -f docker-compose.lab-apps.yml up -d
 Add these rewrites in AdGuard Home (192.168.150.10:3000).
 All point to NPM (.115) for SSL termination + reverse proxy.
 
-**New rewrites (25):**
+**New rewrites (35):**
 
 | Domain | Answer |
 |---|---|
@@ -188,6 +202,17 @@ All point to NPM (.115) for SSL termination + reverse proxy.
 | `kapowarr-kids.teedge.local` | `192.168.150.115` |
 | `comixed-kids.teedge.local` | `192.168.150.115` |
 | `flaresolverr.teedge.local` | `192.168.150.115` |
+| `stirling.teedge.local` | `192.168.150.115` |
+| `headwind.teedge.local` | `192.168.150.115` |
+| `ntfy.teedge.local` | `192.168.150.115` |
+| `crowdsec.teedge.local` | `192.168.150.115` |
+| `kopia.teedge.local` | `192.168.150.115` |
+| `speedtest.teedge.local` | `192.168.150.115` |
+| `webcheck.teedge.local` | `192.168.150.115` |
+| `peppermint.teedge.local` | `192.168.150.115` |
+| `guacamole.teedge.local` | `192.168.150.115` |
+| `fleet.teedge.local` | `192.168.150.115` |
+| `fasten.teedge.local` | `192.168.150.115` |
 
 ### 2.2 NPM Proxy Hosts
 
@@ -208,12 +233,12 @@ Create proxy hosts in NPM (192.168.150.115:81). All use:
 
 | Domain | Forward Host | Forward Port |
 |---|---|---|
-| `homechart.teedge.local` | `192.168.150.124` | `8080` |
-| `mealie.teedge.local` | `192.168.150.125` | `9000` |
+| `homechart.teedge.local` | `192.168.150.124` | `3000` |
+| `mealie.teedge.local` | `192.168.150.141` | `9000` |
 | `actual.teedge.local` | `192.168.150.126` | `5006` |
-| `paperless.teedge.local` | `192.168.150.133` | `8000` |
+| `paperless.teedge.local` | `192.168.150.142` | `8000` |
 | `immich.teedge.local` | `192.168.150.136` | `2283` |
-| `kavita.teedge.local` | `192.168.150.128` | `5000` |
+| `kavita.teedge.local` | `192.168.150.144` | `5000` |
 | `vikunja.teedge.local` | `192.168.150.137` | `3456` |
 | `n8n.teedge.local` | `192.168.150.139` | `5678` |
 
@@ -222,8 +247,7 @@ Create proxy hosts in NPM (192.168.150.115:81). All use:
 | Domain | Forward Host | Forward Port |
 |---|---|---|
 | `homebox.teedge.local` | `192.168.150.134` | `7745` |
-| `grocy.teedge.local` | `192.168.150.135` | `9283` |
-| `homehub.teedge.local` | `192.168.150.138` | `3050` |
+| `grocy.teedge.local` | `192.168.150.143` | `80` |
 | `audiobookshelf.teedge.local` | `192.168.150.127` | `80` |
 | `calibre.teedge.local` | `192.168.150.129` | `8083` |
 | `dozzle.teedge.local` | `192.168.150.110` | `8090` |
@@ -235,6 +259,17 @@ Create proxy hosts in NPM (192.168.150.115:81). All use:
 | `kapowarr-kids.teedge.local` | `192.168.150.112` | `5657` |
 | `comixed-kids.teedge.local` | `192.168.150.110` | `7171` |
 | `flaresolverr.teedge.local` | `192.168.150.112` | `8191` |
+| `stirling.teedge.local` | `192.168.150.145` | `8080` |
+| `headwind.teedge.local` | `192.168.150.146` | `8080` |
+| `ntfy.teedge.local` | `192.168.150.147` | `80` |
+| `crowdsec.teedge.local` | `192.168.150.148` | `8080` |
+| `kopia.teedge.local` | `192.168.150.149` | `51515` |
+| `speedtest.teedge.local` | `192.168.150.150` | `80` |
+| `webcheck.teedge.local` | `192.168.150.152` | `3000` |
+| `peppermint.teedge.local` | `192.168.150.153` | `3000` |
+| `guacamole.teedge.local` | `192.168.150.154` | `8080` |
+| `fleet.teedge.local` | `192.168.150.155` | `8080` |
+| `fasten.teedge.local` | `192.168.150.156` | `8080` (HTTPS) |
 
 **Note**: `pfsense.teedge.local` requires "Ignore SSL" in NPM because pfSense serves HTTPS with its own self-signed cert on the backend.
 
@@ -304,7 +339,7 @@ Settings for each:
 - **Signing key**: Select existing key
 - **Scopes**: `openid`, `email`, `profile`
 
-### 3.2 Proxy Providers (14 new)
+### 3.2 Proxy Providers (16 new)
 
 Create in Authentik Admin → Providers → Create → Proxy Provider:
 
@@ -324,12 +359,15 @@ Create in Authentik Admin → Providers → Create → Proxy Provider:
 | `kapowarr-kids` | `https://kapowarr-kids.teedge.local` | Forward auth (single application) |
 | `comixed-kids` | `https://comixed-kids.teedge.local` | Forward auth (single application) |
 | `flaresolverr` | `https://flaresolverr.teedge.local` | Forward auth (single application) |
+| `guacamole` | `https://guacamole.teedge.local` | Forward auth (single application) |
+| `fleet` | `https://fleet.teedge.local` | Forward auth (single application) |
+| `fasten` | `https://fasten.teedge.local` | Forward auth (single application) |
 
-### 3.3 Applications (25 new)
+### 3.3 Applications (27 new)
 
 Create in Authentik Admin → Applications → Create:
 
-For each provider above (11 OIDC + 14 proxy = 25 total), create a matching application:
+For each provider above (11 OIDC + 16 proxy = 27 total), create a matching application:
 - **Name**: Same as provider
 - **Slug**: Same as provider name
 - **Provider**: Link to matching provider
@@ -376,19 +414,18 @@ Add HTTP(s) monitors in Uptime Kuma (192.168.150.119):
 
 | Name | URL | Interval |
 |---|---|---|
-| Homechart | `http://192.168.150.124:8080` | 60s |
-| Mealie | `http://192.168.150.125:9000` | 60s |
+| Homechart | `http://192.168.150.124:3000` | 60s |
+| Mealie | `http://192.168.150.141:9000` | 60s |
 | Actual Budget | `http://192.168.150.126:5006` | 60s |
-| Paperless-ngx | `http://192.168.150.133:8000` | 60s |
+| Paperless-ngx | `http://192.168.150.142:8000` | 60s |
 | Homebox | `http://192.168.150.134:7745` | 60s |
-| Grocy | `http://192.168.150.135:9283` | 60s |
+| Grocy | `http://192.168.150.143:80` | 60s |
 | Immich | `http://192.168.150.136:2283` | 60s |
 | Vikunja | `http://192.168.150.137:3456` | 60s |
-| HomeHub | `http://192.168.150.138:3050` | 60s |
 | n8n | `http://192.168.150.139:5678` | 60s |
 | IT-Tools | `http://192.168.150.140:80` | 60s |
 | Audiobookshelf | `http://192.168.150.127:80` | 60s |
-| Kavita | `http://192.168.150.128:5000` | 60s |
+| Kavita | `http://192.168.150.144:5000` | 60s |
 | Calibre-Web | `http://192.168.150.129:8083` | 60s |
 | Home Portal | `http://192.168.150.130:3000` | 60s |
 | Media Portal | `http://192.168.150.131:3000` | 60s |
@@ -419,16 +456,24 @@ No `X-Frame-Options` header should be present.
 
 ## Future Deployments (Todo)
 
-These are planned but not part of the initial deployment:
-
 | App | Category | Image | Notes |
 |---|---|---|---|
-| Headwind MDM | Device management | `headwindmdm/hmdm` | Android MDM, push apps, lock/wipe |
-| Ntfy | Notifications | `binwiederhier/ntfy` | Push notifications, integrates with n8n |
-| CrowdSec | Security | `crowdsecurity/crowdsec` | Community-driven IPS, add bouncer to NPM |
-| Guacamole | Remote access | `guacamole/guacamole` | Browser-based RDP/VNC/SSH |
-| Kopia | Backups | `kopia/kopia` | Backup management UI with web dashboard |
-| Speedtest Tracker | Monitoring | `lscr.io/linuxserver/speedtest-tracker` | ISP speed history |
-| Webcheck | Network tools | `lissy93/web-check` | Website diagnostics in one view |
-| Peppermint | Ticketing | `peppermint/peppermint` | Lightweight helpdesk for homelab issues |
 | Online backup service | Backups | TBD | Research: Backblaze B2, Wasabi, rsync.net |
+
+### Recently Deployed (completed)
+
+| App | IP | Status |
+|---|---|---|
+| Stirling PDF | .150.145 | Running |
+| Headwind MDM | .150.146 | Running (setup complete, HTTPS:8443 + HTTP:8080, PG18 DB) |
+| Fasten Health | .150.156 | Running (HTTPS:8080, encrypted SQLite, forward-auth) |
+| Ntfy | .150.147 | Running |
+| CrowdSec | .150.148 | Running |
+| Kopia | .150.149 | Running |
+| Speedtest Tracker | .150.150 | Running |
+| Webcheck | .150.152 | Running |
+| Peppermint | .150.153 | Running |
+| Guacamole | .150.154 | Running (guacd on bridge:4822) |
+| FleetDM | .150.155 | Running (fleet-mysql on bridge:3306) |
+| Immich | .150.136 | Running (ML + Redis + PostgreSQL on bridge, native OIDC) |
+| OnlyOffice DocSpace | .150.110:8880 | Running (installer script, ~7 containers, SAML SSO) |

@@ -8,7 +8,7 @@ export const load: LayoutServerLoad = async (event) => {
 
   // Protect all routes except auth callbacks
   if (!session?.user && !event.url.pathname.startsWith('/auth')) {
-    throw redirect(302, '/auth/signin/authentik');
+    throw redirect(302, '/auth/signin');
   }
 
   return {

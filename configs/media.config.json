@@ -62,10 +62,10 @@
       ]
     },
     {
-      "slug": "adult",
-      "label": "Adult",
-      "icon": "eye-off",
-      "url": "https://whisparr.teedge.local"
+      "slug": "label-gaming",
+      "label": "Gaming",
+      "icon": "gamepad-2",
+      "children": []
     }
   ]
 }

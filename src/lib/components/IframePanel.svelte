@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { ExternalLink, AlertCircle } from 'lucide-svelte';
+
   interface Props {
     url: string;
     title: string;
@@ -22,20 +24,19 @@
   {#if loading}
     <div class="loading-overlay">
       <div class="spinner"></div>
-      <span>Loading {title}...</span>
+      <span class="loading-text">Loading {title}</span>
     </div>
   {/if}
 
   {#if error}
     <div class="error-overlay">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="15" y1="9" x2="9" y2="15" />
-        <line x1="9" y1="9" x2="15" y2="15" />
-      </svg>
+      <div class="error-icon">
+        <AlertCircle size={40} strokeWidth={1.5} />
+      </div>
       <h3>Failed to load {title}</h3>
       <p>The application might be down or blocking iframe embedding.</p>
       <a href={url} target="_blank" rel="noopener noreferrer" class="open-link">
+        <ExternalLink size={14} strokeWidth={2} />
         Open in new tab
       </a>
     </div>
@@ -56,7 +57,7 @@
     width: 100%;
     height: 100%;
     position: relative;
-    background: #0a0a1a;
+    background: var(--bg-base);
   }
 
   iframe {
@@ -74,19 +75,24 @@
     align-items: center;
     justify-content: center;
     gap: 16px;
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-size: 14px;
+    background: var(--bg-primary);
     z-index: 10;
   }
 
   .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--border-color);
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border-color);
     border-top-color: var(--theme-color);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .loading-text {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
   }
 
   @keyframes spin {
@@ -100,32 +106,44 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
+    gap: 10px;
+    background: var(--bg-primary);
+  }
+
+  .error-icon {
+    color: var(--text-muted);
+    margin-bottom: 4px;
   }
 
   .error-overlay h3 {
-    color: #e57373;
-    font-size: 18px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
   }
 
   .error-overlay p {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-muted);
   }
 
   .open-link {
     margin-top: 8px;
-    padding: 8px 20px;
-    background: var(--bg-hover);
-    color: var(--text-primary);
-    border-radius: 6px;
+    padding: 8px 18px;
+    background: color-mix(in srgb, var(--theme-color) 12%, transparent);
+    color: var(--theme-color);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
     font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     transition: background 0.15s;
   }
 
   .open-link:hover {
-    background: var(--bg-active);
+    background: color-mix(in srgb, var(--theme-color) 20%, transparent);
   }
 </style>

@@ -29,12 +29,8 @@ services:
       br0:
         ipv4_address: 192.168.150.124
     environment:
-      HOMECHART_APP_BASEURL: "https://homechart.teedge.local"
-      HOMECHART_POSTGRESQL_HOSTNAME: "192.168.150.110"
-      HOMECHART_POSTGRESQL_PORT: "5433"
-      HOMECHART_POSTGRESQL_DATABASE: "homechart"
-      HOMECHART_POSTGRESQL_USERNAME: "authentik"
-      # HOMECHART_POSTGRESQL_PASSWORD: <set from pass show homelab/authentik-db/password>
+      homechart_app_baseurl: "https://homechart.teedge.local"
+      homechart_database_uri: "postgresql://authentik:${PG_PASSWORD}@192.168.150.110:5433/homechart"
       # OIDC config — set after Authentik provider is created:
       # HOMECHART_OIDC_CLIENTID: <from Authentik>
       # HOMECHART_OIDC_CLIENTSECRET: <from Authentik>
@@ -52,16 +48,17 @@ services:
     restart: unless-stopped
     networks:
       br0:
-        ipv4_address: 192.168.150.125
+        ipv4_address: 192.168.150.141
     environment:
       ALLOW_SIGNUP: "false"
       TZ: "America/Chicago"
       BASE_URL: "https://mealie.teedge.local"
-      OIDC_AUTH_ENABLED: "true"
-      OIDC_SIGNUP_ENABLED: "true"
-      OIDC_CONFIGURATION_URL: "https://authentik.teedge.local/application/o/mealie/.well-known/openid-configuration"
-      OIDC_AUTO_REDIRECT: "true"
-      OIDC_PROVIDER_NAME: "Authentik"
+      # OIDC — enable after Authentik provider is created:
+      # OIDC_AUTH_ENABLED: "true"
+      # OIDC_SIGNUP_ENABLED: "true"
+      # OIDC_CONFIGURATION_URL: "https://authentik.teedge.local/application/o/mealie/.well-known/openid-configuration"
+      # OIDC_AUTO_REDIRECT: "true"
+      # OIDC_PROVIDER_NAME: "Authentik"
       # OIDC_CLIENT_ID: <from Authentik>
       NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
     volumes:
@@ -79,7 +76,7 @@ services:
         ipv4_address: 192.168.150.126
     environment:
       TZ: "America/Chicago"
-      ACTUAL_LOGIN_METHOD: "openid"
+      # ACTUAL_LOGIN_METHOD: "openid"  # Enable after Authentik provider is created
       # ACTUAL_OPENID_DISCOVERY_URL: "https://authentik.teedge.local/application/o/actual-budget/.well-known/openid-configuration"
       # ACTUAL_OPENID_CLIENT_ID: <from Authentik>
       # ACTUAL_OPENID_CLIENT_SECRET: <from Authentik>
@@ -96,23 +93,24 @@ services:
     restart: unless-stopped
     networks:
       br0:
-        ipv4_address: 192.168.150.133
+        ipv4_address: 192.168.150.142
     environment:
       PAPERLESS_URL: "https://paperless.teedge.local"
       PAPERLESS_DBHOST: "192.168.150.110"
       PAPERLESS_DBPORT: "5433"
       PAPERLESS_DBNAME: "paperless"
       PAPERLESS_DBUSER: "authentik"
-      # PAPERLESS_DBPASS: <set from pass show homelab/authentik-db/password>
-      PAPERLESS_REDIS: "redis://:REDISPASSWORD@192.168.150.110:6379"
+      PAPERLESS_DBPASS: "${PG_PASSWORD}"
+      PAPERLESS_REDIS: "redis://:${REDIS_PASSWORD}@192.168.150.110:6379"
       PAPERLESS_TIME_ZONE: "America/Chicago"
       PAPERLESS_OCR_LANGUAGE: "eng"
       PAPERLESS_CONSUMER_POLLING: "30"
       # OIDC via django-allauth (Paperless v2.x+):
-      PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+      # OIDC via django-allauth — enable after Authentik provider is created:
+      # PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
       # PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"APPS":[{"provider_id":"authentik","name":"Authentik","client_id":"<from Authentik>","secret":"<from Authentik>","settings":{"server_url":"https://authentik.teedge.local/application/o/paperless/.well-known/openid-configuration"}}]}}'
-      PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
-      PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
+      # PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
+      # PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
       # Trust self-signed CA
       REQUESTS_CA_BUNDLE: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
     volumes:
@@ -145,7 +143,7 @@ services:
     restart: unless-stopped
     networks:
       br0:
-        ipv4_address: 192.168.150.135
+        ipv4_address: 192.168.150.143
     environment:
       PUID: 99
       PGID: 100
@@ -166,13 +164,13 @@ services:
       VIKUNJA_SERVICE_PUBLICURL: "https://vikunja.teedge.local"
       VIKUNJA_SERVICE_TIMEZONE: "America/Chicago"
       VIKUNJA_DATABASE_TYPE: "postgres"
-      VIKUNJA_DATABASE_HOST: "192.168.150.110"
-      VIKUNJA_DATABASE_PORT: "5433"
+      VIKUNJA_DATABASE_HOST: "192.168.150.110:5433"
       VIKUNJA_DATABASE_DATABASE: "vikunja"
-      VIKUNJA_DATABASE_USER: "authentik"
-      # VIKUNJA_DATABASE_PASSWORD: <set from pass show homelab/authentik-db/password>
+      VIKUNJA_DATABASE_USER: "homeapps"
+      VIKUNJA_DATABASE_PASSWORD: "${HOMEAPPS_PG_PASSWORD}"
+      VIKUNJA_DATABASE_SSLMODE: "disable"
       # OIDC config:
-      VIKUNJA_AUTH_OPENID_ENABLED: "true"
+      # VIKUNJA_AUTH_OPENID_ENABLED: "true"  # Enable after Authentik provider is created
       # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_NAME: "Authentik"
       # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_AUTHURL: "https://authentik.teedge.local/application/o/authorize/"
       # VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTID: <from Authentik>
@@ -183,16 +181,17 @@ services:
     ports:
       - "3456:3456"
 
-  homehub:
-    image: surajverma/homehub:latest
-    container_name: homehub
-    restart: unless-stopped
-    networks:
-      br0:
-        ipv4_address: 192.168.150.138
-    environment:
-      TZ: "America/Chicago"
-    volumes:
-      - /mnt/appdata/homehub:/app/data
-    ports:
-      - "3050:3000"
+  # homehub:
+  #   # TODO: Find correct Docker image — surajverma/homehub doesn't exist
+  #   image: surajverma/homehub:latest
+  #   container_name: homehub
+  #   restart: unless-stopped
+  #   networks:
+  #     br0:
+  #       ipv4_address: 192.168.150.138
+  #   environment:
+  #     TZ: "America/Chicago"
+  #   volumes:
+  #     - /mnt/appdata/homehub:/app/data
+  #   ports:
+  #     - "3050:3000"

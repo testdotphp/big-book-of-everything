@@ -67,7 +67,7 @@ services:
       DB_POSTGRESDB_PORT: "5433"
       DB_POSTGRESDB_DATABASE: "n8n"
       DB_POSTGRESDB_USER: "authentik"
-      # DB_POSTGRESDB_PASSWORD: <set from pass show homelab/authentik-db/password>
+      DB_POSTGRESDB_PASSWORD: "${PG_PASSWORD}"
       TZ: "America/Chicago"
       # OIDC — n8n has native SSO (Enterprise feature in hosted, free in self-hosted):
       # N8N_AUTH_TYPE: "oidc"

@@ -2,11 +2,11 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json ./
+RUN npm install --legacy-peer-deps
 
 COPY . .
-RUN npm run build
+RUN npx svelte-kit sync && npm run build
 
 FROM node:22-alpine AS runtime
 

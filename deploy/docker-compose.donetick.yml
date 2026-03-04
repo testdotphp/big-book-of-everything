@@ -1,0 +1,31 @@
+##############################################################################
+# Donetick — Chore & Task Tracker
+# Deploy on Unraid (.110) with bridge networking
+# Note: Uses bridge mode because the Go binary's dual-stack IPv6 listener
+#       is unreachable from other macvlan containers on this host.
+#
+# Prerequisites:
+#   - Create appdata dir:
+#       mkdir -p /mnt/appdata/donetick
+#   - CA cert available at /mnt/appdata/certs/teedge-local-ca/ca.crt
+##############################################################################
+
+services:
+  donetick:
+    image: donetick/donetick:latest
+    container_name: donetick
+    restart: unless-stopped
+    environment:
+      DT_ENV: "selfhosted"
+      DT_SQLITE_PATH: "/donetick-data/donetick.db"
+      DT_JWT_SECRET: "Pxja/0TcA9vE/c57NkXikphV/s4GZcPb8m3Aovqgr+s="
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/donetick:/donetick-data
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "2021:2021"
+    labels:
+      net.unraid.docker.managed: "composeman"
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/donetick/donetick/main/public/logo.svg"
+      net.unraid.docker.webui: "https://donetick.teedge.local"

@@ -1,8 +1,10 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import NavItem from './NavItem.svelte';
+  import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
+  import { LogOut, ChevronLeft, ChevronRight } from 'lucide-svelte';
 
   interface Props {
     config: PortalConfig;
@@ -16,27 +18,34 @@
 </script>
 
 <aside class="sidebar" class:collapsed>
+  <!-- Header -->
   <div class="sidebar-header">
     <button class="toggle-btn" onclick={() => (collapsed = !collapsed)} aria-label="Toggle sidebar">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        {#if collapsed}
-          <path d="M9 18l6-6-6-6" />
-        {:else}
-          <path d="M15 18l-6-6 6-6" />
-        {/if}
-      </svg>
+      {#if collapsed}
+        <ChevronRight size={18} strokeWidth={2} />
+      {:else}
+        <ChevronLeft size={18} strokeWidth={2} />
+      {/if}
     </button>
     {#if !collapsed}
-      <span class="portal-name">{config.name}</span>
+      <div class="portal-identity">
+        <span class="portal-icon">
+          <Icon name={config.icon} size={16} />
+        </span>
+        <span class="portal-name">{config.name}</span>
+      </div>
     {/if}
   </div>
 
+  <!-- Navigation -->
   <nav class="nav">
     {#each config.items as item}
       {#if isNavGroup(item)}
         <div class="nav-group">
           {#if !collapsed}
             <span class="group-label">{item.label}</span>
+          {:else}
+            <div class="group-divider"></div>
           {/if}
           {#each item.children as child}
             <NavItem item={child} active={currentSlug === child.slug} {collapsed} />
@@ -48,6 +57,7 @@
     {/each}
   </nav>
 
+  <!-- Footer -->
   <div class="sidebar-footer">
     {#if !collapsed}
       <div class="user-info">
@@ -65,11 +75,7 @@
       </div>
     {/if}
     <a href="/auth/signout" class="signout-btn" title="Sign out">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <polyline points="16 17 21 12 16 7" />
-        <line x1="21" y1="12" x2="9" y2="12" />
-      </svg>
+      <LogOut size={16} strokeWidth={1.75} />
     </a>
   </div>
 </aside>
@@ -85,9 +91,21 @@
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    transition: width 0.2s ease;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
     overflow: hidden;
+  }
+
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--theme-color) 6%, transparent), transparent);
+    pointer-events: none;
+    z-index: 0;
   }
 
   .sidebar.collapsed {
@@ -95,25 +113,28 @@
   }
 
   .sidebar-header {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 10px;
+    padding: 14px 12px;
     border-bottom: 1px solid var(--border-color);
-    min-height: 52px;
+    min-height: 54px;
   }
 
   .toggle-btn {
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
   }
 
   .toggle-btn:hover {
@@ -121,48 +142,84 @@
     color: var(--text-primary);
   }
 
-  .portal-name {
-    font-weight: 600;
-    font-size: 14px;
+  .portal-identity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .portal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--theme-color) 15%, transparent);
     color: var(--theme-color);
+    flex-shrink: 0;
+  }
+
+  .portal-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .nav {
+    position: relative;
+    z-index: 1;
     flex: 1;
     overflow-y: auto;
     padding: 8px 0;
   }
 
   .nav-group {
-    margin-top: 8px;
+    margin-top: 4px;
+  }
+
+  .nav-group:first-child {
+    margin-top: 0;
   }
 
   .group-label {
     display: block;
-    padding: 4px 16px;
+    padding: 8px 18px 4px;
+    font-family: var(--font-display);
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--text-muted);
   }
 
+  .group-divider {
+    height: 1px;
+    margin: 6px 12px;
+    background: var(--border-subtle);
+  }
+
   .sidebar-footer {
+    position: relative;
+    z-index: 1;
     border-top: 1px solid var(--border-color);
-    padding: 8px 12px;
+    padding: 10px 12px;
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 56px;
+    min-height: 58px;
   }
 
   .user-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex: 1;
     min-width: 0;
   }
@@ -171,20 +228,22 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--theme-color);
-    color: white;
+    background: color-mix(in srgb, var(--theme-color) 20%, var(--bg-elevated));
+    color: var(--theme-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
     flex-shrink: 0;
+    border: 1px solid color-mix(in srgb, var(--theme-color) 20%, transparent);
   }
 
   .user-avatar.small {
     width: 28px;
     height: 28px;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .user-details {
@@ -194,11 +253,13 @@
   }
 
   .user-name {
+    font-family: var(--font-display);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--text-primary);
   }
 
   .user-email {
@@ -210,29 +271,33 @@
   }
 
   .signout-btn {
-    color: var(--text-secondary);
-    padding: 4px;
-    border-radius: 4px;
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
   }
 
   .signout-btn:hover {
-    background: var(--bg-hover);
-    color: #e57373;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
   }
 
-  /* Scrollbar styling */
+  /* Scrollbar */
   .nav::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
   }
   .nav::-webkit-scrollbar-track {
     background: transparent;
   }
   .nav::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 2px;
+    border-radius: 3px;
+  }
+  .nav::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
   }
 
   /* Mobile */
@@ -242,7 +307,7 @@
     }
     .sidebar:not(.collapsed) {
       width: 280px;
-      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+      box-shadow: var(--shadow-lg);
     }
   }
 </style>
