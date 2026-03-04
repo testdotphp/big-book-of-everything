@@ -15,18 +15,21 @@ services:
         ipv4_address: 192.168.150.157
     environment:
       APP_ENV: prod
-      APP_SECRET: e3b4a206e783ba8287fd53379d505ec42
+      APP_SECRET: ${DAVIS_APP_SECRET}
       DATABASE_DRIVER: sqlite
       DATABASE_URL: "sqlite:////var/www/davis/var/davis.db"
       CALDAV_ENABLED: "true"
       CARDDAV_ENABLED: "true"
       WEBDAV_ENABLED: "false"
       ADMIN_LOGIN: admin
-      ADMIN_PASSWORD: admin
+      ADMIN_PASSWORD: ${DAVIS_ADMIN_PASSWORD}
       AUTH_REALM: teedge.local
       TZ: America/Chicago
     volumes:
-      - /mnt/appdata/davis/data:/var/www/davis/var
+      - /mnt/appdata/containers/davis/data:/var/www/davis/var
     labels:
       net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: https://raw.githubusercontent.com/tchapi/davis/main/public/favicon.ico
       net.unraid.docker.webui: "https://davis.teedge.local"
+    mem_limit: 512m
+    cpus: 0.5

@@ -6,7 +6,7 @@
 #
 # Prerequisites:
 #   - Create appdata dir:
-#       mkdir -p /mnt/appdata/donetick
+#       mkdir -p /mnt/appdata/containers/donetick
 #   - CA cert available at /mnt/appdata/certs/teedge-local-ca/ca.crt
 ##############################################################################
 
@@ -18,14 +18,23 @@ services:
     environment:
       DT_ENV: "selfhosted"
       DT_SQLITE_PATH: "/donetick-data/donetick.db"
-      DT_JWT_SECRET: "Pxja/0TcA9vE/c57NkXikphV/s4GZcPb8m3Aovqgr+s="
+      DT_JWT_SECRET: "${DONETICK_JWT_SECRET}"
       TZ: "America/Chicago"
     volumes:
-      - /mnt/appdata/donetick:/donetick-data
+      - /mnt/appdata/containers/donetick:/donetick-data
       - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
     ports:
       - "2021:2021"
     labels:
       net.unraid.docker.managed: "composeman"
-      net.unraid.docker.icon: "https://raw.githubusercontent.com/donetick/donetick/main/public/logo.svg"
+      net.unraid.docker.icon: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/donetick.png"
       net.unraid.docker.webui: "https://donetick.teedge.local"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:2021/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5

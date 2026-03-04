@@ -18,20 +18,23 @@ networks:
 
 services:
   home-portal:
-    image: portal-template:latest
+    image: 192.168.150.118:3000/teedge/portal-template:latest
     container_name: home-portal
     restart: unless-stopped
-    dns: 192.168.150.10
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/homepage.png
+      net.unraid.docker.webui: "https://home.teedge.local"
     networks:
       br0:
         ipv4_address: 192.168.150.130
     environment:
       ORIGIN: "https://home.teedge.local"
       PORTAL_CONFIG_PATH: "/app/portal.config.json"
-      AUTH_SECRET: "b98a9c1f80bf334684eeb92e1fdb540db797c93a2a06d6e8512d1bbeff35c8bb"
+      AUTH_SECRET: "${HOME_PORTAL_AUTH_SECRET}"
       OIDC_ISSUER: "https://authentik.teedge.local/application/o/home-portal/"
       OIDC_CLIENT_ID: "bbcBMrLUitxFRryaQAnvK80vRW2wdZJ5vtCAs3xC"
-      OIDC_CLIENT_SECRET: "LvvPZcFWSHqLmmCDRXP166obQcWWhZZZpBJ1VmwWQJLaTtHbEfIoEV2yXPJ8xeL8CXjrVQn0RTAIbbdvUFtKO90QIaYEPhiEQP0UvZqb0uPZA0lCcf6JmhDLhINSpnU0"
+      OIDC_CLIENT_SECRET: "${HOME_PORTAL_OIDC_SECRET}"
       NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
       AUTH_TRUST_HOST: "true"
     volumes:
@@ -40,21 +43,32 @@ services:
     ports:
       - "3000:3000"
 
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
   media-portal:
-    image: portal-template:latest
+    image: 192.168.150.118:3000/teedge/portal-template:latest
     container_name: media-portal
     restart: unless-stopped
-    dns: 192.168.150.10
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/homepage.png
+      net.unraid.docker.webui: "https://media.teedge.local"
     networks:
       br0:
         ipv4_address: 192.168.150.131
     environment:
       ORIGIN: "https://media.teedge.local"
       PORTAL_CONFIG_PATH: "/app/portal.config.json"
-      AUTH_SECRET: "78dc7471b548634a6849e121ed8bc9bcccd9a978cdbacda062c0e7406f506a2e"
+      AUTH_SECRET: "${MEDIA_PORTAL_AUTH_SECRET}"
       OIDC_ISSUER: "https://authentik.teedge.local/application/o/media-portal/"
       OIDC_CLIENT_ID: "ZszeGmfbJzr2sI1r0phCL9coGr3CGRraCFXEOhqh"
-      OIDC_CLIENT_SECRET: "ZiHv1bkiU5pYMhF9JMSQoueTGTyHDTsdjWVogzEYZwszyhIzvu7EyiGHV2Uj9CWYjfaUJXkUgW4pjv37nO71dsHQSe06uAYodyMeSIb2lV0Xr3Inzr6xyTWLWnzghAcD"
+      OIDC_CLIENT_SECRET: "${MEDIA_PORTAL_OIDC_SECRET}"
       NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
       AUTH_TRUST_HOST: "true"
     volumes:
@@ -63,21 +77,32 @@ services:
     ports:
       - "3000:3000"
 
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
   lab-portal:
-    image: portal-template:latest
+    image: 192.168.150.118:3000/teedge/portal-template:latest
     container_name: lab-portal
     restart: unless-stopped
-    dns: 192.168.150.10
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/homepage.png
+      net.unraid.docker.webui: "https://lab.teedge.local"
     networks:
       br0:
         ipv4_address: 192.168.150.132
     environment:
       ORIGIN: "https://lab.teedge.local"
       PORTAL_CONFIG_PATH: "/app/portal.config.json"
-      AUTH_SECRET: "85dca27f76dc486b01289b97627a488560ef8fb52e92146e88a831de2f156747"
+      AUTH_SECRET: "${LAB_PORTAL_AUTH_SECRET}"
       OIDC_ISSUER: "https://authentik.teedge.local/application/o/lab-portal/"
       OIDC_CLIENT_ID: "48q2ZZbwTyQed69KyBHwfmb6dhoYHQGlyEgjKXCH"
-      OIDC_CLIENT_SECRET: "6820FV3AvnHbkVIaFjgajZPsSsnCXD6YmH1K6PkmoVR7MeLmyXjTwh2sv3DZlVF5R7vBA4Ns42cucH8FS2H8ooD8f99kCiNU26cDN12Q6qJnj9Z4ZoZmqGBRdGFc4TUW"
+      OIDC_CLIENT_SECRET: "${LAB_PORTAL_OIDC_SECRET}"
       NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
       AUTH_TRUST_HOST: "true"
     volumes:
@@ -85,3 +110,11 @@ services:
       - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
     ports:
       - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5

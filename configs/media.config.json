@@ -65,7 +65,14 @@
       "slug": "label-gaming",
       "label": "Gaming",
       "icon": "gamepad-2",
-      "children": []
+      "children": [
+        {
+          "slug": "romm",
+          "label": "RomM",
+          "icon": "gamepad-2",
+          "url": "https://romm.teedge.local"
+        }
+      ]
     }
   ]
 }
