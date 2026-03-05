@@ -1,0 +1,43 @@
+##############################################################################
+# Mailrise — SMTP-to-Push Gateway
+# Deploy on Unraid (.110) with bridge networking
+# Converts emails into push notifications via ntfy.
+# Services configure SMTP as: host=192.168.150.110, port=8025, no TLS,
+# no auth, recipient=<topic>@mailrise.xyz
+#
+# Prerequisites:
+#   - Create appdata dir:
+#       mkdir -p /mnt/appdata/containers/mailrise
+#   - Copy mailrise.conf and mailrise_router.py to /mnt/appdata/containers/mailrise/
+#   - CA cert available at /mnt/appdata/certs/teedge-local-ca/ca.crt
+##############################################################################
+
+services:
+  mailrise:
+    image: yoryan/mailrise:latest
+    container_name: mailrise
+    restart: unless-stopped
+    extra_hosts:
+      - "ntfy.teedge.local:192.168.150.115"
+    environment:
+      TZ: "America/Chicago"
+      REQUESTS_CA_BUNDLE: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+    volumes:
+      - /mnt/appdata/containers/mailrise/mailrise.conf:/etc/mailrise.conf:ro
+      - /mnt/appdata/containers/mailrise/mailrise_router.py:/etc/mailrise_router.py:ro
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "8025:8025"
+    labels:
+      net.unraid.docker.managed: "composeman"
+      net.unraid.docker.icon: "http://192.168.150.110:8099/vikunja.png"
+      net.unraid.docker.webui: ""
+
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8025 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5

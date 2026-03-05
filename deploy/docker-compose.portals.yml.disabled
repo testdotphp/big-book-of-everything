@@ -1,0 +1,120 @@
+##############################################################################
+# Portal Instances — Home, Media, Lab
+# Same image, different configs mounted as volumes
+#
+# Prerequisites:
+#   - Build portal image: docker build -t portal-template ../
+#   - Portal config files at /mnt/appdata/portal/configs/
+#   - Authentik OIDC providers created for each portal
+#   - CA cert for OIDC trust
+##############################################################################
+
+networks:
+  br0:
+    external: true
+    driver: macvlan
+    driver_opts:
+      parent: br0
+
+services:
+  home-portal:
+    image: 192.168.150.118:3000/teedge/portal-template:latest
+    container_name: home-portal
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: http://192.168.150.110:8099/vikunja.png
+      net.unraid.docker.webui: "https://home.teedge.local"
+    networks:
+      br0:
+        ipv4_address: 192.168.150.130
+    environment:
+      ORIGIN: "https://home.teedge.local"
+      PORTAL_CONFIG_PATH: "/app/portal.config.json"
+      AUTH_SECRET: "${HOME_PORTAL_AUTH_SECRET}"
+      OIDC_ISSUER: "https://authentik.teedge.local/application/o/home-portal/"
+      OIDC_CLIENT_ID: "bbcBMrLUitxFRryaQAnvK80vRW2wdZJ5vtCAs3xC"
+      OIDC_CLIENT_SECRET: "${HOME_PORTAL_OIDC_SECRET}"
+      NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+      AUTH_TRUST_HOST: "true"
+    volumes:
+      - /mnt/appdata/portal/configs/home.config.json:/app/portal.config.json:ro
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "3000:3000"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+  media-portal:
+    image: 192.168.150.118:3000/teedge/portal-template:latest
+    container_name: media-portal
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: http://192.168.150.110:8099/vikunja.png
+      net.unraid.docker.webui: "https://media.teedge.local"
+    networks:
+      br0:
+        ipv4_address: 192.168.150.131
+    environment:
+      ORIGIN: "https://media.teedge.local"
+      PORTAL_CONFIG_PATH: "/app/portal.config.json"
+      AUTH_SECRET: "${MEDIA_PORTAL_AUTH_SECRET}"
+      OIDC_ISSUER: "https://authentik.teedge.local/application/o/media-portal/"
+      OIDC_CLIENT_ID: "ZszeGmfbJzr2sI1r0phCL9coGr3CGRraCFXEOhqh"
+      OIDC_CLIENT_SECRET: "${MEDIA_PORTAL_OIDC_SECRET}"
+      NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+      AUTH_TRUST_HOST: "true"
+    volumes:
+      - /mnt/appdata/portal/configs/media.config.json:/app/portal.config.json:ro
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "3000:3000"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+  lab-portal:
+    image: 192.168.150.118:3000/teedge/portal-template:latest
+    container_name: lab-portal
+    restart: unless-stopped
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: http://192.168.150.110:8099/vikunja.png
+      net.unraid.docker.webui: "https://lab.teedge.local"
+    networks:
+      br0:
+        ipv4_address: 192.168.150.132
+    environment:
+      ORIGIN: "https://lab.teedge.local"
+      PORTAL_CONFIG_PATH: "/app/portal.config.json"
+      AUTH_SECRET: "${LAB_PORTAL_AUTH_SECRET}"
+      OIDC_ISSUER: "https://authentik.teedge.local/application/o/lab-portal/"
+      OIDC_CLIENT_ID: "48q2ZZbwTyQed69KyBHwfmb6dhoYHQGlyEgjKXCH"
+      OIDC_CLIENT_SECRET: "${LAB_PORTAL_OIDC_SECRET}"
+      NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
+      AUTH_TRUST_HOST: "true"
+    volumes:
+      - /mnt/appdata/portal/configs/lab.config.json:/app/portal.config.json:ro
+      - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5

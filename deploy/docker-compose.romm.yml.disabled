@@ -1,0 +1,78 @@
+##############################################################################
+# RomM — Self-hosted ROM Manager
+# Deploy on Unraid (.110) with bridge networking
+# Requires its own MariaDB instance for the RomM schema.
+#
+# Prerequisites:
+#   - Create appdata dirs:
+#       mkdir -p /mnt/appdata/containers/romm/{resources,redis,config,assets}
+#   - ROM library at /mnt/user/MEDIA/Games/Game Library/roms/
+##############################################################################
+
+secrets:
+  romm_db_password:
+    file: /mnt/appdata/secrets/romm_db_password
+
+services:
+  romm:
+    image: rommapp/romm:latest
+    container_name: romm
+    restart: unless-stopped
+    environment:
+      DB_HOST: romm-db
+      DB_NAME: romm
+      DB_USER: romm
+      DB_PASSWD: "${ROMM_DB_PASSWORD}"
+      ROMM_AUTH_SECRET_KEY: "${ROMM_AUTH_SECRET_KEY}"
+      HASHEOUS_API_ENABLED: "true"
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/containers/romm/resources:/romm/resources
+      - /mnt/appdata/containers/romm/redis:/redis-data
+      - /mnt/appdata/containers/romm/config:/romm/config
+      - /mnt/appdata/containers/romm/assets:/romm/assets
+      - "/mnt/user/MEDIA/Games/Game Library/roms:/romm/library/roms"
+    ports:
+      - "8085:8080"
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.webui: "https://romm.teedge.local"
+      net.unraid.docker.icon: "http://192.168.150.110:8099/vikunja.png"
+    depends_on:
+      romm-db:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 1g
+    cpus: 1.0
+  romm-db:
+    image: mariadb:latest
+    container_name: romm-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/romm_db_password
+      MARIADB_DATABASE: romm
+      MARIADB_USER: romm
+      MARIADB_PASSWORD_FILE: /run/secrets/romm_db_password
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/appdata/containers/romm/mysql:/var/lib/mysql
+    secrets:
+      - romm_db_password
+    labels:
+      net.unraid.docker.managed: composeman
+      net.unraid.docker.icon: "http://192.168.150.110:8099/vikunja.png"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: 512m
+    cpus: 0.5
