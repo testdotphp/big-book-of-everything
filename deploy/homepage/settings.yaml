@@ -1,0 +1,41 @@
+---
+title: So much... shit
+
+background: https://wallpapercave.com/wp/wp10183896.jpg
+favicon: https://w0.peakpx.com/wallpaper/660/780/HD-wallpaper-purple-skull-ii-colourful-light-neon-thumbnail.jpg
+theme: dark
+color: cyan
+cardBlur: none
+headerStyle: clean
+hideVersion: true
+showStats: true
+statusStyle: dot
+
+layout:
+  Network & Infrastructure:
+    style: column
+    columns: 2
+  Media:
+    style: column
+    columns: 2
+  Reading:
+    style: column
+    columns: 2
+  Downloads:
+    style: column
+    columns: 2
+  Productivity:
+    style: column
+    columns: 2
+  Tools:
+    style: column
+  Home & Health:
+    style: column
+  Portals:
+    style: row
+  Hobby:
+    style: column
+
+providers:
+  openweathermap: openweathermapapikey
+  weatherapi: weatherapiapikey

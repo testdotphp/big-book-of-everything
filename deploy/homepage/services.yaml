@@ -1,0 +1,451 @@
+---
+- Network & Infrastructure:
+    - pfSense:
+        icon: pfsense.png
+        href: https://192.168.150.1/
+        description: Firewall & Router
+    - Unraid:
+        icon: unraid.png
+        href: http://192.168.150.110:8808/Dashboard
+        description: Main server
+    - Unraid AI:
+        icon: unraid.png
+        href: http://192.168.151.65:8808/Dashboard
+        description: AI server
+    - UniFi Network:
+        icon: unifi.png
+        href: https://192.168.151.135
+        description: UniFi Controller
+    - AdGuard Home:
+        icon: adguard-home.png
+        href: http://192.168.150.10:3000
+        description: DNS ad blocker
+        container: AdGuard-Home
+        server: unraid
+    - Nginx Proxy Manager:
+        icon: nginx-proxy-manager.png
+        href: http://192.168.150.115:81
+        description: Reverse proxy
+        container: Nginx-Proxy-Manager-Official
+        server: unraid
+    - Authentik:
+        icon: authentik.png
+        href: http://192.168.150.122:9000
+        description: Identity provider (SSO)
+        container: authentik-server
+        server: unraid
+    - Gitea:
+        icon: gitea.png
+        href: http://192.168.150.118:3000
+        description: Git hosting
+        container: Gitea
+        server: unraid
+    - BookStack:
+        icon: bookstack.png
+        href: https://bookstack.teedge.local
+        description: Documentation wiki
+        container: bookstack
+        server: unraid
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: http://192.168.150.119:3001
+        description: Service monitoring
+        container: uptime-kuma
+        server: unraid
+        widget:
+          type: uptimekuma
+          url: http://192.168.150.119:3001
+          slug: homepage
+    - Grafana:
+        icon: grafana.png
+        href: http://192.168.150.110:3001
+        description: Dashboards & alerting
+        container: grafana
+        server: unraid
+    - Prometheus:
+        icon: prometheus.png
+        href: http://192.168.150.110:9090
+        description: Metrics collection
+        container: prometheus
+        server: unraid
+    - NetBox:
+        icon: netbox.png
+        href: http://192.168.150.110:8000
+        description: Network inventory & IPAM
+        container: netbox
+        server: unraid
+    - cAdvisor:
+        icon: cadvisor.png
+        href: http://192.168.150.110:8080
+        description: Container metrics
+        container: cadvisor
+        server: unraid
+    - Blackbox Exporter:
+        icon: prometheus.png
+        href: http://192.168.150.110:9115
+        description: HTTP/ICMP probes
+        container: blackbox_exporter
+        server: unraid
+    - CrowdSec:
+        icon: crowdsec.png
+        href: https://app.crowdsec.net
+        description: Security engine
+        container: crowdsec
+        server: unraid
+    - Fleet:
+        icon: fleet.png
+        href: http://192.168.150.155:8080
+        description: Device management
+        container: fleet
+        server: unraid
+    - Speedtest Tracker:
+        icon: speedtest-tracker.png
+        href: http://192.168.150.150:80
+        description: Internet speed tests
+        container: speedtest-tracker
+        server: unraid
+    - Ntfy:
+        icon: ntfy.png
+        href: http://192.168.150.147:80
+        description: Push notifications
+        container: ntfy
+        server: unraid
+    - IPMI (Unraid):
+        icon: si-supermicro
+        href: http://192.168.151.230/
+        description: Unraid IPMI
+    - IPMI (AI):
+        icon: si-supermicro
+        href: https://192.168.151.251/
+        description: AI server IPMI
+
+- Media:
+    - Plex:
+        icon: plex.png
+        href: https://192.168.150.114:32400/web/index.html
+        description: Media server
+        container: Plex-Media-Server
+        server: unraid
+    - Immich:
+        icon: immich.png
+        href: http://192.168.150.136:2283
+        description: Photo & video library
+        container: immich-server
+        server: unraid
+    - Seerr:
+        icon: seerr.png
+        href: http://192.168.150.117:5055
+        description: Media requests
+        container: seerr
+        server: unraid
+        widget:
+          type: overseerr
+          url: http://192.168.150.117:5055
+          key: {{HOMEPAGE_VAR_OVERSEERR_KEY}}
+    - Tdarr (Zion):
+        icon: tdarr.png
+        href: http://192.168.150.110:8265
+        description: Media transcoding (Zion)
+        container: tdarr
+        server: unraid
+    - Tdarr (Skynet):
+        icon: tdarr.png
+        href: http://192.168.150.111:8265
+        description: Media transcoding (Skynet)
+        container: tdarr
+        server: skynet
+    - Stash:
+        icon: stash.png
+        href: http://192.168.150.112:9999
+        description: Media organizer
+        container: stash
+        server: unraid
+    - YouTube-DL:
+        icon: youtube.png
+        href: http://192.168.150.110:8084
+        description: Video downloader
+        container: youtube-dl
+        server: unraid
+    - Calibre:
+        icon: calibre.png
+        href: http://192.168.150.110:8181
+        description: Ebook management
+        container: calibre
+        server: unraid
+    - OnlyOffice DocSpace:
+        icon: onlyoffice.png
+        href: http://192.168.150.110:8880
+        description: Document collaboration
+        container: onlyoffice-proxy
+        server: unraid
+    - Romm:
+        icon: romm.png
+        href: http://192.168.150.110:8085
+        description: ROM library
+        container: romm
+        server: unraid
+
+- Reading:
+    - Audiobookshelf:
+        icon: audiobookshelf.png
+        href: http://192.168.150.127:80
+        description: Audiobook & podcast server
+        container: audiobookshelf
+        server: unraid
+    - Kavita:
+        icon: kavita.png
+        href: http://192.168.150.144:5000
+        description: Reading server
+        container: kavita
+        server: unraid
+    - Calibre-Web:
+        icon: calibre-web.png
+        href: http://192.168.150.129:8083
+        description: Ebook web reader
+        container: calibre-web
+        server: unraid
+    - Ubooquity:
+        icon: ubooquity.png
+        href: http://192.168.150.121:2202/ubooquity
+        description: Comic & ebook server
+        container: ubooquity
+        server: unraid
+    - Ubooquity Kids:
+        icon: ubooquity.png
+        href: http://192.168.150.110:2202/ubooquity
+        description: Kids comic server
+        container: ubooquity-kids
+        server: unraid
+    - ComiXed:
+        icon: mdi-book-open-page-variant
+        href: http://192.168.150.110:7172
+        description: Comic library
+        container: ComiXed
+        server: unraid
+    - ComiXed Kids:
+        icon: mdi-book-open-page-variant
+        href: http://192.168.150.110:7171
+        description: Kids comic library
+        container: ComiXed-kids
+        server: unraid
+    - Kapowarr:
+        icon: kapowarr.png
+        href: http://192.168.150.112:5656
+        description: Comic downloader
+        container: kapowarr
+        server: unraid
+    - Kapowarr Kids:
+        icon: kapowarr.png
+        href: http://192.168.150.112:5657
+        description: Kids comic downloader
+        container: kapowarr-kids
+        server: unraid
+    - Mylar3:
+        icon: mylar.png
+        href: http://192.168.150.112:8090
+        description: Comic book manager
+        container: mylar3
+        server: unraid
+
+- Downloads:
+    - Sabnzbd:
+        icon: sabnzbd.png
+        href: http://192.168.150.116:8080
+        description: NZB downloader
+        container: sabnzbd
+        server: unraid
+        widget:
+          type: sabnzbd
+          url: http://192.168.150.116:8080
+          key: {{HOMEPAGE_VAR_SABNZBD_KEY}}
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: http://192.168.150.112:8081
+        description: Torrent client
+        container: qbittorrent
+        server: unraid
+        widget:
+          type: qbittorrent
+          url: http://192.168.150.112:8081
+          username: {{HOMEPAGE_VAR_QBIT_USER}}
+          password: {{HOMEPAGE_VAR_QBIT_PASS}}
+    - Sonarr:
+        icon: sonarr.png
+        href: http://192.168.150.112:8989
+        description: TV show management
+        container: sonarr
+        server: unraid
+        widget:
+          type: sonarr
+          url: http://192.168.150.112:8989
+          key: {{HOMEPAGE_VAR_SONARR_KEY}}
+    - Radarr:
+        icon: radarr.png
+        href: http://192.168.150.112:7878
+        description: Movie management
+        container: radarr
+        server: unraid
+        widget:
+          type: radarr
+          url: http://192.168.150.112:7878
+          key: {{HOMEPAGE_VAR_RADARR_KEY}}
+    - Prowlarr:
+        icon: prowlarr.png
+        href: http://192.168.150.112:9696
+        description: Indexer manager
+        container: prowlarr
+        server: unraid
+    - Whisparr:
+        icon: whisparr.png
+        href: http://192.168.150.112:6969
+        description: Adult content manager
+        container: whisparr-movies
+        server: unraid
+    - GluetunVPN:
+        icon: gluetun.png
+        href: http://192.168.150.112:8000
+        description: VPN gateway
+        container: GluetunVPN
+        server: unraid
+    - FlareSolverr:
+        icon: mdi-shield-search
+        href: http://192.168.150.112:8191
+        description: Captcha solver proxy
+        container: flaresolverr
+        server: unraid
+
+- Productivity:
+    - Paperless-ngx:
+        icon: paperless-ngx.png
+        href: http://192.168.150.142:8000
+        description: Document management
+        container: paperless-ngx
+        server: unraid
+    - Vikunja:
+        icon: vikunja.png
+        href: http://192.168.150.137:3456
+        description: Task management
+        container: vikunja
+        server: unraid
+    - Mealie:
+        icon: mealie.png
+        href: http://192.168.150.141:9000
+        description: Recipe manager
+        container: mealie
+        server: unraid
+    - Homechart:
+        icon: homechart.png
+        href: http://192.168.150.124:3000
+        description: Household management
+        container: homechart
+        server: unraid
+    - Actual Budget:
+        icon: actual.png
+        href: http://192.168.150.126:5006
+        description: Personal finance
+        container: actual-budget
+        server: unraid
+    - Grocy:
+        icon: grocy.png
+        href: http://192.168.150.143:80
+        description: Household inventory
+        container: grocy
+        server: unraid
+    - DoneTick:
+        icon: mdi-check-circle
+        href: http://192.168.150.110:2021
+        description: Chore tracking
+        container: donetick
+        server: unraid
+    - Peppermint:
+        icon: mdi-candy
+        href: http://192.168.150.153:3000
+        description: IT helpdesk
+        container: peppermint
+        server: unraid
+
+- Tools:
+    - IT-Tools:
+        icon: it-tools.png
+        href: http://192.168.150.140:80
+        description: Developer utilities
+        container: it-tools
+        server: unraid
+    - Stirling PDF:
+        icon: stirling-pdf.png
+        href: http://192.168.150.145:8080
+        description: PDF toolkit
+        container: stirling-pdf
+        server: unraid
+    - Web Check:
+        icon: mdi-web
+        href: http://192.168.150.152:3000
+        description: Website analysis
+        container: webcheck
+        server: unraid
+    - Guacamole:
+        icon: guacamole.png
+        href: http://192.168.150.154:8080
+        description: Remote desktop gateway
+        container: guacamole
+        server: unraid
+    - Kopia:
+        icon: kopia.png
+        href: http://192.168.150.149:51515
+        description: Backup management
+        container: kopia
+        server: unraid
+
+- Home & Health:
+    - Homebox:
+        icon: homebox.png
+        href: http://192.168.150.134:7745
+        description: Home inventory
+        container: homebox
+        server: unraid
+    - Fasten Health:
+        icon: mdi-heart-pulse
+        href: http://192.168.150.156:8080
+        description: Health records
+        container: fasten
+        server: unraid
+    - Headwind MDM:
+        icon: mdi-cellphone-cog
+        href: http://192.168.150.146:8080
+        description: Mobile device management
+        container: headwind-mdm
+        server: unraid
+    - Davis:
+        icon: mdi-calendar
+        href: http://192.168.150.157:9000
+        description: CalDAV/CardDAV
+        container: davis
+        server: unraid
+
+- Portals:
+    - Home Portal:
+        icon: mdi-home
+        href: http://192.168.150.130:3000
+        description: Home dashboard
+        container: home-portal
+        server: unraid
+    - Media Portal:
+        icon: mdi-play-circle
+        href: http://192.168.150.131:3000
+        description: Media dashboard
+        container: media-portal
+        server: unraid
+    - Lab Portal:
+        icon: mdi-flask
+        href: http://192.168.150.132:3000
+        description: Lab dashboard
+        container: lab-portal
+        server: unraid
+
+- Hobby:
+    - Yarnl:
+        icon: mdi-knitting
+        href: https://yarnl.teedge.local
+        description: Crochet pattern manager
+        container: yarnl
+        server: unraid
