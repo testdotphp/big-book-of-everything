@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>homarr</Name>
+  <Repository>ghcr.io/homarr-labs/homarr:latest</Repository>
+  <Registry>https://ghcr.io/homarr-labs/homarr</Registry>
+  <Network>br0</Network>
+  <MyIP>192.168.150.12</MyIP>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support/>
+  <Overview>Homarr - A modern dashboard for your homelab services.</Overview>
+  <Category>Tools:</Category>
+  <WebUI>http://[IP]:7575/</WebUI>
+  <TemplateURL/>
+  <Icon>http://192.168.150.110:8099/homarr.png</Icon>
+  <ExtraParams>--restart=unless-stopped --health-cmd='wget --spider -q http://127.0.0.1:7575/ || exit 1' --health-interval=30s --health-timeout=10s --health-retries=3</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled>1741305600</DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Appdata" Target="/appdata" Default="/mnt/appdata/containers/homarr/appdata" Mode="rw" Description="Homarr application data" Type="Path" Display="always" Required="true" Mask="false">/mnt/appdata/containers/homarr/appdata</Config>
+  <Config Name="Docker Socket" Target="/var/run/docker.sock" Default="/var/run/docker.sock" Mode="ro" Description="Docker socket for container status" Type="Path" Display="always" Required="false" Mask="false">/var/run/docker.sock</Config>
+  <Config Name="SECRET_ENCRYPTION_KEY" Target="SECRET_ENCRYPTION_KEY" Default="" Mode="" Description="Encryption key for secrets" Type="Variable" Display="always" Required="true" Mask="true">f237bc10d0d0fd34ac8426ae0174d0f279206f9cba67c444730451bbfdb0be07</Config>
+  <Config Name="TZ" Target="TZ" Default="America/Chicago" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false">America/Chicago</Config>
+</Container>
