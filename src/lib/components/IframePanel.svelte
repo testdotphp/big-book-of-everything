@@ -46,7 +46,7 @@
       {title}
       onload={onLoad}
       onerror={onError}
-      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
       allow="fullscreen"
     ></iframe>
   {/if}

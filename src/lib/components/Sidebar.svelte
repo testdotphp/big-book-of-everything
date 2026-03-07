@@ -4,7 +4,7 @@
   import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-svelte';
 
   interface Props {
     config: PortalConfig;
@@ -74,6 +74,9 @@
         {user.name?.charAt(0).toUpperCase() || '?'}
       </div>
     {/if}
+    <a href="/help" class="footer-btn" title="Setup & Help">
+      <HelpCircle size={16} strokeWidth={1.75} />
+    </a>
     <a href="/auth/signout" class="signout-btn" title="Sign out">
       <LogOut size={16} strokeWidth={1.75} />
     </a>
@@ -268,6 +271,21 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .footer-btn {
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .footer-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
   }
 
   .signout-btn {
