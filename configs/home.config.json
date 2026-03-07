@@ -2,14 +2,7 @@
   "name": "Home Management",
   "icon": "home",
   "theme": "#4CAF50",
-  "homepage": "https://homepage.teedge.local",
   "items": [
-    {
-      "slug": "dashboard",
-      "label": "Dashboard",
-      "icon": "layout",
-      "url": "https://homepage.teedge.local"
-    },
     {
       "slug": "label-organize",
       "label": "Organization",

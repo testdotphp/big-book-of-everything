@@ -35,6 +35,9 @@ function getAuthentikProvider(): Provider {
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
   providers: [getAuthentikProvider()],
+  pages: {
+    signIn: '/login'
+  },
   secret: requireEnv('AUTH_SECRET'),
   trustHost: true,
   callbacks: {
