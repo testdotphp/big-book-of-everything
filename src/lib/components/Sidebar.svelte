@@ -4,7 +4,7 @@
   import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, HelpCircle } from 'lucide-svelte';
 
   interface Props {
     config: PortalConfig;
@@ -15,6 +15,26 @@
   let { config, user, collapsed = $bindable(false) }: Props = $props();
 
   let currentSlug = $derived($page.params.slug || '');
+
+  // Track which group contains the active slug
+  function groupContainsSlug(group: { children: { slug: string }[] }, slug: string): boolean {
+    return group.children.some(c => c.slug === slug);
+  }
+
+  // Collapsed groups — start with all collapsed, active group auto-expands via $derived
+  let manualToggles = $state<Record<string, boolean>>({});
+
+  function isGroupExpanded(groupSlug: string): boolean {
+    if (groupSlug in manualToggles) return manualToggles[groupSlug];
+    // Auto-expand only the group containing the active page
+    const group = config.items.find(i => isNavGroup(i) && i.slug === groupSlug);
+    if (group && isNavGroup(group)) return groupContainsSlug(group, currentSlug);
+    return false;
+  }
+
+  function toggleGroup(groupSlug: string) {
+    manualToggles[groupSlug] = !isGroupExpanded(groupSlug);
+  }
 </script>
 
 <aside class="sidebar" class:collapsed>
@@ -41,15 +61,29 @@
   <nav class="nav">
     {#each config.items as item}
       {#if isNavGroup(item)}
+        {@const expanded = isGroupExpanded(item.slug)}
         <div class="nav-group">
           {#if !collapsed}
-            <span class="group-label">{item.label}</span>
+            <button
+              class="group-label"
+              class:has-active={groupContainsSlug(item, currentSlug)}
+              onclick={() => toggleGroup(item.slug)}
+            >
+              <span class="group-label-text">{item.label}</span>
+              <span class="group-chevron" class:expanded>
+                <ChevronDown size={12} strokeWidth={2} />
+              </span>
+            </button>
           {:else}
             <div class="group-divider"></div>
           {/if}
-          {#each item.children as child}
-            <NavItem item={child} active={currentSlug === child.slug} {collapsed} />
-          {/each}
+          <div class="group-children" class:expanded>
+            <div class="group-children-inner">
+              {#each item.children as child}
+                <NavItem item={child} active={currentSlug === child.slug} {collapsed} />
+              {/each}
+            </div>
+          </div>
         </div>
       {:else}
         <NavItem {item} active={currentSlug === item.slug} {collapsed} />
@@ -192,7 +226,9 @@
   }
 
   .group-label {
-    display: block;
+    display: flex;
+    align-items: center;
+    width: 100%;
     padding: 8px 18px 4px;
     font-family: var(--font-display);
     font-size: 11px;
@@ -200,6 +236,48 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .group-label:hover {
+    color: var(--text-secondary);
+  }
+
+  .group-label.has-active {
+    color: var(--text-secondary);
+  }
+
+  .group-label-text {
+    flex: 1;
+    text-align: left;
+  }
+
+  .group-chevron {
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+    transform: rotate(-90deg);
+  }
+
+  .group-chevron.expanded {
+    transform: rotate(0deg);
+  }
+
+  .group-children {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease;
+  }
+
+  .group-children.expanded {
+    grid-template-rows: 1fr;
+  }
+
+  .group-children-inner {
+    overflow: hidden;
   }
 
   .group-divider {

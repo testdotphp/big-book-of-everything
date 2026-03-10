@@ -2,7 +2,7 @@
   "name": "Media",
   "icon": "play",
   "theme": "#E91E63",
-  "homepage": "https://homepage.teedge.local",
+
   "items": [
     {
       "slug": "label-watch",
@@ -71,6 +71,19 @@
           "label": "RomM",
           "icon": "gamepad-2",
           "url": "https://romm.teedge.local"
+        }
+      ]
+    },
+    {
+      "slug": "label-courses",
+      "label": "Courses",
+      "icon": "graduation-cap",
+      "children": [
+        {
+          "slug": "courses",
+          "label": "Courses",
+          "icon": "graduation-cap",
+          "url": "https://courses.teedge.local"
         }
       ]
     }
