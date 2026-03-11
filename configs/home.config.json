@@ -85,28 +85,28 @@
       ]
     },
     {
-      "slug": "finances",
-      "label": "Finances",
-      "icon": "dollar-sign",
-      "url": "https://actual.teedge.local"
-    },
-    {
-      "slug": "photos",
-      "label": "Photos",
-      "icon": "camera",
-      "url": "https://immich.teedge.local"
-    },
-    {
-      "slug": "tickets",
-      "label": "Tickets",
-      "icon": "clipboard",
-      "url": "https://freescout.teedge.local"
-    },
-    {
-      "slug": "label-hobby",
-      "label": "Hobby",
-      "icon": "scissors",
+      "slug": "label-misc",
+      "label": "Misc",
+      "icon": "layout-grid",
       "children": [
+        {
+          "slug": "finances",
+          "label": "Finances",
+          "icon": "dollar-sign",
+          "url": "https://actual.teedge.local"
+        },
+        {
+          "slug": "photos",
+          "label": "Photos",
+          "icon": "camera",
+          "url": "https://immich.teedge.local"
+        },
+        {
+          "slug": "tickets",
+          "label": "Tickets",
+          "icon": "clipboard",
+          "url": "https://freescout.teedge.local"
+        },
         {
           "slug": "yarnl",
           "label": "Yarnl",
