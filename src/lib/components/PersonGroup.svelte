@@ -80,16 +80,14 @@
         />
       </form>
     {:else}
-      <span
-        class="group-name"
-        class:placeholder={isUnassigned}
-        onclick={() => expanded = !expanded}
-      >
-        {isUnassigned ? 'No name set' : name}
+      <span class="name-area" onclick={() => expanded = !expanded}>
+        <span class="group-name" class:placeholder={isUnassigned}>
+          {isUnassigned ? 'No name set' : name}
+        </span>
+        <button class="edit-btn" title="Edit group name" onclick={(e) => { e.stopPropagation(); startEditing(); }}>
+          <Pencil size={12} strokeWidth={2} />
+        </button>
       </span>
-      <button class="edit-btn" title="Edit group name" onclick={(e) => { e.stopPropagation(); startEditing(); }}>
-        <Pencil size={12} strokeWidth={2} />
-      </button>
     {/if}
     <span class="group-count">{records.length}</span>
   </div>
@@ -153,9 +151,15 @@
     transform: rotate(180deg);
   }
 
-  .group-name {
+  .name-area {
     flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     cursor: pointer;
+  }
+
+  .group-name {
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 700;
