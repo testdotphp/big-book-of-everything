@@ -1,4 +1,4 @@
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
 import { getDb } from '$lib/server/db';
 import { categories, sections, fields, values, records } from '$lib/server/schema';
 import { eq, count, and, isNull } from 'drizzle-orm';
@@ -63,4 +63,49 @@ export const load: PageServerLoad = async ({ params }) => {
   });
 
   return { category, sections: sectionsWithCounts };
+};
+
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+export const actions: Actions = {
+  addSection: async ({ request, params }) => {
+    const db = getDb();
+    const formData = await request.formData();
+    const name = String(formData.get('name') ?? '').trim();
+    const type = String(formData.get('type') ?? 'table') as 'key_value' | 'table' | 'placeholder';
+
+    if (!name) return { success: false };
+
+    const category = db.select().from(categories)
+      .where(eq(categories.slug, params.category)).get();
+    if (!category) throw error(404, 'Category not found');
+
+    const maxOrder = db.select({ max: sections.sortOrder })
+      .from(sections).where(eq(sections.categoryId, category.id)).get();
+
+    const slug = slugify(name);
+
+    db.insert(sections).values({
+      categoryId: category.id,
+      name,
+      slug,
+      type,
+      sortOrder: (maxOrder?.max || 0) + 1
+    }).run();
+
+    return { success: true };
+  },
+
+  deleteSection: async ({ request }) => {
+    const db = getDb();
+    const formData = await request.formData();
+    const sectionId = Number(formData.get('sectionId'));
+
+    // Cascade deletes handle fields, records, values
+    db.delete(sections).where(eq(sections.id, sectionId)).run();
+
+    return { success: true };
+  }
 };

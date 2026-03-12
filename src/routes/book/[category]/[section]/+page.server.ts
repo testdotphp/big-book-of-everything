@@ -185,5 +185,40 @@ export const actions: Actions = {
     db.delete(records).where(eq(records.id, recordId)).run();
 
     return { success: true };
+  },
+
+  addField: async ({ request }) => {
+    const db = getDb();
+    const formData = await request.formData();
+    const sectionId = Number(formData.get('sectionId'));
+    const name = String(formData.get('name') ?? '').trim();
+    const fieldType = String(formData.get('fieldType') ?? 'text') as 'text' | 'number' | 'date' | 'phone' | 'email' | 'currency' | 'url' | 'textarea' | 'boolean';
+
+    if (!name) return { success: false };
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const maxOrder = db.select({ max: fields.sortOrder })
+      .from(fields).where(eq(fields.sectionId, sectionId)).get();
+
+    db.insert(fields).values({
+      sectionId,
+      name,
+      slug,
+      fieldType,
+      sortOrder: (maxOrder?.max || 0) + 1
+    }).run();
+
+    return { success: true };
+  },
+
+  deleteField: async ({ request }) => {
+    const db = getDb();
+    const formData = await request.formData();
+    const fieldId = Number(formData.get('fieldId'));
+
+    db.delete(values).where(eq(values.fieldId, fieldId)).run();
+    db.delete(fields).where(eq(fields.id, fieldId)).run();
+
+    return { success: true };
   }
 };

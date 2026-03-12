@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
-  import { ChevronRight } from 'lucide-svelte';
+  import { ChevronRight, Plus, Trash2 } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
+  let showAddForm = $state(false);
 </script>
 
 <svelte:head>
@@ -31,24 +33,60 @@
 {:else}
   <div class="section-list">
     {#each data.sections as section}
-      <a href="/book/{data.category.slug}/{section.slug}" class="section-row">
-        <div class="section-info">
-          <span class="section-name">{section.name}</span>
-          <span class="section-meta">
-            {#if section.type === 'placeholder'}
-              Info page
-            {:else if section.type === 'table'}
-              {section.itemCount} {section.itemCount === 1 ? 'record' : 'records'}
-            {:else}
-              {section.itemCount}/{'totalFields' in section ? section.totalFields : 0} fields
-            {/if}
-          </span>
-        </div>
-        <span class="section-type">{section.type === 'table' ? 'Table' : section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
-        <ChevronRight size={16} strokeWidth={2} />
-      </a>
+      <div class="section-row-wrap">
+        <a href="/book/{data.category.slug}/{section.slug}" class="section-row">
+          <div class="section-info">
+            <span class="section-name">{section.name}</span>
+            <span class="section-meta">
+              {#if section.type === 'placeholder'}
+                Info page
+              {:else if section.type === 'table'}
+                {section.itemCount} {section.itemCount === 1 ? 'record' : 'records'}
+              {:else}
+                {section.itemCount}/{'totalFields' in section ? section.totalFields : 0} fields
+              {/if}
+            </span>
+          </div>
+          <span class="section-type">{section.type === 'table' ? 'Table' : section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
+          <ChevronRight size={16} strokeWidth={2} />
+        </a>
+        <form method="POST" action="?/deleteSection" use:enhance class="delete-form">
+          <input type="hidden" name="sectionId" value={section.id} />
+          <button type="submit" class="delete-btn" title="Delete section">
+            <Trash2 size={14} strokeWidth={1.75} />
+          </button>
+        </form>
+      </div>
     {/each}
   </div>
+{/if}
+
+{#if showAddForm}
+  <form
+    method="POST"
+    action="?/addSection"
+    class="add-section-form"
+    use:enhance={() => {
+      return async ({ update }) => {
+        await update();
+        showAddForm = false;
+      };
+    }}
+  >
+    <input type="text" name="name" class="add-input" placeholder="Section name..." autofocus required />
+    <select name="type" class="add-select">
+      <option value="table">Table</option>
+      <option value="key_value">Key-Value</option>
+      <option value="placeholder">Info</option>
+    </select>
+    <button type="submit" class="add-submit">Add</button>
+    <button type="button" class="add-cancel" onclick={() => showAddForm = false}>Cancel</button>
+  </form>
+{:else}
+  <button class="add-section-btn" onclick={() => showAddForm = true}>
+    <Plus size={14} strokeWidth={2} />
+    Add section
+  </button>
 {/if}
 
 <style>
@@ -161,5 +199,120 @@
     padding: 3px 8px;
     border-radius: var(--radius-sm);
     flex-shrink: 0;
+  }
+
+  .section-row-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .section-row-wrap .section-row {
+    flex: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .delete-form {
+    display: flex;
+  }
+
+  .delete-btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+
+  .add-section-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    margin-top: 12px;
+    background: var(--bg-secondary);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .add-section-btn:hover {
+    border-color: var(--theme-color);
+    color: var(--theme-color);
+  }
+
+  .add-section-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+  }
+
+  .add-input {
+    flex: 1;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  .add-input:focus {
+    outline: none;
+    border-color: var(--theme-color);
+  }
+
+  .add-select {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  .add-submit {
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 7px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .add-cancel {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    padding: 7px 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
   }
 </style>
