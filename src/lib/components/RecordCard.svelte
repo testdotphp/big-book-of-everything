@@ -21,7 +21,7 @@
   }
 
   let { record, fields }: Props = $props();
-  let expanded = $state(false);
+  let expanded = $state(true);
 
   function inputType(fieldType: string): string {
     switch (fieldType) {

@@ -64,6 +64,13 @@ function seedBookStructure(db: ReturnType<typeof drizzle<typeof schema>>) {
             fieldType: field.fieldType, sortOrder: field.sortOrder
           }).run();
         }
+
+        // Create one empty record for table sections so fields are visible
+        if (sec.type === 'table') {
+          db.insert(schema.records).values({
+            sectionId: secResult.id, sortOrder: 1
+          }).run();
+        }
       }
     }
   }

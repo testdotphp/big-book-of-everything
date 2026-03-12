@@ -44,7 +44,7 @@
       <input type="hidden" name="sectionId" value={data.section.id} />
       <button type="submit" class="add-row-btn">
         <Plus size={14} strokeWidth={2} />
-        Add row
+        Add entry
       </button>
     </form>
   {/if}
