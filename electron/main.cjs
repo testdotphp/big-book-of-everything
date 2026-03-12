@@ -97,7 +97,7 @@ function createWindow(port) {
     minHeight: 600,
     title: 'Big Book of Everything',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
       contextIsolation: true
     }

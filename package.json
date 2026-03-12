@@ -20,11 +20,10 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "electron:dev": "npm run build && electron electron/main.js",
+    "electron:dev": "npm run build && electron electron/main.cjs",
     "electron:build": "npm run build && electron-builder",
-    "electron:package": "npm run build && node scripts/prepare-electron.js && electron-builder",
-    "electron:rebuild": "electron-rebuild -f -w better-sqlite3",
-    "postinstall": "electron-builder install-app-deps"
+    "electron:package": "npm run build && node scripts/prepare-electron.cjs && electron-builder",
+    "electron:rebuild": "node scripts/prepare-electron.cjs"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.7.2",
@@ -47,7 +46,7 @@
     "lucide-svelte": "^0.468.0"
   },
   "type": "module",
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "build": {
     "appId": "com.testdotphp.big-book-of-everything",
     "productName": "Big Book of Everything",
