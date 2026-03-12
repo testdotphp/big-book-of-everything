@@ -45,6 +45,11 @@ export const load: PageServerLoad = async ({ params }) => {
     });
     return { category, section, fields: fieldValues, records: null };
   } else {
+    // Detect "who" field for person grouping (exclude Final Arrangements)
+    const whoField = category.slug !== 'final-arrangements'
+      ? fieldList.find((f) => f.slug === 'who')
+      : undefined;
+
     const recordList = db
       .select()
       .from(records)
@@ -65,7 +70,13 @@ export const load: PageServerLoad = async ({ params }) => {
       return { ...r, values: rowValues };
     });
 
-    return { category, section, fields: fieldList, records: recordsWithValues };
+    return {
+      category,
+      section,
+      fields: fieldList,
+      records: recordsWithValues,
+      whoFieldId: whoField?.id ?? null
+    };
   }
 };
 
@@ -117,6 +128,8 @@ export const actions: Actions = {
     const db = getDb();
     const formData = await request.formData();
     const sectionId = Number(formData.get('sectionId'));
+    const whoFieldId = formData.get('whoFieldId');
+    const whoValue = formData.get('whoValue');
 
     const maxOrder = db
       .select({ max: records.sortOrder })
@@ -124,9 +137,17 @@ export const actions: Actions = {
       .where(eq(records.sectionId, sectionId))
       .get();
 
-    db.insert(records)
+    const newRecord = db.insert(records)
       .values({ sectionId, sortOrder: (maxOrder?.max || 0) + 1 })
-      .run();
+      .returning()
+      .get();
+
+    // Auto-fill "who" field if provided
+    if (whoFieldId && whoValue) {
+      db.insert(values)
+        .values({ fieldId: Number(whoFieldId), recordId: newRecord.id, value: String(whoValue) })
+        .run();
+    }
 
     return { success: true };
   },

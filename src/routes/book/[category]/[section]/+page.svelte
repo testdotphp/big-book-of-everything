@@ -2,12 +2,38 @@
   import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
   import KeyValueEditor from '$lib/components/KeyValueEditor.svelte';
+  import PersonGroup from '$lib/components/PersonGroup.svelte';
   import PlaceholderSection from '$lib/components/PlaceholderSection.svelte';
   import RecordCard from '$lib/components/RecordCard.svelte';
   import { ChevronRight, Plus } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
+
+  let personGroups = $derived.by(() => {
+    if (!data.whoFieldId || !data.records) return null;
+
+    const grouped = new Map<string, { id: number; values: globalThis.Record<number, string> }[]>();
+
+    for (const record of data.records) {
+      const who = record.values[data.whoFieldId] || '';
+      const key = who || 'Unassigned';
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(record);
+    }
+
+    // Sort alphabetically, "Unassigned" last
+    const sorted: { name: string; records: { id: number; values: globalThis.Record<number, string> }[] }[] = [];
+    const keys = [...grouped.keys()].filter((k) => k !== 'Unassigned').sort();
+    for (const key of keys) {
+      sorted.push({ name: key, records: grouped.get(key)! });
+    }
+    if (grouped.has('Unassigned')) {
+      sorted.push({ name: 'Unassigned', records: grouped.get('Unassigned')! });
+    }
+
+    return sorted;
+  });
 </script>
 
 <svelte:head>
@@ -34,6 +60,26 @@
 {:else if data.section.type === 'table' && data.records !== null}
   {#if data.fields.length === 0}
     <p class="empty">No fields defined for this section.</p>
+  {:else if personGroups}
+    <div class="group-list">
+      {#each personGroups as group, i}
+        <PersonGroup
+          name={group.name}
+          records={group.records}
+          fields={data.fields}
+          sectionId={data.section.id}
+          whoFieldId={data.whoFieldId!}
+          expanded={i === 0}
+        />
+      {/each}
+    </div>
+    <form method="POST" action="?/addRecord" use:enhance>
+      <input type="hidden" name="sectionId" value={data.section.id} />
+      <button type="submit" class="add-row-btn">
+        <Plus size={14} strokeWidth={2} />
+        Add entry
+      </button>
+    </form>
   {:else}
     <div class="card-list">
       {#each data.records as record, i}
@@ -124,6 +170,13 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     margin-bottom: 12px;
   }
 </style>
