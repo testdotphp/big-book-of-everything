@@ -41,6 +41,7 @@
   "dependencies": {
     "@auth/core": "^0.37.0",
     "@auth/sveltekit": "^1.7.0",
+    "@aws-sdk/client-s3": "^3.1008.0",
     "better-sqlite3": "^12.6.2",
     "drizzle-orm": "^0.45.1",
     "lucide-svelte": "^0.468.0"
@@ -82,22 +83,35 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "category": "public.app-category.productivity",
       "icon": "electron/icons/icon.icns"
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "category": "Utility",
       "icon": "electron/icons"
     },
     "dmg": {
       "title": "Big Book of Everything",
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     }
   }

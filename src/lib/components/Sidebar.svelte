@@ -409,6 +409,11 @@
           <HardDriveUpload size={15} strokeWidth={1.75} />
           <span>Import Database</span>
         </button>
+        <div class="backup-divider"></div>
+        <a href="/book/settings" class="backup-menu-item" onclick={() => backupMenuOpen = false}>
+          <Settings size={15} strokeWidth={1.75} />
+          <span>Cloud Backup Settings</span>
+        </a>
       {/if}
     </div>
   {/if}

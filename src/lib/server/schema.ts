@@ -53,3 +53,8 @@ export const values = sqliteTable('values', {
   recordId: integer('record_id').references(() => records.id, { onDelete: 'cascade' }),
   value: text('value')
 });
+
+export const settings = sqliteTable('settings', {
+  key: text('key').primaryKey(),
+  value: text('value')
+});
