@@ -18,10 +18,11 @@
   interface Props {
     record: Record;
     fields: Field[];
+    index?: number;
   }
 
-  let { record, fields }: Props = $props();
-  let expanded = $state(true);
+  let { record, fields, index = 0 }: Props = $props();
+  let expanded = $state(index === 0);
 
   function inputType(fieldType: string): string {
     switch (fieldType) {
@@ -62,9 +63,8 @@
     return 'md';
   }
 
-  let summary = $derived(
-    record.values[fields[0]?.id] || 'New record'
-  );
+  let firstValue = $derived(record.values[fields[0]?.id] || '');
+  let hasValue = $derived(firstValue.length > 0);
 </script>
 
 <div class="card" class:expanded>
@@ -73,7 +73,7 @@
       <span class="chevron" class:rotated={expanded}>
         <ChevronDown size={16} strokeWidth={2} />
       </span>
-      <span class="summary">{summary}</span>
+      <span class="summary" class:placeholder={!hasValue}>{hasValue ? firstValue : 'Fill in fields below...'}</span>
     </button>
     <form method="POST" action="?/deleteRecord" use:enhance>
       <input type="hidden" name="recordId" value={record.id} />
@@ -182,6 +182,12 @@
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .summary.placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-style: italic;
   }
 
   .delete-btn {

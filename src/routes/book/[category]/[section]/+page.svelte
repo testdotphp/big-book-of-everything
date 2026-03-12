@@ -36,8 +36,8 @@
     <p class="empty">No fields defined for this section.</p>
   {:else}
     <div class="card-list">
-      {#each data.records as record}
-        <RecordCard {record} fields={data.fields} />
+      {#each data.records as record, i}
+        <RecordCard {record} fields={data.fields} index={i} />
       {/each}
     </div>
     <form method="POST" action="?/addRecord" use:enhance>
