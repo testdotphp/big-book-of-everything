@@ -1,6 +1,6 @@
 {
   "name": "portal-template",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A self-hosted web portal with configurable sidebar navigation, optional OIDC auth, and a built-in Big Book of Everything family information organizer.",
   "keywords": [
     "portal",
@@ -111,6 +111,7 @@
     },
     "dmg": {
       "writeUpdateInfo": false,
+      "background": null,
       "title": "Big Book of Everything",
       "contents": [
         {

@@ -26,7 +26,8 @@ if (fs.existsSync(path.join(root, 'package-lock.json'))) {
 
 // Install production dependencies only
 console.log('Installing production dependencies...');
-execFileSync('npm', ['ci', '--omit=dev', '--legacy-peer-deps'], {
+const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+execFileSync(npm, ['ci', '--omit=dev', '--legacy-peer-deps'], {
   cwd: stagingDir,
   stdio: 'inherit'
 });
