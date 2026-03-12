@@ -54,7 +54,7 @@
           name="value"
           class="kv-input textarea"
           value={field.value}
-          onblur="this.form.requestSubmit()"
+          onblur={(e) => e.currentTarget.form?.requestSubmit()}
           rows="3"
         ></textarea>
       {:else if field.fieldType === 'boolean'}
@@ -64,7 +64,7 @@
             name="value"
             value="true"
             checked={field.value === 'true'}
-            onchange="this.form.requestSubmit()"
+            onchange={(e) => e.currentTarget.form?.requestSubmit()}
           />
           <span>{field.value === 'true' ? 'Yes' : 'No'}</span>
         </label>
@@ -75,7 +75,7 @@
           type={inputType(field.fieldType)}
           class="kv-input"
           value={field.value}
-          onblur="this.form.requestSubmit()"
+          onblur={(e) => e.currentTarget.form?.requestSubmit()}
           step={field.fieldType === 'currency' ? '0.01' : undefined}
         />
       {/if}

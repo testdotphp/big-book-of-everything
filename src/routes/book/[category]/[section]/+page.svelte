@@ -62,7 +62,7 @@
                       type="text"
                       class="cell-input"
                       value={record.values[field.id] || ''}
-                      onblur="this.form.requestSubmit()"
+                      onblur={(e) => e.currentTarget.form?.requestSubmit()}
                     />
                   </form>
                 </td>
