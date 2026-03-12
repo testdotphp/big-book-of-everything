@@ -37,9 +37,11 @@ services:
       OIDC_CLIENT_SECRET: "${HOME_PORTAL_OIDC_SECRET}"
       NODE_EXTRA_CA_CERTS: "/usr/local/share/ca-certificates/teedge-local-ca.crt"
       AUTH_TRUST_HOST: "true"
+      BOOK_DB_PATH: "/data/book.db"
     volumes:
       - /mnt/appdata/portal/configs/home.config.json:/app/portal.config.json:ro
       - /mnt/appdata/certs/teedge-local-ca/ca.crt:/usr/local/share/ca-certificates/teedge-local-ca.crt:ro
+      - /mnt/appdata/portal/data:/data
     ports:
       - "3000:3000"
 
