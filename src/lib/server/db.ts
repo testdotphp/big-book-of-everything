@@ -13,6 +13,10 @@ export function isBookEnabled(): boolean {
   return !!env.BOOK_DB_PATH;
 }
 
+export function resetDb() {
+  db = null;
+}
+
 export function getDb() {
   if (!isBookEnabled()) {
     throw new Error('Big Book is not enabled (BOOK_DB_PATH not set)');

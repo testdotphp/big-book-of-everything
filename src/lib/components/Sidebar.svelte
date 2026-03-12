@@ -5,7 +5,7 @@
   import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, HelpCircle, Plus, X, Settings } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, HelpCircle, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson } from 'lucide-svelte';
 
   interface BookCategory {
     id: number;
@@ -115,6 +115,82 @@
   function handleSectionKeydown(e: KeyboardEvent, categoryId: number) {
     if (e.key === 'Enter') addSection(categoryId);
     if (e.key === 'Escape') { addingSectionForCat = null; newSectionName = ''; }
+  }
+
+  // Backup/restore menu
+  let backupMenuOpen = $state(false);
+  let importStatus = $state<string | null>(null);
+  let fileInput: HTMLInputElement;
+  let sqliteInput: HTMLInputElement;
+
+  function toggleBackupMenu() {
+    backupMenuOpen = !backupMenuOpen;
+    importStatus = null;
+  }
+
+  function exportJson() {
+    window.location.href = '/api/book/export';
+    backupMenuOpen = false;
+  }
+
+  function exportSqlite() {
+    window.location.href = '/api/book/export?format=sqlite';
+    backupMenuOpen = false;
+  }
+
+  function triggerJsonImport() {
+    fileInput?.click();
+  }
+
+  function triggerSqliteImport() {
+    sqliteInput?.click();
+  }
+
+  async function handleJsonImport(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    importStatus = 'Importing...';
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const res = await fetch('/api/book/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      importStatus = 'Restored!';
+      await invalidateAll();
+      setTimeout(() => { backupMenuOpen = false; importStatus = null; }, 1500);
+    } catch (err) {
+      importStatus = 'Import failed';
+    }
+    input.value = '';
+  }
+
+  async function handleSqliteImport(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    importStatus = 'Restoring database...';
+    try {
+      const buffer = await file.arrayBuffer();
+      const res = await fetch('/api/book/import?format=sqlite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/octet-stream' },
+        body: buffer
+      });
+      if (!res.ok) throw new Error(await res.text());
+      importStatus = 'Restored!';
+      await invalidateAll();
+      setTimeout(() => { backupMenuOpen = false; importStatus = null; }, 1500);
+    } catch (err) {
+      importStatus = 'Restore failed';
+    }
+    input.value = '';
   }
 </script>
 
@@ -305,6 +381,38 @@
     {/if}
   </nav>
 
+  <!-- Hidden file inputs for import -->
+  <input type="file" accept=".json" bind:this={fileInput} onchange={handleJsonImport} style="display:none" />
+  <input type="file" accept=".db,.sqlite,.sqlite3" bind:this={sqliteInput} onchange={handleSqliteImport} style="display:none" />
+
+  <!-- Backup menu dropdown -->
+  {#if backupMenuOpen}
+    <div class="backup-menu">
+      <div class="backup-menu-title">Backup & Restore</div>
+      {#if importStatus}
+        <div class="backup-status">{importStatus}</div>
+      {:else}
+        <button class="backup-menu-item" onclick={exportJson}>
+          <FileJson size={15} strokeWidth={1.75} />
+          <span>Export JSON</span>
+        </button>
+        <button class="backup-menu-item" onclick={exportSqlite}>
+          <Database size={15} strokeWidth={1.75} />
+          <span>Export Database</span>
+        </button>
+        <div class="backup-divider"></div>
+        <button class="backup-menu-item" onclick={triggerJsonImport}>
+          <HardDriveUpload size={15} strokeWidth={1.75} />
+          <span>Import JSON</span>
+        </button>
+        <button class="backup-menu-item" onclick={triggerSqliteImport}>
+          <HardDriveUpload size={15} strokeWidth={1.75} />
+          <span>Import Database</span>
+        </button>
+      {/if}
+    </div>
+  {/if}
+
   <!-- Footer -->
   <div class="sidebar-footer">
     {#if !collapsed}
@@ -313,6 +421,9 @@
           <a href="/book/admin" class="footer-btn" title="Structure overview">
             <Settings size={16} strokeWidth={1.75} />
           </a>
+          <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
+            <HardDriveDownload size={16} strokeWidth={1.75} />
+          </button>
         {/if}
       </div>
       <div class="user-info">
@@ -896,6 +1007,64 @@
     height: 5px;
     border-radius: 50%;
     background: var(--theme-color);
+  }
+
+  /* Backup menu */
+  .backup-menu {
+    position: absolute;
+    bottom: 62px;
+    left: 8px;
+    right: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 8px 0;
+    box-shadow: var(--shadow-lg);
+    z-index: 200;
+  }
+
+  .backup-menu-title {
+    padding: 6px 14px 8px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .backup-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 14px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .backup-menu-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .backup-divider {
+    height: 1px;
+    margin: 4px 12px;
+    background: var(--border-subtle);
+  }
+
+  .backup-status {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--theme-color);
+    text-align: center;
+    font-weight: 500;
   }
 
   /* Mobile */
