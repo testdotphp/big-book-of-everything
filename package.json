@@ -14,7 +14,7 @@
   "author": "TJ Bennett",
   "repository": {
     "type": "git",
-    "url": "http://192.168.150.118:3000/teedge/portal-template.git"
+    "url": "https://github.com/testdotphp/big-book-of-everything.git"
   },
   "scripts": {
     "dev": "vite dev",
