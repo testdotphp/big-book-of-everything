@@ -1,6 +1,6 @@
 # Portal Template
 
-A self-hosted web portal built with SvelteKit. Configurable sidebar navigation for your services, optional OIDC authentication, and a built-in **Big Book of Everything** — a structured family information organizer based on [Erik Dewey's Big Book of Everything](https://www.interlinkbooks.com/).
+A self-hosted web portal built with SvelteKit. Configurable sidebar navigation for your services, optional OIDC authentication, and a built-in **Big Book of Everything** — a structured family information organizer based on [Erik Dewey's Big Book of Everything](https://www.erikdewey.com/bigbook.htm).
 
 ## Features
 

@@ -12,11 +12,11 @@
   <title>{data.config?.name || 'Portal'}</title>
 </svelte:head>
 
-{#if data.session?.user}
+{#if data.session?.user || data.bookMode}
   <div class="shell" style="--theme-color: {data.config?.theme || '#1976D2'}">
     <Sidebar
       config={data.config}
-      user={data.session.user}
+      user={data.session?.user || { name: 'Book', email: '' }}
       bind:collapsed={sidebarCollapsed}
       bookEnabled={data.bookEnabled}
       bookMode={data.bookMode}
