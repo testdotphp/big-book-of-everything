@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Prepare Electron packaging
-        run: node scripts/prepare-electron.js
+        run: node scripts/prepare-electron.cjs
 
       - name: Build DMG
         run: npx electron-builder --mac
@@ -56,7 +56,7 @@ jobs:
         run: npm run build
 
       - name: Prepare Electron packaging
-        run: node scripts/prepare-electron.js
+        run: node scripts/prepare-electron.cjs
 
       - name: Build AppImage
         run: npx electron-builder --linux
