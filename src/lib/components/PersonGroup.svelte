@@ -27,6 +27,7 @@
 
   let { name, records, fields, sectionId, whoFieldId, expanded: initialExpanded = false }: Props = $props();
   let expanded = $state(initialExpanded);
+  let cardFields = $derived(fields.filter((f) => f.id !== whoFieldId));
 </script>
 
 <div class="person-group" class:expanded>
@@ -42,7 +43,7 @@
     <div class="group-body">
       <div class="card-list">
         {#each records as record, i}
-          <RecordCard {record} {fields} index={i} />
+          <RecordCard {record} fields={cardFields} index={i} />
         {/each}
       </div>
       <form method="POST" action="?/addRecord" use:enhance>
