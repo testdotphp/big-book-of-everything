@@ -8,7 +8,8 @@
     Globe, GitBranch, Shield, ShieldAlert, Lock, Wifi,
     Box, ScrollText, Cpu, Router, Wrench, Workflow,
     Database, Monitor, Server, Settings, Archive,
-    Gamepad2, Gauge, HeartPulse, Laptop, Smartphone
+    Gamepad2, Gauge, HeartPulse, Laptop, Smartphone,
+    User, Folder
   } from 'lucide-svelte';
   import type { ComponentType } from 'svelte';
 
@@ -70,6 +71,8 @@
     'laptop': Laptop,
     'shield-alert': ShieldAlert,
     'smartphone': Smartphone,
+    'user': User,
+    'folder': Folder,
   };
 
   let IconComponent = $derived(iconMap[name] || Box);
