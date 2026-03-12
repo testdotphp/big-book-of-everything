@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
-  import { Settings } from 'lucide-svelte';
+  import { Plus, Settings } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
+  let showAddForm = $state(false);
 </script>
 
 <svelte:head>
@@ -30,6 +32,32 @@
       </div>
     </a>
   {/each}
+
+  {#if showAddForm}
+    <form
+      method="POST"
+      action="?/addCategory"
+      class="add-card"
+      use:enhance={() => {
+        return async ({ update }) => {
+          await update();
+          showAddForm = false;
+        };
+      }}
+    >
+      <input type="text" name="name" class="add-input" placeholder="Category name..." autofocus required />
+      <input type="text" name="icon" class="add-input icon-input" placeholder="Icon (e.g. folder)" value="folder" />
+      <div class="add-actions">
+        <button type="submit" class="add-submit">Add</button>
+        <button type="button" class="add-cancel" onclick={() => showAddForm = false}>Cancel</button>
+      </div>
+    </form>
+  {:else}
+    <button class="add-card-btn" onclick={() => showAddForm = true}>
+      <Plus size={20} strokeWidth={2} />
+      <span>Add category</span>
+    </button>
+  {/if}
 </div>
 
 <style>
@@ -118,5 +146,85 @@
   .card-count {
     font-size: 13px;
     color: var(--text-muted);
+  }
+
+  .add-card-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    background: none;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    min-height: 88px;
+  }
+
+  .add-card-btn:hover {
+    border-color: var(--theme-color);
+    color: var(--theme-color);
+  }
+
+  .add-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+  }
+
+  .add-input {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  .add-input:focus {
+    outline: none;
+    border-color: var(--theme-color);
+  }
+
+  .icon-input {
+    font-size: 12px;
+  }
+
+  .add-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .add-submit {
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 7px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .add-cancel {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    padding: 7px 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
   }
 </style>
