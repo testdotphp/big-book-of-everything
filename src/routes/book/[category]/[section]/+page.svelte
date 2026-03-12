@@ -124,7 +124,7 @@
 {/if}
 
 {#if data.section.type === 'placeholder'}
-  <PlaceholderSection description={data.section.description || ''} />
+  <PlaceholderSection description={data.section.description || ''} sectionId={data.section.id} files={data.files || []} />
 {:else if data.section.type === 'key_value' && data.fields}
   <KeyValueEditor fields={data.fields as any} />
 {:else if data.section.type === 'table' && data.records !== null}

@@ -1,6 +1,6 @@
 import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { getDb, resetDb } from '$lib/server/db';
-import { categories, sections, fields, records, values } from '$lib/server/schema';
+import { categories, sections, fields, records, values, uploads } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { writeFileSync, copyFileSync } from 'fs';
@@ -53,7 +53,8 @@ async function importJson(request: Request) {
 
 	const db = getDb();
 
-	// Clear all existing data (values → records → fields → sections → categories)
+	// Clear all existing data (uploads → values → records → fields → sections → categories)
+	db.delete(uploads).run();
 	db.delete(values).run();
 	db.delete(records).run();
 	db.delete(fields).run();
@@ -108,6 +109,20 @@ async function importJson(request: Request) {
 							value: String(kv.value)
 						}).run();
 					}
+				}
+			}
+
+			// Restore uploads for placeholder sections
+			if (sec.uploads) {
+				for (const u of sec.uploads) {
+					db.insert(uploads).values({
+						sectionId: secResult.id,
+						filename: u.filename,
+						mimeType: u.mimeType,
+						size: u.size,
+						data: u.data,
+						uploadedAt: u.uploadedAt
+					}).run();
 				}
 			}
 

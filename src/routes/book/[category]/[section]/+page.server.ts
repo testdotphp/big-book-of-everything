@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { getDb } from '$lib/server/db';
-import { categories, sections, fields, values, records } from '$lib/server/schema';
+import { categories, sections, fields, values, records, uploads } from '$lib/server/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
@@ -24,7 +24,19 @@ export const load: PageServerLoad = async ({ params }) => {
   if (!section) throw error(404, 'Section not found');
 
   if (section.type === 'placeholder') {
-    return { category, section, fields: [], records: null };
+    const fileList = db
+      .select({
+        id: uploads.id,
+        filename: uploads.filename,
+        mimeType: uploads.mimeType,
+        size: uploads.size,
+        uploadedAt: uploads.uploadedAt
+      })
+      .from(uploads)
+      .where(eq(uploads.sectionId, section.id))
+      .all();
+
+    return { category, section, fields: [], records: null, files: fileList };
   }
 
   const fieldList = db
@@ -43,7 +55,7 @@ export const load: PageServerLoad = async ({ params }) => {
         .get();
       return { ...f, value: val?.value || '' };
     });
-    return { category, section, fields: fieldValues, records: null };
+    return { category, section, fields: fieldValues, records: null, files: [] };
   } else {
     // Detect "who" field for person grouping (exclude Final Arrangements)
     const whoField = category.slug !== 'final-arrangements'
@@ -75,7 +87,8 @@ export const load: PageServerLoad = async ({ params }) => {
       section,
       fields: fieldList,
       records: recordsWithValues,
-      whoFieldId: whoField?.id ?? null
+      whoFieldId: whoField?.id ?? null,
+      files: []
     };
   }
 };

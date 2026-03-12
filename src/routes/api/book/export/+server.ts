@@ -1,6 +1,6 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
-import { categories, sections, fields, records, values } from '$lib/server/schema';
+import { categories, sections, fields, records, values, uploads } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { readFileSync } from 'fs';
@@ -90,6 +90,18 @@ function exportJson() {
 						})
 						: [];
 
+					const allUploads = sec.type === 'placeholder'
+						? db.select().from(uploads)
+							.where(eq(uploads.sectionId, sec.id)).all()
+							.map((u) => ({
+								filename: u.filename,
+								mimeType: u.mimeType,
+								size: u.size,
+								data: u.data,
+								uploadedAt: u.uploadedAt
+							}))
+						: [];
+
 					return {
 						name: sec.name,
 						slug: sec.slug,
@@ -104,7 +116,8 @@ function exportJson() {
 							sortOrder: f.sortOrder
 						})),
 						records: recordsWithValues,
-						keyValues: kvEntries
+						keyValues: kvEntries,
+						uploads: allUploads
 					};
 				})
 			};

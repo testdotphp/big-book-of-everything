@@ -54,6 +54,18 @@ export const values = sqliteTable('values', {
   value: text('value')
 });
 
+export const uploads = sqliteTable('uploads', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  sectionId: integer('section_id')
+    .notNull()
+    .references(() => sections.id, { onDelete: 'cascade' }),
+  filename: text('filename').notNull(),
+  mimeType: text('mime_type').notNull(),
+  size: integer('size').notNull(),
+  data: text('data').notNull(), // base64-encoded file content
+  uploadedAt: text('uploaded_at').notNull()
+});
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value')
