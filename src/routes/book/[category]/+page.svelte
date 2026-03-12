@@ -50,12 +50,14 @@
           <span class="section-type">{section.type === 'table' ? 'Table' : section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
           <ChevronRight size={16} strokeWidth={2} />
         </a>
-        <form method="POST" action="?/deleteSection" use:enhance class="delete-form">
-          <input type="hidden" name="sectionId" value={section.id} />
-          <button type="submit" class="delete-btn" title="Delete section">
-            <Trash2 size={14} strokeWidth={1.75} />
-          </button>
-        </form>
+        {#if !section.seeded}
+          <form method="POST" action="?/deleteSection" use:enhance class="delete-form">
+            <input type="hidden" name="sectionId" value={section.id} />
+            <button type="submit" class="delete-btn" title="Delete section">
+              <Trash2 size={14} strokeWidth={1.75} />
+            </button>
+          </form>
+        {/if}
       </div>
     {/each}
   </div>

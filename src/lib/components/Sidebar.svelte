@@ -1,10 +1,20 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { invalidateAll } from '$app/navigation';
   import NavItem from './NavItem.svelte';
   import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, HelpCircle } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, HelpCircle, Plus, X, Settings } from 'lucide-svelte';
+
+  interface BookCategory {
+    id: number;
+    name: string;
+    slug: string;
+    icon: string | null;
+    seeded: number;
+    sections: { id: number; name: string; slug: string; type: string; seeded: number }[];
+  }
 
   interface Props {
     config: PortalConfig;
@@ -12,9 +22,10 @@
     collapsed: boolean;
     bookEnabled?: boolean;
     bookMode?: boolean;
+    bookCategories?: BookCategory[];
   }
 
-  let { config, user, collapsed = $bindable(false), bookEnabled = false, bookMode = false }: Props = $props();
+  let { config, user, collapsed = $bindable(false), bookEnabled = false, bookMode = false, bookCategories = [] }: Props = $props();
 
   let currentSlug = $derived($page.params.slug || '');
 
@@ -38,6 +49,72 @@
 
   function toggleGroup(groupSlug: string) {
     manualToggles[groupSlug] = !isGroupExpanded(groupSlug);
+  }
+
+  // Book category expand/collapse
+  let bookCatToggles = $state<Record<string, boolean>>({});
+
+  function isBookCatExpanded(catSlug: string): boolean {
+    if (catSlug in bookCatToggles) return bookCatToggles[catSlug];
+    // Auto-expand category containing the active section
+    const currentCatSlug = $page.params.category;
+    return catSlug === currentCatSlug;
+  }
+
+  function toggleBookCat(catSlug: string) {
+    bookCatToggles[catSlug] = !isBookCatExpanded(catSlug);
+  }
+
+  // Inline add forms
+  let addingCategory = $state(false);
+  let newCategoryName = $state('');
+  let addingSectionForCat = $state<number | null>(null);
+  let newSectionName = $state('');
+
+  async function addCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    await fetch('/api/book/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    newCategoryName = '';
+    addingCategory = false;
+    await invalidateAll();
+  }
+
+  async function deleteCategory(id: number) {
+    await fetch(`/api/book/categories?id=${id}`, { method: 'DELETE' });
+    await invalidateAll();
+  }
+
+  async function addSection(categoryId: number) {
+    const name = newSectionName.trim();
+    if (!name) return;
+    await fetch('/api/book/sections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categoryId, name, type: 'table' })
+    });
+    newSectionName = '';
+    addingSectionForCat = null;
+    await invalidateAll();
+  }
+
+  async function deleteSection(id: number) {
+    await fetch(`/api/book/sections?id=${id}`, { method: 'DELETE' });
+    await invalidateAll();
+  }
+
+  function handleCategoryKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter') addCategory();
+    if (e.key === 'Escape') { addingCategory = false; newCategoryName = ''; }
+  }
+
+  function handleSectionKeydown(e: KeyboardEvent, categoryId: number) {
+    if (e.key === 'Enter') addSection(categoryId);
+    if (e.key === 'Escape') { addingSectionForCat = null; newSectionName = ''; }
   }
 </script>
 
@@ -64,20 +141,117 @@
   <!-- Navigation -->
   <nav class="nav">
     {#if bookMode && bookEnabled}
-      <a
-        href="/book"
-        class="book-item"
-        class:active={$page.url.pathname.startsWith('/book')}
-        class:collapsed
-        title={collapsed ? 'Big Book' : undefined}
-      >
-        <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
-          <Icon name="book-open" size={18} />
-        </span>
-        {#if !collapsed}
-          <span class="book-label">Big Book</span>
-        {/if}
-      </a>
+      <!-- Book mode: collapsible category tree -->
+      {#if !collapsed}
+        <div class="book-tree">
+          {#each bookCategories as cat}
+            {@const expanded = isBookCatExpanded(cat.slug)}
+            {@const isActiveCat = $page.params.category === cat.slug}
+            <div class="book-cat">
+              <button
+                class="book-cat-label"
+                class:active={isActiveCat}
+                onclick={() => toggleBookCat(cat.slug)}
+              >
+                <span class="book-cat-icon">
+                  <Icon name={cat.icon || 'folder'} size={14} />
+                </span>
+                <span class="book-cat-name">{cat.name}</span>
+                <span class="book-cat-chevron" class:expanded>
+                  <ChevronDown size={12} strokeWidth={2} />
+                </span>
+                {#if !cat.seeded}
+                  <button
+                    class="inline-delete"
+                    title="Delete category"
+                    onclick={(e) => { e.stopPropagation(); deleteCategory(cat.id); }}
+                  >
+                    <X size={12} strokeWidth={2} />
+                  </button>
+                {/if}
+              </button>
+              <div class="book-cat-children" class:expanded>
+                <div class="book-cat-children-inner">
+                  {#each cat.sections as sec}
+                    {@const isActiveSec = $page.params.category === cat.slug && $page.params.section === sec.slug}
+                    <div class="book-sec-row">
+                      <a
+                        href="/book/{cat.slug}/{sec.slug}"
+                        class="book-sec-link"
+                        class:active={isActiveSec}
+                      >
+                        {sec.name}
+                      </a>
+                      {#if !sec.seeded}
+                        <button
+                          class="inline-delete sec"
+                          title="Delete section"
+                          onclick={() => deleteSection(sec.id)}
+                        >
+                          <X size={10} strokeWidth={2} />
+                        </button>
+                      {/if}
+                    </div>
+                  {/each}
+                  {#if addingSectionForCat === cat.id}
+                    <div class="inline-add-form">
+                      <input
+                        type="text"
+                        class="inline-add-input"
+                        placeholder="Section name..."
+                        bind:value={newSectionName}
+                        onkeydown={(e) => handleSectionKeydown(e, cat.id)}
+                        autofocus
+                      />
+                    </div>
+                  {:else}
+                    <button
+                      class="inline-add-btn"
+                      onclick={() => { addingSectionForCat = cat.id; newSectionName = ''; }}
+                    >
+                      <Plus size={11} strokeWidth={2} />
+                      <span>Add section</span>
+                    </button>
+                  {/if}
+                </div>
+              </div>
+            </div>
+          {/each}
+
+          {#if addingCategory}
+            <div class="inline-add-form cat">
+              <input
+                type="text"
+                class="inline-add-input"
+                placeholder="Category name..."
+                bind:value={newCategoryName}
+                onkeydown={handleCategoryKeydown}
+                autofocus
+              />
+            </div>
+          {:else}
+            <button
+              class="inline-add-btn cat"
+              onclick={() => { addingCategory = true; newCategoryName = ''; }}
+            >
+              <Plus size={12} strokeWidth={2} />
+              <span>Add category</span>
+            </button>
+          {/if}
+        </div>
+      {:else}
+        <!-- Collapsed: just show book icon -->
+        <a
+          href="/book"
+          class="book-item collapsed"
+          class:active={$page.url.pathname.startsWith('/book')}
+          title="Big Book"
+        >
+          <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
+            <Icon name="book-open" size={18} />
+          </span>
+        </a>
+      {/if}
     {:else}
       {#each config.items as item}
         {#if isNavGroup(item)}
@@ -134,6 +308,13 @@
   <!-- Footer -->
   <div class="sidebar-footer">
     {#if !collapsed}
+      <div class="sidebar-footer-left">
+        {#if bookEnabled}
+          <a href="/book/admin" class="footer-btn" title="Structure overview">
+            <Settings size={16} strokeWidth={1.75} />
+          </a>
+        {/if}
+      </div>
       <div class="user-info">
         <div class="user-avatar">
           {user.name?.charAt(0).toUpperCase() || '?'}
@@ -328,6 +509,209 @@
     background: var(--border-subtle);
   }
 
+  /* Book category tree */
+  .book-tree {
+    padding: 4px 0;
+  }
+
+  .book-cat {
+    margin-bottom: 1px;
+  }
+
+  .book-cat-label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+    padding: 7px 12px 7px 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .book-cat-label:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .book-cat-label.active {
+    color: var(--text-primary);
+  }
+
+  .book-cat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--theme-color) 10%, transparent);
+    color: var(--theme-color);
+    flex-shrink: 0;
+  }
+
+  .book-cat-name {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .book-cat-chevron {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    transform: rotate(-90deg);
+    flex-shrink: 0;
+  }
+
+  .book-cat-chevron.expanded {
+    transform: rotate(0deg);
+  }
+
+  .book-cat-children {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease;
+  }
+
+  .book-cat-children.expanded {
+    grid-template-rows: 1fr;
+  }
+
+  .book-cat-children-inner {
+    overflow: hidden;
+  }
+
+  .book-sec-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .book-sec-row:hover .inline-delete.sec {
+    opacity: 1;
+  }
+
+  .book-sec-link {
+    display: block;
+    flex: 1;
+    padding: 5px 12px 5px 46px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s, background 0.15s;
+    border-radius: 0;
+  }
+
+  .book-sec-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .book-sec-link.active {
+    color: var(--theme-color);
+    background: color-mix(in srgb, var(--theme-color) 8%, transparent);
+    font-weight: 500;
+  }
+
+  /* Inline delete buttons */
+  .inline-delete {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+  }
+
+  .book-cat-label:hover .inline-delete {
+    opacity: 1;
+  }
+
+  .inline-delete:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .inline-delete.sec {
+    right: 6px;
+  }
+
+  /* Inline add buttons and forms */
+  .inline-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    padding: 5px 12px 5px 46px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: color 0.15s;
+    opacity: 0.6;
+  }
+
+  .inline-add-btn:hover {
+    color: var(--theme-color);
+    opacity: 1;
+  }
+
+  .inline-add-btn.cat {
+    padding: 8px 14px;
+    font-size: 12px;
+    gap: 6px;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 4px;
+  }
+
+  .inline-add-form {
+    padding: 3px 12px 3px 46px;
+  }
+
+  .inline-add-form.cat {
+    padding: 6px 14px;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 4px;
+  }
+
+  .inline-add-input {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .inline-add-input:focus {
+    outline: none;
+    border-color: var(--theme-color);
+  }
+
+  /* Footer */
   .sidebar-footer {
     position: relative;
     z-index: 1;
@@ -337,6 +721,11 @@
     align-items: center;
     gap: 8px;
     min-height: 58px;
+  }
+
+  .sidebar-footer-left {
+    display: flex;
+    align-items: center;
   }
 
   .user-info {
@@ -507,12 +896,6 @@
     height: 5px;
     border-radius: 50%;
     background: var(--theme-color);
-  }
-
-  .book-divider {
-    height: 1px;
-    margin: 6px 12px;
-    background: var(--border-subtle);
   }
 
   /* Mobile */

@@ -13,6 +13,7 @@ export const load: PageServerLoad = async () => {
       slug: categories.slug,
       icon: categories.icon,
       sortOrder: categories.sortOrder,
+      seeded: categories.seeded,
       sectionCount: count(sections.id)
     })
     .from(categories)

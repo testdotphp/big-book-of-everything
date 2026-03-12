@@ -23,7 +23,8 @@ export const load: PageServerLoad = async ({ params }) => {
       name: sections.name,
       slug: sections.slug,
       type: sections.type,
-      sortOrder: sections.sortOrder
+      sortOrder: sections.sortOrder,
+      seeded: sections.seeded
     })
     .from(sections)
     .where(eq(sections.categoryId, category.id))
@@ -102,6 +103,10 @@ export const actions: Actions = {
     const db = getDb();
     const formData = await request.formData();
     const sectionId = Number(formData.get('sectionId'));
+
+    // Only allow deleting non-seeded sections
+    const sec = db.select().from(sections).where(eq(sections.id, sectionId)).get();
+    if (sec?.seeded) return { success: false };
 
     // Cascade deletes handle fields, records, values
     db.delete(sections).where(eq(sections.id, sectionId)).run();

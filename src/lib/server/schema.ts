@@ -5,7 +5,8 @@ export const categories = sqliteTable('categories', {
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   icon: text('icon').default('folder'),
-  sortOrder: integer('sort_order').notNull().default(0)
+  sortOrder: integer('sort_order').notNull().default(0),
+  seeded: integer('seeded').notNull().default(0)
 });
 
 export const sections = sqliteTable('sections', {
@@ -17,7 +18,8 @@ export const sections = sqliteTable('sections', {
   slug: text('slug').notNull(),
   type: text('type', { enum: ['key_value', 'table', 'placeholder'] }).notNull().default('key_value'),
   sortOrder: integer('sort_order').notNull().default(0),
-  description: text('description')
+  description: text('description'),
+  seeded: integer('seeded').notNull().default(0)
 });
 
 export const fields = sqliteTable('fields', {

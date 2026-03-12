@@ -20,6 +20,7 @@
       bind:collapsed={sidebarCollapsed}
       bookEnabled={data.bookEnabled}
       bookMode={data.bookMode}
+      bookCategories={data.bookCategories}
     />
     <main class="content" class:expanded={sidebarCollapsed}>
       {@render children()}

@@ -48,13 +48,13 @@ function seedBookStructure(db: ReturnType<typeof drizzle<typeof schema>>) {
     if (existing) continue;
 
     const catResult = db.insert(schema.categories).values({
-      name: cat.name, slug: cat.slug, icon: cat.icon, sortOrder: cat.sortOrder
+      name: cat.name, slug: cat.slug, icon: cat.icon, sortOrder: cat.sortOrder, seeded: 1
     }).returning().get();
 
     for (const sec of cat.sections) {
       const secResult = db.insert(schema.sections).values({
         categoryId: catResult.id, name: sec.name, slug: sec.slug,
-        type: sec.type, sortOrder: sec.sortOrder, description: sec.description || null
+        type: sec.type, sortOrder: sec.sortOrder, description: sec.description || null, seeded: 1
       }).returning().get();
 
       if (sec.fields) {
