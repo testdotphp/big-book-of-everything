@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import RecordCard from './RecordCard.svelte';
-  import { ChevronDown, Plus } from 'lucide-svelte';
+  import { ChevronDown, Pencil, Plus } from 'lucide-svelte';
 
   interface Field {
     id: number;
@@ -33,8 +33,7 @@
   let editing = $state(false);
   let editValue = $state('');
 
-  function startEditing(e: MouseEvent) {
-    e.stopPropagation();
+  function startEditing() {
     editValue = isUnassigned ? '' : name;
     editing = true;
   }
@@ -73,6 +72,7 @@
           type="text"
           name="newName"
           class="rename-input"
+          placeholder="Enter person name..."
           value={editValue}
           onblur={(e) => { e.currentTarget.form?.requestSubmit(); editing = false; }}
           onkeydown={handleKeydown}
@@ -80,13 +80,15 @@
         />
       </form>
     {:else}
-      <button
-        class="name-btn"
+      <span
+        class="group-name"
         class:placeholder={isUnassigned}
-        ondblclick={startEditing}
         onclick={() => expanded = !expanded}
       >
-        {isUnassigned ? 'Double-click to enter name' : name}
+        {isUnassigned ? 'No name set' : name}
+      </span>
+      <button class="edit-btn" title="Edit group name" onclick={(e) => { e.stopPropagation(); startEditing(); }}>
+        <Pencil size={12} strokeWidth={2} />
       </button>
     {/if}
     <span class="group-count">{records.length}</span>
@@ -151,13 +153,9 @@
     transform: rotate(180deg);
   }
 
-  .name-btn {
+  .group-name {
     flex: 1;
-    background: none;
-    border: none;
     cursor: pointer;
-    text-align: left;
-    padding: 0;
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 700;
@@ -165,10 +163,27 @@
     color: var(--text-primary);
   }
 
-  .name-btn.placeholder {
+  .group-name.placeholder {
     color: var(--text-muted);
     font-weight: 400;
     font-style: italic;
+  }
+
+  .edit-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .edit-btn:hover {
+    background: color-mix(in srgb, var(--theme-color) 10%, transparent);
+    color: var(--theme-color);
   }
 
   .rename-form {
