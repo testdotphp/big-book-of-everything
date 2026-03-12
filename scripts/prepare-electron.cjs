@@ -54,4 +54,11 @@ execFileSync(process.execPath, [
   env: { ...process.env, NODE_PATH: path.join(root, 'node_modules') }
 });
 
+// Create a minimal package.json for the server directory with "type": "module"
+// so Node.js correctly interprets the SvelteKit ESM build output
+fs.writeFileSync(
+  path.join(stagingDir, 'server-package.json'),
+  JSON.stringify({ type: 'module' }, null, 2)
+);
+
 console.log('Staging complete. Production node_modules ready at .electron-staging/');

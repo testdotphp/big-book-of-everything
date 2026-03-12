@@ -72,6 +72,10 @@
       {
         "from": ".electron-staging/node_modules",
         "to": "server/node_modules"
+      },
+      {
+        "from": ".electron-staging/server-package.json",
+        "to": "server/package.json"
       }
     ],
     "mac": {
