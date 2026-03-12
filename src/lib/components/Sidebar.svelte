@@ -27,6 +27,8 @@
 
   function isGroupExpanded(groupSlug: string): boolean {
     if (groupSlug in manualToggles) return manualToggles[groupSlug];
+    // Auto-expand Records group when Big Book is active
+    if (bookEnabled && groupSlug === 'label-records' && $page.url.pathname.startsWith('/book')) return true;
     // Auto-expand only the group containing the active page
     const group = config.items.find(i => isNavGroup(i) && i.slug === groupSlug);
     if (group && isNavGroup(group)) return groupContainsSlug(group, currentSlug);
@@ -60,26 +62,6 @@
 
   <!-- Navigation -->
   <nav class="nav">
-    {#if bookEnabled}
-      <a
-        href="/book"
-        class="book-item"
-        class:active={$page.url.pathname.startsWith('/book')}
-        class:collapsed
-        title={collapsed ? 'Big Book' : undefined}
-      >
-        <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
-          <Icon name="book-open" size={18} />
-        </span>
-        {#if !collapsed}
-          <span class="book-label">Big Book</span>
-        {/if}
-        {#if $page.url.pathname.startsWith('/book') && !collapsed}
-          <span class="book-active-dot"></span>
-        {/if}
-      </a>
-      <div class="book-divider"></div>
-    {/if}
     {#each config.items as item}
       {#if isNavGroup(item)}
         {@const expanded = isGroupExpanded(item.slug)}
@@ -87,7 +69,7 @@
           {#if !collapsed}
             <button
               class="group-label"
-              class:has-active={groupContainsSlug(item, currentSlug)}
+              class:has-active={groupContainsSlug(item, currentSlug) || (bookEnabled && item.slug === 'label-records' && $page.url.pathname.startsWith('/book'))}
               onclick={() => toggleGroup(item.slug)}
             >
               <span class="group-label-text">{item.label}</span>
@@ -103,6 +85,25 @@
               {#each item.children as child}
                 <NavItem item={child} active={currentSlug === child.slug} {collapsed} />
               {/each}
+              {#if bookEnabled && item.slug === 'label-records'}
+                <a
+                  href="/book"
+                  class="book-item"
+                  class:active={$page.url.pathname.startsWith('/book')}
+                  class:collapsed
+                  title={collapsed ? 'Big Book' : undefined}
+                >
+                  <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
+                    <Icon name="book-open" size={18} />
+                  </span>
+                  {#if !collapsed}
+                    <span class="book-label">Big Book</span>
+                  {/if}
+                  {#if $page.url.pathname.startsWith('/book') && !collapsed}
+                    <span class="book-active-dot"></span>
+                  {/if}
+                </a>
+              {/if}
             </div>
           </div>
         </div>
