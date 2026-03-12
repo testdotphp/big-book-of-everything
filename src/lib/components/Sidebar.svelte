@@ -10,9 +10,10 @@
     config: PortalConfig;
     user: { name?: string | null; email?: string | null; image?: string | null };
     collapsed: boolean;
+    bookEnabled?: boolean;
   }
 
-  let { config, user, collapsed = $bindable(false) }: Props = $props();
+  let { config, user, collapsed = $bindable(false), bookEnabled = false }: Props = $props();
 
   let currentSlug = $derived($page.params.slug || '');
 
@@ -59,6 +60,26 @@
 
   <!-- Navigation -->
   <nav class="nav">
+    {#if bookEnabled}
+      <a
+        href="/book"
+        class="book-item"
+        class:active={$page.url.pathname.startsWith('/book')}
+        class:collapsed
+        title={collapsed ? 'Big Book' : undefined}
+      >
+        <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
+          <Icon name="book-open" size={18} />
+        </span>
+        {#if !collapsed}
+          <span class="book-label">Big Book</span>
+        {/if}
+        {#if $page.url.pathname.startsWith('/book') && !collapsed}
+          <span class="book-active-dot"></span>
+        {/if}
+      </a>
+      <div class="book-divider"></div>
+    {/if}
     {#each config.items as item}
       {#if isNavGroup(item)}
         {@const expanded = isGroupExpanded(item.slug)}
@@ -394,6 +415,83 @@
   }
   .nav::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
+  }
+
+  .book-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    margin: 1px 8px;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .book-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .book-item.active {
+    background: color-mix(in srgb, var(--theme-color) 12%, transparent);
+    color: var(--theme-color);
+    font-weight: 500;
+  }
+
+  .book-item.active:hover {
+    background: color-mix(in srgb, var(--theme-color) 18%, transparent);
+  }
+
+  .book-item.collapsed {
+    justify-content: center;
+    padding: 9px 0;
+    margin: 1px 6px;
+  }
+
+  .book-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+
+  .book-item:hover .book-icon {
+    opacity: 1;
+  }
+
+  .book-icon.active {
+    opacity: 1;
+  }
+
+  .book-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .book-active-dot {
+    position: absolute;
+    right: 10px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--theme-color);
+  }
+
+  .book-divider {
+    height: 1px;
+    margin: 6px 12px;
+    background: var(--border-subtle);
   }
 
   /* Mobile */

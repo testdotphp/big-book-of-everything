@@ -1,5 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 import { getPortalConfig } from '$lib/server/config';
+import { isBookEnabled } from '$lib/server/db';
 import { redirect } from '@sveltejs/kit';
 
 export const load: LayoutServerLoad = async (event) => {
@@ -13,6 +14,7 @@ export const load: LayoutServerLoad = async (event) => {
 
   return {
     session,
-    config
+    config,
+    bookEnabled: isBookEnabled()
   };
 };
