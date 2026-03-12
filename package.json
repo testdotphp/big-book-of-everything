@@ -1,6 +1,6 @@
 {
   "name": "portal-template",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A self-hosted web portal with configurable sidebar navigation, optional OIDC auth, and a built-in Big Book of Everything family information organizer.",
   "keywords": [
     "portal",
@@ -79,6 +79,7 @@
         "to": "server/package.json"
       }
     ],
+    "generateUpdatesFilesForAllChannels": false,
     "mac": {
       "target": [
         {
@@ -89,6 +90,7 @@
           ]
         }
       ],
+      "artifactName": "Big-Book-of-Everything-${version}-${arch}.${ext}",
       "category": "public.app-category.productivity",
       "icon": "electron/icons/icon.icns"
     },
@@ -96,10 +98,12 @@
       "target": [
         "AppImage"
       ],
+      "artifactName": "Big-Book-of-Everything-${version}.${ext}",
       "category": "Utility",
       "icon": "electron/icons"
     },
     "dmg": {
+      "writeUpdateInfo": false,
       "title": "Big Book of Everything",
       "contents": [
         {
