@@ -15,8 +15,9 @@ export const sections = sqliteTable('sections', {
     .references(() => categories.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   slug: text('slug').notNull(),
-  type: text('type', { enum: ['key_value', 'table'] }).notNull().default('key_value'),
-  sortOrder: integer('sort_order').notNull().default(0)
+  type: text('type', { enum: ['key_value', 'table', 'placeholder'] }).notNull().default('key_value'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  description: text('description')
 });
 
 export const fields = sqliteTable('fields', {

@@ -13,7 +13,7 @@
 <div class="header">
   <h1>Big Book of Everything</h1>
   <p class="subtitle">{data.categories.length} categories</p>
-  <a href="/book/admin" class="admin-link" title="Manage structure">
+  <a href="/book/admin" class="admin-link" title="View structure">
     <Settings size={18} strokeWidth={1.75} />
   </a>
 </div>

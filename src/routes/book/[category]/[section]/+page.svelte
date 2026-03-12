@@ -2,7 +2,9 @@
   import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
   import KeyValueEditor from '$lib/components/KeyValueEditor.svelte';
-  import { ChevronRight, Plus, Trash2 } from 'lucide-svelte';
+  import PlaceholderSection from '$lib/components/PlaceholderSection.svelte';
+  import RecordCard from '$lib/components/RecordCard.svelte';
+  import { ChevronRight, Plus } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -22,65 +24,22 @@
 
 <div class="header">
   <h1>{data.section.name}</h1>
-  <span class="type-badge">{data.section.type === 'table' ? 'Table' : 'Key-Value'}</span>
+  <span class="type-badge">{data.section.type === 'table' ? 'Table' : data.section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
 </div>
 
-{#if data.section.type === 'key_value' && data.fields}
-  <KeyValueEditor fields={data.fields} />
+{#if data.section.type === 'placeholder'}
+  <PlaceholderSection description={data.section.description || ''} />
+{:else if data.section.type === 'key_value' && data.fields}
+  <KeyValueEditor fields={data.fields as any} />
 {:else if data.section.type === 'table' && data.records !== null}
   {#if data.fields.length === 0}
     <p class="empty">No fields defined for this section.</p>
   {:else}
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            {#each data.fields as field}
-              <th>{field.name}</th>
-            {/each}
-            <th class="actions-col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each data.records as record}
-            <tr>
-              {#each data.fields as field}
-                <td>
-                  <form
-                    method="POST"
-                    action="?/saveTableCell"
-                    use:enhance={() => {
-                      return async ({ update }) => {
-                        await update({ reset: false, invalidateAll: false });
-                      };
-                    }}
-                  >
-                    <input type="hidden" name="fieldId" value={field.id} />
-                    <input type="hidden" name="recordId" value={record.id} />
-                    <input
-                      name="value"
-                      type="text"
-                      class="cell-input"
-                      value={record.values[field.id] || ''}
-                      onblur={(e) => e.currentTarget.form?.requestSubmit()}
-                    />
-                  </form>
-                </td>
-              {/each}
-              <td class="actions-col">
-                <form method="POST" action="?/deleteRecord" use:enhance>
-                  <input type="hidden" name="recordId" value={record.id} />
-                  <button type="submit" class="delete-btn" title="Delete row">
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </button>
-                </form>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+    <div class="card-list">
+      {#each data.records as record}
+        <RecordCard {record} fields={data.fields} />
+      {/each}
     </div>
-
     <form method="POST" action="?/addRecord" use:enhance>
       <input type="hidden" name="sectionId" value={data.section.id} />
       <button type="submit" class="add-row-btn">
@@ -141,86 +100,6 @@
     font-size: 14px;
   }
 
-  .table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 12px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  th {
-    text-align: left;
-    padding: 10px 14px;
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-muted);
-    background: var(--bg-primary);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  td {
-    padding: 2px 4px;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
-
-  .cell-input {
-    width: 100%;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--radius-sm);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: 13px;
-    padding: 8px 10px;
-    transition: border-color 0.15s, background 0.15s;
-  }
-
-  .cell-input:focus {
-    outline: none;
-    border-color: var(--theme-color);
-    background: var(--bg-primary);
-  }
-
-  .cell-input:hover {
-    background: var(--bg-primary);
-  }
-
-  .actions-col {
-    width: 40px;
-    text-align: center;
-  }
-
-  .delete-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 6px;
-    border-radius: var(--radius-sm);
-    display: inline-flex;
-    transition: color 0.15s, background 0.15s;
-  }
-
-  .delete-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-  }
-
   .add-row-btn {
     display: inline-flex;
     align-items: center;
@@ -239,5 +118,12 @@
   .add-row-btn:hover {
     border-color: var(--theme-color);
     color: var(--theme-color);
+  }
+
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 </style>

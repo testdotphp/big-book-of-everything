@@ -1,0 +1,928 @@
+{
+  "version": "4.0",
+  "categories": [
+    {
+      "name": "About Me and My Family",
+      "slug": "about-me-and-my-family",
+      "icon": "users",
+      "sortOrder": 1,
+      "sections": [
+        {
+          "name": "Personal Information",
+          "slug": "personal-information",
+          "type": "table",
+          "sortOrder": 1,
+          "description": "Basic personal details for each family member.",
+          "fields": [
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Relationship", "slug": "relationship", "fieldType": "text", "sortOrder": 2 },
+            { "name": "SSN", "slug": "ssn", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Date of Birth", "slug": "date-of-birth", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Place of Birth", "slug": "place-of-birth", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Drivers License #", "slug": "drivers-license", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Passport #", "slug": "passport", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Blood Type", "slug": "blood-type", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Mother's Maiden Name", "slug": "mothers-maiden-name", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Email", "slug": "email", "fieldType": "email", "sortOrder": 10 },
+            { "name": "Religious Affiliation", "slug": "religious-affiliation", "fieldType": "text", "sortOrder": 11 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 12 }
+          ]
+        },
+        {
+          "name": "Adoption Information",
+          "slug": "adoption-information",
+          "type": "table",
+          "sortOrder": 2,
+          "description": "Details about adopted family members.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Date of Birth", "slug": "date-of-birth", "fieldType": "date", "sortOrder": 2 },
+            { "name": "Biological Parents", "slug": "biological-parents", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Hospital", "slug": "hospital", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Adoption Date", "slug": "adoption-date", "fieldType": "date", "sortOrder": 5 },
+            { "name": "Agency", "slug": "agency", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Location of Papers", "slug": "location-of-papers", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Pet Information",
+          "slug": "pet-information",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "Details about family pets.",
+          "fields": [
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Color/Markings", "slug": "color-markings", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Date of Birth", "slug": "date-of-birth", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Vet Name", "slug": "vet-name", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Vet Phone", "slug": "vet-phone", "fieldType": "phone", "sortOrder": 6 },
+            { "name": "Chip/Tattoo ID", "slug": "chip-tattoo-id", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Previous Addresses",
+          "slug": "previous-addresses",
+          "type": "table",
+          "sortOrder": 4,
+          "description": "Record of past residences.",
+          "fields": [
+            { "name": "From", "slug": "from", "fieldType": "date", "sortOrder": 1 },
+            { "name": "To", "slug": "to", "fieldType": "date", "sortOrder": 2 },
+            { "name": "Address", "slug": "address", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Phone", "slug": "phone", "fieldType": "phone", "sortOrder": 4 }
+          ]
+        },
+        {
+          "name": "Current Resume",
+          "slug": "current-resume",
+          "type": "placeholder",
+          "sortOrder": 5,
+          "description": "Store copies of current resumes for all family members. Keep both digital copies and note where physical copies are located."
+        },
+        {
+          "name": "Employment History",
+          "slug": "employment-history",
+          "type": "table",
+          "sortOrder": 6,
+          "description": "Work history for family members.",
+          "fields": [
+            { "name": "Company", "slug": "company", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Title", "slug": "title", "fieldType": "text", "sortOrder": 2 },
+            { "name": "From", "slug": "from", "fieldType": "date", "sortOrder": 3 },
+            { "name": "To", "slug": "to", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Salary", "slug": "salary", "fieldType": "currency", "sortOrder": 5 },
+            { "name": "Supervisor", "slug": "supervisor", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Phone", "slug": "phone", "fieldType": "phone", "sortOrder": 7 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Schooling History",
+          "slug": "schooling-history",
+          "type": "table",
+          "sortOrder": 7,
+          "description": "Educational background for family members.",
+          "fields": [
+            { "name": "School", "slug": "school", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 2 },
+            { "name": "From", "slug": "from", "fieldType": "date", "sortOrder": 3 },
+            { "name": "To", "slug": "to", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Degree", "slug": "degree", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Major/Minor", "slug": "major-minor", "fieldType": "text", "sortOrder": 6 },
+            { "name": "GPA", "slug": "gpa", "fieldType": "number", "sortOrder": 7 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Transcripts",
+          "slug": "transcripts",
+          "type": "placeholder",
+          "sortOrder": 8,
+          "description": "Store copies of official transcripts from all educational institutions. Note where originals and certified copies are located."
+        },
+        {
+          "name": "Military History",
+          "slug": "military-history",
+          "type": "table",
+          "sortOrder": 9,
+          "description": "Military service records for family members.",
+          "fields": [
+            { "name": "Branch", "slug": "branch", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Rank", "slug": "rank", "fieldType": "text", "sortOrder": 2 },
+            { "name": "From", "slug": "from", "fieldType": "date", "sortOrder": 3 },
+            { "name": "To", "slug": "to", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Service Number", "slug": "service-number", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Discharge Type", "slug": "discharge-type", "fieldType": "text", "sortOrder": 6 },
+            { "name": "VA Info", "slug": "va-info", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Groups & Organizations",
+          "slug": "groups-organizations",
+          "type": "table",
+          "sortOrder": 10,
+          "description": "Memberships in clubs, organizations, and professional groups.",
+          "fields": [
+            { "name": "Organization", "slug": "organization", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Position", "slug": "position", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Contact", "slug": "contact", "fieldType": "text", "sortOrder": 3 },
+            { "name": "From", "slug": "from", "fieldType": "date", "sortOrder": 4 },
+            { "name": "To", "slug": "to", "fieldType": "date", "sortOrder": 5 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 6 }
+          ]
+        },
+        {
+          "name": "Credit Report",
+          "slug": "credit-report",
+          "type": "placeholder",
+          "sortOrder": 11,
+          "description": "Store copies of credit reports. It is recommended to pull reports annually from each of the three major bureaus (Equifax, Experian, TransUnion)."
+        }
+      ]
+    },
+    {
+      "name": "Other Information",
+      "slug": "other-information",
+      "icon": "file-text",
+      "sortOrder": 2,
+      "sections": [
+        {
+          "name": "Document Location",
+          "slug": "document-location",
+          "type": "key_value",
+          "sortOrder": 1,
+          "description": "Where important documents are stored.",
+          "fields": [
+            { "name": "Birth Certificates", "slug": "birth-certificates", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Marriage License", "slug": "marriage-license", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Divorce Papers", "slug": "divorce-papers", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Social Security Cards", "slug": "social-security-cards", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Passports", "slug": "passports", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Citizenship Papers", "slug": "citizenship-papers", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Death Certificates", "slug": "death-certificates", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Adoption Papers", "slug": "adoption-papers", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Tax Returns", "slug": "tax-returns", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Property Deeds", "slug": "property-deeds", "fieldType": "text", "sortOrder": 10 },
+            { "name": "Mortgage Documents", "slug": "mortgage-documents", "fieldType": "text", "sortOrder": 11 },
+            { "name": "Car Titles", "slug": "car-titles", "fieldType": "text", "sortOrder": 12 },
+            { "name": "Insurance Policies", "slug": "insurance-policies", "fieldType": "text", "sortOrder": 13 },
+            { "name": "Warranties", "slug": "warranties", "fieldType": "text", "sortOrder": 14 },
+            { "name": "Wills/Trusts", "slug": "wills-trusts", "fieldType": "text", "sortOrder": 15 },
+            { "name": "Power of Attorney", "slug": "power-of-attorney", "fieldType": "text", "sortOrder": 16 },
+            { "name": "Safe Deposit Key", "slug": "safe-deposit-key", "fieldType": "text", "sortOrder": 17 }
+          ]
+        },
+        {
+          "name": "Emergency Plan",
+          "slug": "emergency-plan",
+          "type": "key_value",
+          "sortOrder": 2,
+          "description": "Emergency preparedness information for the household.",
+          "fields": [
+            { "name": "Meeting Place (Near Home)", "slug": "meeting-place-near", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Meeting Place (Far from Home)", "slug": "meeting-place-far", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Out of Area Contact", "slug": "out-of-area-contact", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Escape Routes", "slug": "escape-routes", "fieldType": "textarea", "sortOrder": 4 },
+            { "name": "Fire Extinguisher Location", "slug": "fire-extinguisher", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Gas Shut-Off Location", "slug": "gas-shut-off", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Water Shut-Off Location", "slug": "water-shut-off", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Electric Shut-Off Location", "slug": "electric-shut-off", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Emergency Supplies Location", "slug": "emergency-supplies", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Notes", "slug": "notes", "fieldType": "textarea", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Travel Information",
+          "slug": "travel-information",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "Frequent traveler accounts and loyalty programs.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Company", "slug": "company", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Account #", "slug": "account-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Phone", "slug": "phone", "fieldType": "phone", "sortOrder": 4 },
+            { "name": "Points/Miles", "slug": "points-miles", "fieldType": "number", "sortOrder": 5 }
+          ]
+        },
+        {
+          "name": "Safes and Storage",
+          "slug": "safes-and-storage",
+          "type": "table",
+          "sortOrder": 4,
+          "description": "Safe deposit boxes, home safes, and storage units.",
+          "fields": [
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Combination/Key Location", "slug": "combination-key-location", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Contents", "slug": "contents", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Who Has Access", "slug": "who-has-access", "fieldType": "text", "sortOrder": 5 }
+          ]
+        },
+        {
+          "name": "Tax Issues",
+          "slug": "tax-issues",
+          "type": "table",
+          "sortOrder": 5,
+          "description": "Federal and state income tax records.",
+          "fields": [
+            { "name": "Tax Year", "slug": "tax-year", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Location of Forms", "slug": "location-of-forms", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Name of CPA", "slug": "name-of-cpa", "fieldType": "text", "sortOrder": 3 },
+            { "name": "CPA Contact", "slug": "cpa-contact", "fieldType": "phone", "sortOrder": 4 },
+            { "name": "Address", "slug": "address", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Taxable Value", "slug": "taxable-value", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Tax Owed", "slug": "tax-owed", "fieldType": "currency", "sortOrder": 7 },
+            { "name": "Homestead Exempt?", "slug": "homestead-exempt", "fieldType": "boolean", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Property Tax Records",
+          "slug": "property-tax-records",
+          "type": "table",
+          "sortOrder": 6,
+          "description": "Property tax information for owned real estate.",
+          "fields": [
+            { "name": "Tax Year", "slug": "tax-year", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Name of CPA", "slug": "name-of-cpa", "fieldType": "text", "sortOrder": 3 },
+            { "name": "CPA Contact", "slug": "cpa-contact", "fieldType": "phone", "sortOrder": 4 },
+            { "name": "Address", "slug": "address", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Taxable Value", "slug": "taxable-value", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Tax Owed", "slug": "tax-owed", "fieldType": "currency", "sortOrder": 7 },
+            { "name": "Homestead Exempt?", "slug": "homestead-exempt", "fieldType": "boolean", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Estimated Tax Payments",
+          "slug": "estimated-tax-payments",
+          "type": "table",
+          "sortOrder": 7,
+          "description": "Quarterly estimated tax payment records.",
+          "fields": [
+            { "name": "Tax Year", "slug": "tax-year", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Name of CPA", "slug": "name-of-cpa", "fieldType": "text", "sortOrder": 3 },
+            { "name": "CPA Contact", "slug": "cpa-contact", "fieldType": "phone", "sortOrder": 4 },
+            { "name": "Payment Amount", "slug": "payment-amount", "fieldType": "currency", "sortOrder": 5 },
+            { "name": "Date of Payment 1", "slug": "date-of-payment-1", "fieldType": "date", "sortOrder": 6 },
+            { "name": "Date of Payment 2", "slug": "date-of-payment-2", "fieldType": "date", "sortOrder": 7 },
+            { "name": "Date of Payment 3", "slug": "date-of-payment-3", "fieldType": "date", "sortOrder": 8 },
+            { "name": "Date of Payment 4", "slug": "date-of-payment-4", "fieldType": "date", "sortOrder": 9 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Data Backup Plans",
+          "slug": "data-backup-plans",
+          "type": "table",
+          "sortOrder": 8,
+          "description": "How and where digital data is backed up.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Description", "slug": "description", "fieldType": "text", "sortOrder": 2 },
+            { "name": "ID/Login", "slug": "id-login", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Password", "slug": "password", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 5 },
+            { "name": "How to Restore", "slug": "how-to-restore", "fieldType": "text", "sortOrder": 6 }
+          ]
+        },
+        {
+          "name": "Passwords and Logins",
+          "slug": "passwords-and-logins",
+          "type": "table",
+          "sortOrder": 9,
+          "description": "Website and service login credentials.",
+          "fields": [
+            { "name": "Website/Company", "slug": "website-company", "fieldType": "text", "sortOrder": 1 },
+            { "name": "ID", "slug": "id", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Password/PIN", "slug": "password-pin", "fieldType": "text", "sortOrder": 3 }
+          ]
+        },
+        {
+          "name": "Account Numbers",
+          "slug": "account-numbers",
+          "type": "table",
+          "sortOrder": 10,
+          "description": "Utility and service account numbers.",
+          "fields": [
+            { "name": "Account Type", "slug": "account-type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Date Due/How Pay", "slug": "date-due-how-pay", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Company", "slug": "company", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Phone", "slug": "phone", "fieldType": "phone", "sortOrder": 5 },
+            { "name": "Website", "slug": "website", "fieldType": "url", "sortOrder": 6 }
+          ]
+        },
+        {
+          "name": "Online Courses",
+          "slug": "online-courses",
+          "type": "table",
+          "sortOrder": 11,
+          "description": "Online courses and educational subscriptions.",
+          "fields": [
+            { "name": "Course Name", "slug": "course-name", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Website/Source", "slug": "website-source", "fieldType": "url", "sortOrder": 2 },
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Date Purchased", "slug": "date-purchased", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Cost", "slug": "cost", "fieldType": "currency", "sortOrder": 5 },
+            { "name": "Expiration", "slug": "expiration", "fieldType": "date", "sortOrder": 6 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Assets",
+      "slug": "assets",
+      "icon": "dollar-sign",
+      "sortOrder": 3,
+      "sections": [
+        {
+          "name": "Bank Accounts",
+          "slug": "bank-accounts",
+          "type": "table",
+          "sortOrder": 1,
+          "description": "Checking, savings, and money market accounts.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Institution", "slug": "institution", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Owners", "slug": "owners", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Institution Contact", "slug": "institution-contact", "fieldType": "phone", "sortOrder": 5 },
+            { "name": "Statements Sent To", "slug": "statements-sent-to", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Automated Payments From", "slug": "automated-payments-from", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Location of Checks", "slug": "location-of-checks", "fieldType": "text", "sortOrder": 8 },
+            { "name": "ATM/Debit Cards", "slug": "atm-debit-cards", "fieldType": "text", "sortOrder": 9 },
+            { "name": "ATM PIN", "slug": "atm-pin", "fieldType": "text", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Investments",
+          "slug": "investments",
+          "type": "table",
+          "sortOrder": 2,
+          "description": "Stocks, bonds, mutual funds, and other investment accounts.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Contact Info", "slug": "contact-info", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Location of Information", "slug": "location-of-information", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Value", "slug": "value", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 7 }
+          ]
+        },
+        {
+          "name": "Retirement Plans",
+          "slug": "retirement-plans",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "401(k), IRA, pension, and other retirement accounts.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Contact Info", "slug": "contact-info", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Value", "slug": "value", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 7 }
+          ]
+        },
+        {
+          "name": "Private Business",
+          "slug": "private-business",
+          "type": "key_value",
+          "sortOrder": 4,
+          "description": "Information about privately owned businesses.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Position", "slug": "position", "fieldType": "text", "sortOrder": 3 },
+            { "name": "SSN/FEIN", "slug": "ssn-fein", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Partner 1 Name/Contact", "slug": "partner-1", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Partner 2 Name/Contact", "slug": "partner-2", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Location of Forms", "slug": "location-of-forms", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Location of Inventory", "slug": "location-of-inventory", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Bank Name", "slug": "bank-name", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Bank Account", "slug": "bank-account", "fieldType": "text", "sortOrder": 10 },
+            { "name": "Credit Card", "slug": "credit-card", "fieldType": "text", "sortOrder": 11 },
+            { "name": "PIN", "slug": "pin", "fieldType": "text", "sortOrder": 12 },
+            { "name": "Bank URL", "slug": "bank-url", "fieldType": "url", "sortOrder": 13 },
+            { "name": "Bank Website ID/PW", "slug": "bank-website-id-pw", "fieldType": "text", "sortOrder": 14 },
+            { "name": "Domain", "slug": "domain", "fieldType": "url", "sortOrder": 15 },
+            { "name": "Webhost", "slug": "webhost", "fieldType": "text", "sortOrder": 16 },
+            { "name": "Email", "slug": "email", "fieldType": "email", "sortOrder": 17 },
+            { "name": "Other Websites", "slug": "other-websites", "fieldType": "url", "sortOrder": 18 },
+            { "name": "Notes", "slug": "notes", "fieldType": "textarea", "sortOrder": 19 }
+          ]
+        },
+        {
+          "name": "Real Estate",
+          "slug": "real-estate",
+          "type": "table",
+          "sortOrder": 5,
+          "description": "Owned real estate properties.",
+          "fields": [
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 3 },
+            { "name": "Est. Value", "slug": "est-value", "fieldType": "currency", "sortOrder": 4 },
+            { "name": "Mortgage Holder", "slug": "mortgage-holder", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Mortgage Acct #", "slug": "mortgage-acct-num", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Lender Contact", "slug": "lender-contact", "fieldType": "phone", "sortOrder": 7 },
+            { "name": "Property Taxes", "slug": "property-taxes", "fieldType": "currency", "sortOrder": 8 },
+            { "name": "Location of Paperwork", "slug": "location-of-paperwork", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Vehicles",
+          "slug": "vehicles",
+          "type": "table",
+          "sortOrder": 6,
+          "description": "Cars, trucks, boats, RVs, and other vehicles.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Year", "slug": "year", "fieldType": "number", "sortOrder": 2 },
+            { "name": "Make", "slug": "make", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Model", "slug": "model", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Color", "slug": "color", "fieldType": "text", "sortOrder": 5 },
+            { "name": "VIN", "slug": "vin", "fieldType": "text", "sortOrder": 6 },
+            { "name": "License Plate", "slug": "license-plate", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Location of Spare Key", "slug": "location-of-spare-key", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Insurer", "slug": "insurer", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Policy Number", "slug": "policy-number", "fieldType": "text", "sortOrder": 10 },
+            { "name": "Odometer/Hours", "slug": "odometer-hours", "fieldType": "number", "sortOrder": 11 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 12 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 13 }
+          ]
+        },
+        {
+          "name": "Valuables Inventory",
+          "slug": "valuables-inventory",
+          "type": "table",
+          "sortOrder": 7,
+          "description": "High-value items for insurance and estate purposes.",
+          "fields": [
+            { "name": "Item", "slug": "item", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Model Number", "slug": "model-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Color", "slug": "color", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Serial Number", "slug": "serial-number", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Description", "slug": "description", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 8 },
+            { "name": "Est. Value", "slug": "est-value", "fieldType": "currency", "sortOrder": 9 }
+          ]
+        },
+        {
+          "name": "Debts Owed to You",
+          "slug": "debts-owed-to-you",
+          "type": "table",
+          "sortOrder": 8,
+          "description": "Money others owe you.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Debtor", "slug": "debtor", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Debtor Contact", "slug": "debtor-contact", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Originating Date", "slug": "originating-date", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Final Payment Date", "slug": "final-payment-date", "fieldType": "date", "sortOrder": 5 },
+            { "name": "Original Debt Amount", "slug": "original-debt-amount", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Current Balance", "slug": "current-balance", "fieldType": "currency", "sortOrder": 7 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 8 },
+            { "name": "Paid Off?", "slug": "paid-off", "fieldType": "boolean", "sortOrder": 9 }
+          ]
+        },
+        {
+          "name": "Other Assets",
+          "slug": "other-assets",
+          "type": "table",
+          "sortOrder": 9,
+          "description": "Assets not covered in other sections.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Contact Info", "slug": "contact-info", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Value", "slug": "value", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 7 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Liabilities",
+      "slug": "liabilities",
+      "icon": "credit-card",
+      "sortOrder": 4,
+      "sections": [
+        {
+          "name": "Subscriptions",
+          "slug": "subscriptions",
+          "type": "table",
+          "sortOrder": 1,
+          "description": "Recurring subscriptions and memberships.",
+          "fields": [
+            { "name": "Subscription Type", "slug": "subscription-type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Company", "slug": "company", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Expiration Date", "slug": "expiration-date", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Website", "slug": "website", "fieldType": "url", "sortOrder": 5 }
+          ]
+        },
+        {
+          "name": "Loan Obligations",
+          "slug": "loan-obligations",
+          "type": "table",
+          "sortOrder": 2,
+          "description": "Mortgages, car loans, student loans, and other loan accounts.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Loaning Institution", "slug": "loaning-institution", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Contact Info", "slug": "contact-info", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Paid Off?", "slug": "paid-off", "fieldType": "boolean", "sortOrder": 4 },
+            { "name": "Account Number", "slug": "account-number", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Originating Date", "slug": "originating-date", "fieldType": "date", "sortOrder": 6 },
+            { "name": "Final Payment Date", "slug": "final-payment-date", "fieldType": "date", "sortOrder": 7 },
+            { "name": "Loan Amount", "slug": "loan-amount", "fieldType": "currency", "sortOrder": 8 },
+            { "name": "Loan Balance", "slug": "loan-balance", "fieldType": "currency", "sortOrder": 9 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Credit Cards",
+          "slug": "credit-cards",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "All credit card accounts.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Brand", "slug": "brand", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Issuing Bank", "slug": "issuing-bank", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Name on Card", "slug": "name-on-card", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Card Number", "slug": "card-number", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Exp Date", "slug": "exp-date", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Security Code", "slug": "security-code", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Cust Service Phone", "slug": "cust-service-phone", "fieldType": "phone", "sortOrder": 8 },
+            { "name": "Card Website", "slug": "card-website", "fieldType": "url", "sortOrder": 9 },
+            { "name": "Website ID", "slug": "website-id", "fieldType": "text", "sortOrder": 10 },
+            { "name": "Website Password", "slug": "website-password", "fieldType": "text", "sortOrder": 11 },
+            { "name": "Outside US Phone", "slug": "outside-us-phone", "fieldType": "phone", "sortOrder": 12 },
+            { "name": "Interest Rate", "slug": "interest-rate", "fieldType": "text", "sortOrder": 13 },
+            { "name": "Balance", "slug": "balance", "fieldType": "currency", "sortOrder": 14 },
+            { "name": "Credit Limit", "slug": "credit-limit", "fieldType": "currency", "sortOrder": 15 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 16 },
+            { "name": "Closed?", "slug": "closed", "fieldType": "boolean", "sortOrder": 17 },
+            { "name": "Date Closed", "slug": "date-closed", "fieldType": "date", "sortOrder": 18 }
+          ]
+        },
+        {
+          "name": "Other Debts",
+          "slug": "other-debts",
+          "type": "table",
+          "sortOrder": 4,
+          "description": "Personal debts, medical bills, and other liabilities.",
+          "fields": [
+            { "name": "Type", "slug": "type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Debt Holder", "slug": "debt-holder", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Holder Contact", "slug": "holder-contact", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Originating Date", "slug": "originating-date", "fieldType": "date", "sortOrder": 4 },
+            { "name": "Final Payment Date", "slug": "final-payment-date", "fieldType": "date", "sortOrder": 5 },
+            { "name": "Original Debt Amount", "slug": "original-debt-amount", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Current Balance", "slug": "current-balance", "fieldType": "currency", "sortOrder": 7 },
+            { "name": "Date", "slug": "date", "fieldType": "date", "sortOrder": 8 },
+            { "name": "Paid Off?", "slug": "paid-off", "fieldType": "boolean", "sortOrder": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Insurance",
+      "slug": "insurance",
+      "icon": "shield",
+      "sortOrder": 5,
+      "sections": [
+        {
+          "name": "Life Insurance",
+          "slug": "life-insurance",
+          "type": "table",
+          "sortOrder": 1,
+          "description": "Life insurance policies for family members.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Policy Holder", "slug": "policy-holder", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Policy Number", "slug": "policy-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Policy Amount", "slug": "policy-amount", "fieldType": "currency", "sortOrder": 4 },
+            { "name": "Policy Holder Contact", "slug": "policy-holder-contact", "fieldType": "phone", "sortOrder": 5 },
+            { "name": "Beneficiaries", "slug": "beneficiaries", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Due Date", "slug": "due-date", "fieldType": "date", "sortOrder": 7 },
+            { "name": "How to Pay", "slug": "how-to-pay", "fieldType": "text", "sortOrder": 8 }
+          ]
+        },
+        {
+          "name": "Health Insurance",
+          "slug": "health-insurance",
+          "type": "table",
+          "sortOrder": 2,
+          "description": "Health and dental insurance coverage.",
+          "fields": [
+            { "name": "Who Covered", "slug": "who-covered", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Insurer", "slug": "insurer", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Policy Number", "slug": "policy-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Policy Contact", "slug": "policy-contact", "fieldType": "phone", "sortOrder": 4 },
+            { "name": "Network", "slug": "network", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Co Pay Amount", "slug": "co-pay-amount", "fieldType": "currency", "sortOrder": 6 },
+            { "name": "Website", "slug": "website", "fieldType": "url", "sortOrder": 7 },
+            { "name": "Cost/Month", "slug": "cost-month", "fieldType": "currency", "sortOrder": 8 },
+            { "name": "Due Date", "slug": "due-date", "fieldType": "date", "sortOrder": 9 },
+            { "name": "How Pay", "slug": "how-pay", "fieldType": "text", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Car Insurance",
+          "slug": "car-insurance",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "Auto insurance policies.",
+          "fields": [
+            { "name": "Insurer", "slug": "insurer", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Drivers Covered", "slug": "drivers-covered", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Car Make/Model", "slug": "car-make-model", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Policy Number", "slug": "policy-number", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Contact", "slug": "contact", "fieldType": "phone", "sortOrder": 5 },
+            { "name": "Coverage", "slug": "coverage", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Deductibles", "slug": "deductibles", "fieldType": "currency", "sortOrder": 7 },
+            { "name": "$ Deductions", "slug": "deductions", "fieldType": "currency", "sortOrder": 8 },
+            { "name": "Due Date/How Pay", "slug": "due-date-how-pay", "fieldType": "text", "sortOrder": 9 }
+          ]
+        },
+        {
+          "name": "Other Vehicle Insurance",
+          "slug": "other-vehicle-insurance",
+          "type": "table",
+          "sortOrder": 4,
+          "description": "Insurance for boats, RVs, motorcycles, and other vehicles.",
+          "fields": [
+            { "name": "Insurer", "slug": "insurer", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Drivers Covered", "slug": "drivers-covered", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Vehicle Make/Model", "slug": "vehicle-make-model", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Policy Number", "slug": "policy-number", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Contact", "slug": "contact", "fieldType": "phone", "sortOrder": 5 },
+            { "name": "Vehicle Type", "slug": "vehicle-type", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Coverage", "slug": "coverage", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Deductibles", "slug": "deductibles", "fieldType": "currency", "sortOrder": 8 },
+            { "name": "$ Deductions", "slug": "deductions", "fieldType": "currency", "sortOrder": 9 },
+            { "name": "Due Date/How Pay", "slug": "due-date-how-pay", "fieldType": "text", "sortOrder": 10 }
+          ]
+        },
+        {
+          "name": "Homeowner/Renters Insurance",
+          "slug": "homeowner-renters-insurance",
+          "type": "table",
+          "sortOrder": 5,
+          "description": "Property insurance for homes and rental properties.",
+          "fields": [
+            { "name": "Insurer", "slug": "insurer", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Location Insured", "slug": "location-insured", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Policy Number", "slug": "policy-number", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Contact", "slug": "contact", "fieldType": "phone", "sortOrder": 4 },
+            { "name": "Deductible", "slug": "deductible", "fieldType": "currency", "sortOrder": 5 },
+            { "name": "Due Date", "slug": "due-date", "fieldType": "date", "sortOrder": 6 },
+            { "name": "How Pay", "slug": "how-pay", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Items Explicitly Covered", "slug": "items-explicitly-covered", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Policy Notes", "slug": "policy-notes", "fieldType": "text", "sortOrder": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Medical",
+      "slug": "medical",
+      "icon": "heart-pulse",
+      "sortOrder": 6,
+      "sections": [
+        {
+          "name": "Medical History",
+          "slug": "medical-history",
+          "type": "table",
+          "sortOrder": 1,
+          "description": "Past illnesses, surgeries, and medical conditions.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Approx Date", "slug": "approx-date", "fieldType": "date", "sortOrder": 2 },
+            { "name": "Condition/Illness", "slug": "condition-illness", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Notes/Results", "slug": "notes-results", "fieldType": "text", "sortOrder": 4 }
+          ]
+        },
+        {
+          "name": "Prescription Medication",
+          "slug": "prescription-medication",
+          "type": "table",
+          "sortOrder": 2,
+          "description": "Current prescriptions for family members.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Medication", "slug": "medication", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Dosage", "slug": "dosage", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Prescribing Doctor", "slug": "prescribing-doctor", "fieldType": "text", "sortOrder": 4 }
+          ]
+        },
+        {
+          "name": "Extended Family Medical History",
+          "slug": "extended-family-medical-history",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "Hereditary conditions and family health patterns.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Relationship", "slug": "relationship", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Illness/Disease", "slug": "illness-disease", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Details", "slug": "details", "fieldType": "text", "sortOrder": 4 }
+          ]
+        },
+        {
+          "name": "Long Term Health Care Directions",
+          "slug": "long-term-health-care-directions",
+          "type": "table",
+          "sortOrder": 4,
+          "description": "Preferences for long-term care scenarios.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Situation", "slug": "situation", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Care Desired", "slug": "care-desired", "fieldType": "text", "sortOrder": 3 }
+          ]
+        },
+        {
+          "name": "Organ Donation",
+          "slug": "organ-donation",
+          "type": "table",
+          "sortOrder": 5,
+          "description": "Organ and tissue donation preferences.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Body Part(s)", "slug": "body-parts", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Donate/Do Not Donate", "slug": "donate-status", "fieldType": "text", "sortOrder": 3 }
+          ]
+        },
+        {
+          "name": "Medical Documentation",
+          "slug": "medical-documentation",
+          "type": "table",
+          "sortOrder": 6,
+          "description": "Location of medical legal documents like living wills and healthcare proxies.",
+          "fields": [
+            { "name": "Document Type", "slug": "document-type", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Document", "slug": "document", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Location", "slug": "location", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Law Firm", "slug": "law-firm", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Contact", "slug": "contact", "fieldType": "phone", "sortOrder": 5 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Final Arrangements",
+      "slug": "final-arrangements",
+      "icon": "scroll-text",
+      "sortOrder": 7,
+      "sections": [
+        {
+          "name": "Guardianship of Children",
+          "slug": "guardianship-of-children",
+          "type": "table",
+          "sortOrder": 1,
+          "description": "Designated guardians for minor children.",
+          "fields": [
+            { "name": "Child Name", "slug": "child-name", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Guardian Name", "slug": "guardian-name", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Guardian Phone", "slug": "guardian-phone", "fieldType": "phone", "sortOrder": 3 },
+            { "name": "Guardian Address", "slug": "guardian-address", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Notes for Guardian", "slug": "notes-for-guardian", "fieldType": "text", "sortOrder": 5 }
+          ]
+        },
+        {
+          "name": "Final Arrangements",
+          "slug": "final-arrangements-details",
+          "type": "table",
+          "sortOrder": 2,
+          "description": "End-of-life wishes and funeral preferences.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Date Updated", "slug": "date-updated", "fieldType": "date", "sortOrder": 2 },
+            { "name": "Time on Life Support", "slug": "time-on-life-support", "fieldType": "text", "sortOrder": 3 },
+            { "name": "DNR?", "slug": "dnr", "fieldType": "boolean", "sortOrder": 4 },
+            { "name": "Institution", "slug": "institution", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Casket Type", "slug": "casket-type", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Open/Closed?", "slug": "open-closed", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Embalmed?", "slug": "embalmed", "fieldType": "boolean", "sortOrder": 8 },
+            { "name": "Burial/Cremation", "slug": "burial-cremation", "fieldType": "text", "sortOrder": 9 },
+            { "name": "Where Interred", "slug": "where-interred", "fieldType": "text", "sortOrder": 10 },
+            { "name": "Who Performs Ceremony", "slug": "who-performs-ceremony", "fieldType": "text", "sortOrder": 11 },
+            { "name": "Pallbearers", "slug": "pallbearers", "fieldType": "text", "sortOrder": 12 },
+            { "name": "Grave/Memorial Details", "slug": "grave-memorial-details", "fieldType": "text", "sortOrder": 13 },
+            { "name": "Ceremony Speakers", "slug": "ceremony-speakers", "fieldType": "text", "sortOrder": 14 },
+            { "name": "Special Music/Food", "slug": "special-music-food", "fieldType": "text", "sortOrder": 15 },
+            { "name": "Where Flowers/Donations", "slug": "where-flowers-donations", "fieldType": "text", "sortOrder": 16 },
+            { "name": "Location of Will", "slug": "location-of-will", "fieldType": "text", "sortOrder": 17 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 18 },
+            { "name": "Prepaid Funeral Info", "slug": "prepaid-funeral-info", "fieldType": "text", "sortOrder": 19 }
+          ]
+        },
+        {
+          "name": "Funeral Guest List",
+          "slug": "funeral-guest-list",
+          "type": "table",
+          "sortOrder": 3,
+          "description": "People to notify and invite to funeral services.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Phone", "slug": "phone", "fieldType": "phone", "sortOrder": 3 },
+            { "name": "Email", "slug": "email", "fieldType": "email", "sortOrder": 4 }
+          ]
+        },
+        {
+          "name": "Eulogy Notes",
+          "slug": "eulogy-notes",
+          "type": "table",
+          "sortOrder": 4,
+          "description": "Notes and memories for eulogies.",
+          "fields": [
+            { "name": "Who", "slug": "who", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 2 }
+          ]
+        },
+        {
+          "name": "Personal Letters",
+          "slug": "personal-letters",
+          "type": "table",
+          "sortOrder": 5,
+          "description": "Letters to be delivered after passing.",
+          "fields": [
+            { "name": "Author", "slug": "author", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Date of Letter", "slug": "date-of-letter", "fieldType": "date", "sortOrder": 2 },
+            { "name": "Who is the Letter For", "slug": "who-is-the-letter-for", "fieldType": "text", "sortOrder": 3 }
+          ]
+        },
+        {
+          "name": "Estate Planning",
+          "slug": "estate-planning",
+          "type": "key_value",
+          "sortOrder": 6,
+          "description": "Estate planning contacts and document locations.",
+          "fields": [
+            { "name": "Estate Attorney", "slug": "estate-attorney", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Attorney Contact", "slug": "attorney-contact", "fieldType": "phone", "sortOrder": 2 },
+            { "name": "Trust Name", "slug": "trust-name", "fieldType": "text", "sortOrder": 3 },
+            { "name": "Trust Type", "slug": "trust-type", "fieldType": "text", "sortOrder": 4 },
+            { "name": "Trustee", "slug": "trustee", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Executor", "slug": "executor", "fieldType": "text", "sortOrder": 6 },
+            { "name": "Will Location", "slug": "will-location", "fieldType": "text", "sortOrder": 7 },
+            { "name": "Trust Document Location", "slug": "trust-document-location", "fieldType": "text", "sortOrder": 8 },
+            { "name": "Notes", "slug": "notes", "fieldType": "textarea", "sortOrder": 9 }
+          ]
+        },
+        {
+          "name": "Important Contacts",
+          "slug": "important-contacts",
+          "type": "table",
+          "sortOrder": 7,
+          "description": "Key people to contact in the event of an emergency or death.",
+          "fields": [
+            { "name": "Name", "slug": "name", "fieldType": "text", "sortOrder": 1 },
+            { "name": "Relationship", "slug": "relationship", "fieldType": "text", "sortOrder": 2 },
+            { "name": "Phone", "slug": "phone", "fieldType": "phone", "sortOrder": 3 },
+            { "name": "Email", "slug": "email", "fieldType": "email", "sortOrder": 4 },
+            { "name": "Address", "slug": "address", "fieldType": "text", "sortOrder": 5 },
+            { "name": "Notes", "slug": "notes", "fieldType": "text", "sortOrder": 6 }
+          ]
+        }
+      ]
+    }
+  ]
+}

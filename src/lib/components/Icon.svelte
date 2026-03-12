@@ -9,7 +9,7 @@
     Box, ScrollText, Cpu, Router, Wrench, Workflow,
     Database, Monitor, Server, Settings, Archive,
     Gamepad2, Gauge, HeartPulse, Laptop, Smartphone,
-    User, Folder
+    User, Folder, Users, CreditCard
   } from 'lucide-svelte';
   import type { ComponentType } from 'svelte';
 
@@ -73,6 +73,8 @@
     'smartphone': Smartphone,
     'user': User,
     'folder': Folder,
+    'users': Users,
+    'credit-card': CreditCard,
   };
 
   let IconComponent = $derived(iconMap[name] || Box);

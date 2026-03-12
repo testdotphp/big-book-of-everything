@@ -16,6 +16,7 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/configs ./configs
 
 # Portal config is mounted at runtime
 # PORTAL_CONFIG_PATH defaults to /app/portal.config.json

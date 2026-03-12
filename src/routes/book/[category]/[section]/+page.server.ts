@@ -23,6 +23,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
   if (!section) throw error(404, 'Section not found');
 
+  if (section.type === 'placeholder') {
+    return { category, section, fields: [], records: null };
+  }
+
   const fieldList = db
     .select()
     .from(fields)

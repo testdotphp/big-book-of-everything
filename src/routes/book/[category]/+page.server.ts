@@ -32,7 +32,9 @@ export const load: PageServerLoad = async ({ params }) => {
 
   // Get counts for each section
   const sectionsWithCounts = sectionList.map((s) => {
-    if (s.type === 'table') {
+    if (s.type === 'placeholder') {
+      return { ...s, itemCount: 0, totalFields: 0, itemLabel: 'info' };
+    } else if (s.type === 'table') {
       const recordCount = db
         .select({ count: count() })
         .from(records)

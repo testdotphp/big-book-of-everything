@@ -35,14 +35,16 @@
         <div class="section-info">
           <span class="section-name">{section.name}</span>
           <span class="section-meta">
-            {#if section.type === 'table'}
+            {#if section.type === 'placeholder'}
+              Info page
+            {:else if section.type === 'table'}
               {section.itemCount} {section.itemCount === 1 ? 'record' : 'records'}
             {:else}
-              {section.itemCount}/{section.totalFields} fields
+              {section.itemCount}/{'totalFields' in section ? section.totalFields : 0} fields
             {/if}
           </span>
         </div>
-        <span class="section-type">{section.type === 'table' ? 'Table' : 'Key-Value'}</span>
+        <span class="section-type">{section.type === 'table' ? 'Table' : section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
         <ChevronRight size={16} strokeWidth={2} />
       </a>
     {/each}
