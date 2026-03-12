@@ -27,7 +27,8 @@
 
   let { name, records, fields, sectionId, whoFieldId, expanded: initialExpanded = false }: Props = $props();
   let expanded = $state(initialExpanded);
-  let cardFields = $derived(fields.filter((f) => f.id !== whoFieldId));
+  let isUnassigned = $derived(name === 'Unassigned');
+  let cardFields = $derived(isUnassigned ? fields : fields.filter((f) => f.id !== whoFieldId));
 </script>
 
 <div class="person-group" class:expanded>
