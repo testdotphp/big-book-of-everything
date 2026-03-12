@@ -1,4 +1,4 @@
-const { execFileSync } = require('child_process');
+const { execFileSync, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -24,12 +24,12 @@ if (fs.existsSync(path.join(root, 'package-lock.json'))) {
   );
 }
 
-// Install production dependencies only
+// Install production dependencies only (use shell: true for Windows .cmd compatibility)
 console.log('Installing production dependencies...');
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-execFileSync(npm, ['ci', '--omit=dev', '--legacy-peer-deps'], {
+execFileSync('npm', ['ci', '--omit=dev', '--legacy-peer-deps'], {
   cwd: stagingDir,
-  stdio: 'inherit'
+  stdio: 'inherit',
+  shell: true
 });
 
 // Rebuild better-sqlite3 for Electron using the programmatic API
