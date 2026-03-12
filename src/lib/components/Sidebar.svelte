@@ -5,7 +5,7 @@
   import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, HelpCircle, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson } from 'lucide-svelte';
 
   interface BookCategory {
     id: number;
@@ -423,9 +423,6 @@
     {#if !collapsed}
       <div class="sidebar-footer-left">
         {#if bookEnabled}
-          <a href="/book/admin" class="footer-btn" title="Structure overview">
-            <Settings size={16} strokeWidth={1.75} />
-          </a>
           <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
             <HardDriveDownload size={16} strokeWidth={1.75} />
           </button>
@@ -445,9 +442,6 @@
         {user.name?.charAt(0).toUpperCase() || '?'}
       </div>
     {/if}
-    <a href="/help" class="footer-btn" title="Setup & Help">
-      <HelpCircle size={16} strokeWidth={1.75} />
-    </a>
     {#if !bookMode}
       <a href="/auth/signout" class="signout-btn" title="Sign out">
         <LogOut size={16} strokeWidth={1.75} />

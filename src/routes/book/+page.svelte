@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
-  import { Plus, Settings } from 'lucide-svelte';
+  import { Plus } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -15,9 +15,6 @@
 <div class="header">
   <h1>Big Book of Everything</h1>
   <p class="subtitle">{data.categories.length} categories</p>
-  <a href="/book/admin" class="admin-link" title="View structure">
-    <Settings size={18} strokeWidth={1.75} />
-  </a>
 </div>
 
 <div class="grid">
@@ -80,20 +77,6 @@
   .subtitle {
     font-size: 14px;
     color: var(--text-muted);
-  }
-
-  .admin-link {
-    margin-left: auto;
-    color: var(--text-muted);
-    padding: 6px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    transition: color 0.15s, background 0.15s;
-  }
-
-  .admin-link:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
   }
 
   .grid {
