@@ -29,16 +29,68 @@
   let expanded = $state(initialExpanded);
   let isUnassigned = $derived(name === 'Unassigned');
   let cardFields = $derived(isUnassigned ? fields : fields.filter((f) => f.id !== whoFieldId));
+
+  let editing = $state(false);
+  let editValue = $state('');
+
+  function startEditing(e: MouseEvent) {
+    e.stopPropagation();
+    editValue = isUnassigned ? '' : name;
+    editing = true;
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      (e.currentTarget as HTMLInputElement).form?.requestSubmit();
+      editing = false;
+    } else if (e.key === 'Escape') {
+      editing = false;
+    }
+  }
 </script>
 
 <div class="person-group" class:expanded>
-  <button class="group-header" onclick={() => expanded = !expanded}>
-    <span class="chevron" class:rotated={expanded}>
-      <ChevronDown size={16} strokeWidth={2} />
-    </span>
-    <span class="group-name">{name}</span>
+  <div class="group-header">
+    <button class="toggle-btn" onclick={() => expanded = !expanded}>
+      <span class="chevron" class:rotated={expanded}>
+        <ChevronDown size={16} strokeWidth={2} />
+      </span>
+    </button>
+    {#if editing}
+      <form
+        method="POST"
+        action="?/renameGroup"
+        class="rename-form"
+        use:enhance={() => {
+          return async ({ update }) => {
+            await update({ reset: false });
+          };
+        }}
+      >
+        <input type="hidden" name="whoFieldId" value={whoFieldId} />
+        <input type="hidden" name="recordIds" value={records.map((r) => r.id).join(',')} />
+        <input
+          type="text"
+          name="newName"
+          class="rename-input"
+          value={editValue}
+          onblur={(e) => { e.currentTarget.form?.requestSubmit(); editing = false; }}
+          onkeydown={handleKeydown}
+          autofocus
+        />
+      </form>
+    {:else}
+      <button
+        class="name-btn"
+        class:placeholder={isUnassigned}
+        ondblclick={startEditing}
+        onclick={() => expanded = !expanded}
+      >
+        {isUnassigned ? 'Double-click to enter name' : name}
+      </button>
+    {/if}
     <span class="group-count">{records.length}</span>
-  </button>
+  </div>
 
   {#if expanded}
     <div class="group-body">
@@ -50,10 +102,10 @@
       <form method="POST" action="?/addRecord" use:enhance>
         <input type="hidden" name="sectionId" value={sectionId} />
         <input type="hidden" name="whoFieldId" value={whoFieldId} />
-        <input type="hidden" name="whoValue" value={name === 'Unassigned' ? '' : name} />
+        <input type="hidden" name="whoValue" value={isUnassigned ? '' : name} />
         <button type="submit" class="add-row-btn">
           <Plus size={14} strokeWidth={2} />
-          {name === 'Unassigned' ? 'Add entry' : `Add entry for ${name}`}
+          {isUnassigned ? 'Add entry' : `Add entry for ${name}`}
         </button>
       </form>
     </div>
@@ -78,9 +130,14 @@
     gap: 8px;
     padding: 12px 16px;
     background: var(--bg-secondary);
+  }
+
+  .toggle-btn {
+    display: flex;
+    background: none;
     border: none;
     cursor: pointer;
-    text-align: left;
+    padding: 0;
     color: var(--text-primary);
   }
 
@@ -94,11 +151,42 @@
     transform: rotate(180deg);
   }
 
-  .group-name {
+  .name-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 700;
     letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  .name-btn.placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .rename-form {
+    flex: 1;
+  }
+
+  .rename-input {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--theme-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding: 2px 8px;
+    outline: none;
   }
 
   .group-count {

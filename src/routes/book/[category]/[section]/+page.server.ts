@@ -152,6 +152,30 @@ export const actions: Actions = {
     return { success: true };
   },
 
+  renameGroup: async ({ request }) => {
+    const db = getDb();
+    const formData = await request.formData();
+    const whoFieldId = Number(formData.get('whoFieldId'));
+    const newName = String(formData.get('newName') ?? '');
+    const recordIds = String(formData.get('recordIds') ?? '').split(',').map(Number).filter(Boolean);
+
+    for (const recordId of recordIds) {
+      const existing = db
+        .select()
+        .from(values)
+        .where(and(eq(values.fieldId, whoFieldId), eq(values.recordId, recordId)))
+        .get();
+
+      if (existing) {
+        db.update(values).set({ value: newName }).where(eq(values.id, existing.id)).run();
+      } else {
+        db.insert(values).values({ fieldId: whoFieldId, recordId, value: newName }).run();
+      }
+    }
+
+    return { success: true };
+  },
+
   deleteRecord: async ({ request }) => {
     const db = getDb();
     const formData = await request.formData();
