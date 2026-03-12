@@ -45,5 +45,56 @@
     "drizzle-orm": "^0.45.1",
     "lucide-svelte": "^0.468.0"
   },
-  "type": "module"
+  "type": "module",
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.testdotphp.big-book-of-everything",
+    "productName": "Big Book of Everything",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "build",
+        "to": "server/build"
+      },
+      {
+        "from": "drizzle",
+        "to": "server/drizzle"
+      },
+      {
+        "from": "configs/book-structure.json",
+        "to": "server/configs/book-structure.json"
+      },
+      {
+        "from": ".electron-staging/node_modules",
+        "to": "server/node_modules"
+      }
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "electron/icons/icon.icns"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Utility",
+      "icon": "electron/icons"
+    },
+    "dmg": {
+      "title": "Big Book of Everything",
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    }
+  }
 }
