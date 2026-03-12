@@ -11,9 +11,10 @@
     user: { name?: string | null; email?: string | null; image?: string | null };
     collapsed: boolean;
     bookEnabled?: boolean;
+    bookMode?: boolean;
   }
 
-  let { config, user, collapsed = $bindable(false), bookEnabled = false }: Props = $props();
+  let { config, user, collapsed = $bindable(false), bookEnabled = false, bookMode = false }: Props = $props();
 
   let currentSlug = $derived($page.params.slug || '');
 
@@ -62,55 +63,72 @@
 
   <!-- Navigation -->
   <nav class="nav">
-    {#each config.items as item}
-      {#if isNavGroup(item)}
-        {@const expanded = isGroupExpanded(item.slug)}
-        <div class="nav-group">
-          {#if !collapsed}
-            <button
-              class="group-label"
-              class:has-active={groupContainsSlug(item, currentSlug) || (bookEnabled && item.slug === 'label-records' && $page.url.pathname.startsWith('/book'))}
-              onclick={() => toggleGroup(item.slug)}
-            >
-              <span class="group-label-text">{item.label}</span>
-              <span class="group-chevron" class:expanded>
-                <ChevronDown size={12} strokeWidth={2} />
-              </span>
-            </button>
-          {:else}
-            <div class="group-divider"></div>
-          {/if}
-          <div class="group-children" class:expanded>
-            <div class="group-children-inner">
-              {#each item.children as child}
-                <NavItem item={child} active={currentSlug === child.slug} {collapsed} />
-              {/each}
-              {#if bookEnabled && item.slug === 'label-records'}
-                <a
-                  href="/book"
-                  class="book-item"
-                  class:active={$page.url.pathname.startsWith('/book')}
-                  class:collapsed
-                  title={collapsed ? 'Big Book' : undefined}
-                >
-                  <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
-                    <Icon name="book-open" size={18} />
-                  </span>
-                  {#if !collapsed}
-                    <span class="book-label">Big Book</span>
-                  {/if}
-                  {#if $page.url.pathname.startsWith('/book') && !collapsed}
-                    <span class="book-active-dot"></span>
-                  {/if}
-                </a>
-              {/if}
+    {#if bookMode && bookEnabled}
+      <a
+        href="/book"
+        class="book-item"
+        class:active={$page.url.pathname.startsWith('/book')}
+        class:collapsed
+        title={collapsed ? 'Big Book' : undefined}
+      >
+        <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
+          <Icon name="book-open" size={18} />
+        </span>
+        {#if !collapsed}
+          <span class="book-label">Big Book</span>
+        {/if}
+      </a>
+    {:else}
+      {#each config.items as item}
+        {#if isNavGroup(item)}
+          {@const expanded = isGroupExpanded(item.slug)}
+          <div class="nav-group">
+            {#if !collapsed}
+              <button
+                class="group-label"
+                class:has-active={groupContainsSlug(item, currentSlug) || (bookEnabled && item.slug === 'label-records' && $page.url.pathname.startsWith('/book'))}
+                onclick={() => toggleGroup(item.slug)}
+              >
+                <span class="group-label-text">{item.label}</span>
+                <span class="group-chevron" class:expanded>
+                  <ChevronDown size={12} strokeWidth={2} />
+                </span>
+              </button>
+            {:else}
+              <div class="group-divider"></div>
+            {/if}
+            <div class="group-children" class:expanded>
+              <div class="group-children-inner">
+                {#each item.children as child}
+                  <NavItem item={child} active={currentSlug === child.slug} {collapsed} />
+                {/each}
+                {#if bookEnabled && item.slug === 'label-records'}
+                  <a
+                    href="/book"
+                    class="book-item"
+                    class:active={$page.url.pathname.startsWith('/book')}
+                    class:collapsed
+                    title={collapsed ? 'Big Book' : undefined}
+                  >
+                    <span class="book-icon" class:active={$page.url.pathname.startsWith('/book')}>
+                      <Icon name="book-open" size={18} />
+                    </span>
+                    {#if !collapsed}
+                      <span class="book-label">Big Book</span>
+                    {/if}
+                    {#if $page.url.pathname.startsWith('/book') && !collapsed}
+                      <span class="book-active-dot"></span>
+                    {/if}
+                  </a>
+                {/if}
+              </div>
             </div>
           </div>
-        </div>
-      {:else}
-        <NavItem {item} active={currentSlug === item.slug} {collapsed} />
-      {/if}
-    {/each}
+        {:else}
+          <NavItem {item} active={currentSlug === item.slug} {collapsed} />
+        {/if}
+      {/each}
+    {/if}
   </nav>
 
   <!-- Footer -->
@@ -133,9 +151,11 @@
     <a href="/help" class="footer-btn" title="Setup & Help">
       <HelpCircle size={16} strokeWidth={1.75} />
     </a>
-    <a href="/auth/signout" class="signout-btn" title="Sign out">
-      <LogOut size={16} strokeWidth={1.75} />
-    </a>
+    {#if !bookMode}
+      <a href="/auth/signout" class="signout-btn" title="Sign out">
+        <LogOut size={16} strokeWidth={1.75} />
+      </a>
+    {/if}
   </div>
 </aside>
 

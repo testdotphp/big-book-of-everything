@@ -19,6 +19,7 @@
       user={data.session.user}
       bind:collapsed={sidebarCollapsed}
       bookEnabled={data.bookEnabled}
+      bookMode={data.bookMode}
     />
     <main class="content" class:expanded={sidebarCollapsed}>
       {@render children()}
