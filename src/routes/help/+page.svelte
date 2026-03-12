@@ -24,10 +24,10 @@
         <Download size={18} strokeWidth={2} />
         Download Certificate
       </h2>
-      <p>This certificate authority (CA) is used to secure all <code>*.teedge.local</code> services with HTTPS.</p>
+      <p>If your portal uses a custom CA for HTTPS, download and install the certificate to avoid browser warnings.</p>
       <a href="/api/ca-cert" class="download-btn">
         <Download size={16} strokeWidth={2} />
-        Download teedge-local-ca.crt
+        Download CA Certificate
       </a>
     </div>
 
@@ -88,7 +88,7 @@
           <li>Go to <strong>Settings &gt; General &gt; VPN & Device Management</strong></li>
           <li>Tap the downloaded profile and install it</li>
           <li>Go to <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong></li>
-          <li>Enable full trust for the <strong>teedge.local CA</strong></li>
+          <li>Enable full trust for the installed CA certificate</li>
         </ol>
 
         <h3>

@@ -1,0 +1,23 @@
+services:
+  portal:
+    build: .
+    container_name: portal
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      ORIGIN: "http://localhost:3000"
+      PORTAL_CONFIG_PATH: "/app/portal.config.json"
+      BOOK_DB_PATH: "/data/book.db"
+      # Uncomment for OIDC authentication:
+      # OIDC_ISSUER: "https://your-oidc-provider/.well-known/openid-configuration"
+      # OIDC_CLIENT_ID: "your-client-id"
+      # OIDC_CLIENT_SECRET: "your-client-secret"
+      # AUTH_SECRET: "generate-with-openssl-rand-base64-32"
+    volumes:
+      - ./configs/example.config.json:/app/portal.config.json:ro
+      - portal-data:/data
+    mem_limit: 512m
+
+volumes:
+  portal-data:

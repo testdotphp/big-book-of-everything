@@ -1,0 +1,20 @@
+{
+  "name": "My Portal",
+  "icon": "home",
+  "theme": "#4CAF50",
+  "items": [
+    {
+      "slug": "services",
+      "label": "Services",
+      "icon": "layout-grid",
+      "children": [
+        {
+          "slug": "example",
+          "label": "Example Service",
+          "icon": "globe",
+          "url": "https://example.com"
+        }
+      ]
+    }
+  ]
+}

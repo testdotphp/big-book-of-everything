@@ -19,7 +19,7 @@
     </div>
     <h1>Welcome to {portalName}</h1>
     <p>Sign in with your account to continue.</p>
-    <form method="POST" action="/auth/signin/authentik">
+    <form method="POST" action="/auth/signin/oidc">
       <button type="submit" class="login-btn">
         Sign in
       </button>

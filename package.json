@@ -1,7 +1,14 @@
 {
   "name": "portal-template",
   "version": "1.0.0",
-  "private": true,
+  "description": "A self-hosted web portal with configurable sidebar navigation, optional OIDC auth, and a built-in Big Book of Everything family information organizer.",
+  "keywords": ["portal", "dashboard", "sveltekit", "self-hosted", "oidc", "homelab"],
+  "license": "MIT",
+  "author": "TJ Bennett",
+  "repository": {
+    "type": "git",
+    "url": "http://192.168.150.118:3000/teedge/portal-template.git"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
