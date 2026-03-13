@@ -77,7 +77,7 @@ async function startServer(port) {
     ...process.env,
     ELECTRON_RUN_AS_NODE: '1',
     PORT: String(port),
-    ORIGIN: `http://localhost:${port}`,
+    ORIGIN: `http://127.0.0.1:${port}`,
     HOST: '127.0.0.1',
     BOOK_DB_PATH: dbPath,
     PORTAL_MODE: 'book',

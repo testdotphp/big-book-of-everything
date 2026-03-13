@@ -10,7 +10,7 @@
   .book-content {
     height: 100vh;
     overflow-y: auto;
-    padding: 32px 40px;
+    padding: 32px 40px 80px;
   }
 
   .book-content::-webkit-scrollbar {

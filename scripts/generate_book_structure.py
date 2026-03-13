@@ -285,13 +285,13 @@ SECTION_DESCRIPTIONS = {
     "Adoption Info": "Adoption records and birth parent information.",
     "Pet Information": "Pet details, veterinary contacts, and insurance.",
     "Previous Addresses": "History of previous residential addresses.",
-    "Current Resume": "Keep a copy of your current resume in a pouch or page protector on this page.",
+    "Current Resume": "Upload copies of current resumes for all family members.",
     "Employment History": "Current and previous employment records.",
     "Schooling History": "Educational history and academic records.",
-    "Transcripts": "Keep a copy of all your college transcripts in a pouch or page protector on this page.",
+    "Transcripts": "Upload copies of college transcripts for all family members.",
     "Military History": "Military service records and details.",
     "Groups and Organizations": "Clubs, professional organizations, civic groups, etc.",
-    "Credit Report": "Keep a current copy of your credit report(s) in a pouch or page protector on this page. You can go to annualcreditreport.com.",
+    "Credit Report": "Upload a current copy of your credit report(s). You can request free reports at annualcreditreport.com.",
     "Document Location": "Location of important documents and contacts.",
     "Emergency Plan": "Emergency meeting locations, contacts, and safety information.",
     "Travel Info": "Passport details and loyalty program information.",
@@ -334,7 +334,7 @@ SECTION_DESCRIPTIONS = {
     "Personal Letters": "Letters to loved ones, typically opened upon the death of the writer.",
     "Estate Plans": "Estate plans, wills, trusts, and gift distributions.",
     "Other Contacts": "Other contacts to notify in case of death.",
-    "Funeral Receipts": "Keep all funeral related expenses and receipts in a pouch or page protector on this page.",
+    "Funeral Receipts": "Upload all funeral-related expenses and receipts here.",
 }
 
 

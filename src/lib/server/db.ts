@@ -57,7 +57,24 @@ function seedBookStructure(db: ReturnType<typeof drizzle<typeof schema>>) {
   for (const cat of seed.categories) {
     const existing = db.select().from(schema.categories)
       .where(eq(schema.categories.slug, cat.slug)).get();
-    if (existing) continue;
+
+    if (existing) {
+      // Update placeholder descriptions on existing sections
+      if (cat.sections) {
+        for (const sec of cat.sections) {
+          if (sec.type === 'placeholder' && sec.description) {
+            const existingSec = db.select().from(schema.sections)
+              .where(eq(schema.sections.slug, sec.slug)).get();
+            if (existingSec && existingSec.description !== sec.description) {
+              db.update(schema.sections)
+                .set({ description: sec.description })
+                .where(eq(schema.sections.id, existingSec.id)).run();
+            }
+          }
+        }
+      }
+      continue;
+    }
 
     const catResult = db.insert(schema.categories).values({
       name: cat.name, slug: cat.slug, icon: cat.icon, sortOrder: cat.sortOrder, seeded: 1

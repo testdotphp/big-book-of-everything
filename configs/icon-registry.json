@@ -7,6 +7,70 @@
       "preview": ["users", "shield", "heart-pulse"],
       "author": "Lucide Contributors",
       "license": "ISC"
+    },
+    {
+      "slug": "feather",
+      "name": "Feather",
+      "description": "Simply beautiful open source icons",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Cole Bemis",
+      "license": "MIT"
+    },
+    {
+      "slug": "heroicons",
+      "name": "Heroicons",
+      "description": "Beautiful hand-crafted SVG icons by the makers of Tailwind CSS",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Tailwind Labs",
+      "license": "MIT"
+    },
+    {
+      "slug": "bootstrap",
+      "name": "Bootstrap Icons",
+      "description": "Official open source SVG icon library for Bootstrap",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Bootstrap Team",
+      "license": "MIT"
+    },
+    {
+      "slug": "phosphor",
+      "name": "Phosphor",
+      "description": "Flexible icon family for interfaces, diagrams, and presentations",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Phosphor Icons",
+      "license": "MIT"
+    },
+    {
+      "slug": "tabler",
+      "name": "Tabler Icons",
+      "description": "Over 4000 free MIT-licensed SVG icons",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Tabler",
+      "license": "MIT"
+    },
+    {
+      "slug": "ionicons",
+      "name": "Ionicons",
+      "description": "Premium designed icons for use in web, iOS, Android, and desktop apps",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Ionic Team",
+      "license": "MIT"
+    },
+    {
+      "slug": "material",
+      "name": "Material Symbols",
+      "description": "Google's Material Design icon set",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Google",
+      "license": "Apache-2.0"
+    },
+    {
+      "slug": "remix",
+      "name": "Remix Icon",
+      "description": "Open source neutral style icon system",
+      "preview": ["users", "file-text", "dollar-sign"],
+      "author": "Remix Design",
+      "license": "Apache-2.0"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "portal-template",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "A self-hosted web portal with configurable sidebar navigation, optional OIDC auth, and a built-in Big Book of Everything family information organizer.",
   "keywords": [
     "portal",
@@ -69,6 +69,14 @@
       {
         "from": "configs/book-structure.json",
         "to": "server/configs/book-structure.json"
+      },
+      {
+        "from": "configs/icon-registry.json",
+        "to": "server/configs/icon-registry.json"
+      },
+      {
+        "from": "configs/icon-packs",
+        "to": "server/configs/icon-packs"
       },
       {
         "from": ".electron-staging/node_modules",

@@ -52,7 +52,6 @@
 
 <div class="header">
   <h1>{data.section.name}</h1>
-  <span class="type-badge">{data.section.type === 'table' ? 'Table' : data.section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
   <a href="/book/print" class="print-link" title="Print Book">
     <Printer size={16} strokeWidth={1.75} />
   </a>
@@ -220,17 +219,6 @@
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--text-primary);
-  }
-
-  .type-badge {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    background: var(--bg-secondary);
-    padding: 3px 8px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
   }
 
   .empty-state {

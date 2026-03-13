@@ -56,7 +56,6 @@
               {/if}
             </span>
           </div>
-          <span class="section-type">{section.type === 'table' ? 'Table' : section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
           <ChevronRight size={16} strokeWidth={2} />
         </a>
         {#if !section.seeded}
@@ -241,17 +240,6 @@
     color: var(--text-muted);
     margin-top: 2px;
     display: block;
-  }
-
-  .section-type {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    background: var(--bg-primary);
-    padding: 3px 8px;
-    border-radius: var(--radius-sm);
-    flex-shrink: 0;
   }
 
   .section-row-wrap {

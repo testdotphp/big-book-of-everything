@@ -441,8 +441,7 @@
         } else {
           document.documentElement.setAttribute('data-theme', theme.slug);
         }
-        return async ({ update }) => {
-          await update();
+        return async () => {
           await invalidateAll();
         };
       }}>
@@ -471,8 +470,7 @@
       <form method="POST" action="?/setFontSize" use:enhance={() => {
         selectedFontSize = fs.slug;
         document.documentElement.setAttribute('data-font-size', fs.slug);
-        return async ({ update }) => {
-          await update();
+        return async () => {
           await invalidateAll();
         };
       }}>
