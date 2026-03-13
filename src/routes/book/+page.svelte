@@ -82,7 +82,12 @@
       </div>
       <div class="card-body">
         <h2>{cat.name}</h2>
-        <span class="card-count">{cat.sectionCount} {cat.sectionCount === 1 ? 'section' : 'sections'}</span>
+        <span class="card-count">{cat.filledSections}/{cat.sectionCount} sections filled</span>
+        {#if cat.sectionCount > 0}
+          <div class="card-progress">
+            <div class="card-progress-bar" style="width: {Math.round((cat.filledSections / cat.sectionCount) * 100)}%"></div>
+          </div>
+        {/if}
       </div>
     </a>
   {/each}
@@ -295,8 +300,23 @@
   }
 
   .card-count {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .card-progress {
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .card-progress-bar {
+    height: 100%;
+    background: var(--theme-color);
+    border-radius: 2px;
+    transition: width 0.3s ease;
   }
 
   .add-card-btn {
@@ -377,5 +397,23 @@
     font-family: var(--font-body);
     font-size: 13px;
     cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .reminders-list {
+      overflow-x: auto;
+    }
+
+    .reminder-item {
+      min-width: 400px;
+    }
   }
 </style>

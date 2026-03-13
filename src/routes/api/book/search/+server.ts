@@ -96,7 +96,7 @@ export const GET: RequestHandler = async ({ url }) => {
 			value: sec.sectionName,
 			categorySlug: cat.slug,
 			categoryName: cat.name,
-			sectionSlug: sec.slug,
+			sectionSlug: sec.sectionSlug,
 			sectionName: sec.sectionName
 		});
 	}

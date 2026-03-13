@@ -129,7 +129,22 @@
   <KeyValueEditor fields={data.fields as any} />
 {:else if data.section.type === 'table' && data.records !== null}
   {#if data.fields.length === 0}
-    <p class="empty">No fields defined for this section.</p>
+    <div class="empty-state">
+      <p class="empty-title">No fields defined</p>
+      <p class="empty-desc">Open field settings to add fields to this section.</p>
+    </div>
+  {:else if data.records.length === 0}
+    <div class="empty-state">
+      <p class="empty-title">No records yet</p>
+      <p class="empty-desc">Add your first entry to get started.</p>
+    </div>
+    <form method="POST" action="?/addRecord" use:enhance>
+      <input type="hidden" name="sectionId" value={data.section.id} />
+      <button type="submit" class="add-row-btn">
+        <Plus size={14} strokeWidth={2} />
+        Add entry
+      </button>
+    </form>
   {:else if personGroups}
     <div class="group-list">
       {#each personGroups as group, i}
@@ -211,9 +226,26 @@
     border: 1px solid var(--border-color);
   }
 
-  .empty {
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .empty-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .empty-desc {
+    font-size: 13px;
     color: var(--text-muted);
-    font-size: 14px;
+    margin-bottom: 16px;
   }
 
   .add-row-btn {

@@ -29,7 +29,13 @@
 </div>
 
 {#if data.sections.length === 0}
-  <p class="empty">No sections yet.</p>
+  <div class="empty-state">
+    <div class="empty-icon">
+      <Icon name={data.category.icon || 'folder'} size={32} />
+    </div>
+    <p class="empty-title">No sections yet</p>
+    <p class="empty-desc">Add a section to start organizing this category.</p>
+  </div>
 {:else}
   <div class="section-list">
     {#each data.sections as section}
@@ -143,9 +149,37 @@
     margin-top: 2px;
   }
 
-  .empty {
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--theme-color) 8%, var(--bg-secondary));
     color: var(--text-muted);
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .empty-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .empty-desc {
+    font-size: 13px;
+    color: var(--text-muted);
   }
 
   .section-list {

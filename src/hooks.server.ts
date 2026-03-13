@@ -2,9 +2,16 @@ import { SvelteKitAuth } from '@auth/sveltekit';
 import type { Provider } from '@auth/core/providers';
 import type { Handle } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { isBookEnabled } from '$lib/server/db';
 
 function isAuthEnabled(): boolean {
   return !!(env.OIDC_ISSUER && env.OIDC_CLIENT_ID && env.OIDC_CLIENT_SECRET && env.AUTH_SECRET);
+}
+
+function getLocalAuthMode(): string | null {
+  const mode = env.LOCAL_AUTH?.toLowerCase();
+  if (mode === 'password' || mode === 'users') return mode;
+  return null;
 }
 
 function getOidcProvider(): Provider {
@@ -31,6 +38,28 @@ function getOidcProvider(): Provider {
     }
   };
 }
+
+// Local auth handle — checks cookie-based sessions
+const localAuthHandle: Handle = async ({ event, resolve }) => {
+  // Lazy import to avoid loading DB at module level when not needed
+  const { getSession } = await import('$lib/server/local-auth');
+
+  const token = event.cookies.get('local_session');
+  if (token) {
+    const session = getSession(token);
+    if (session) {
+      event.locals.auth = async () => ({
+        user: { id: session.userId, name: session.userName, email: '' },
+        expires: session.expires
+      });
+      return resolve(event);
+    }
+  }
+
+  // Not authenticated
+  event.locals.auth = async () => null;
+  return resolve(event);
+};
 
 // No-op handle when auth is disabled — sets a default local user session
 const noAuthHandle: Handle = async ({ event, resolve }) => {
@@ -68,6 +97,8 @@ if (isAuthEnabled()) {
   handle = auth.handle;
   signIn = auth.signIn;
   signOut = auth.signOut;
+} else if (getLocalAuthMode()) {
+  handle = localAuthHandle;
 } else {
   handle = noAuthHandle;
 }

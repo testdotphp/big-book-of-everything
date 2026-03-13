@@ -64,12 +64,22 @@
     setTimeout(() => { showResults = false; }, 200);
   }
 
+  // Global Ctrl+K / Cmd+K shortcut
+  function handleGlobalKeydown(e: KeyboardEvent) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      inputEl?.focus();
+    }
+  }
+
   function highlight(text: string, q: string): string {
     if (!q.trim()) return text;
     const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
   }
 </script>
+
+<svelte:window onkeydown={handleGlobalKeydown} />
 
 <div class="search-container">
   <div class="search-input-wrap">
@@ -78,7 +88,7 @@
       bind:this={inputEl}
       type="text"
       class="search-input"
-      placeholder="Search..."
+      placeholder="Search...  (Ctrl+K)"
       bind:value={query}
       oninput={handleInput}
       onkeydown={handleKeydown}

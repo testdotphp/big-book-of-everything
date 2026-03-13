@@ -1,6 +1,8 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { ChevronDown, Trash2, Eye, EyeOff } from 'lucide-svelte';
+  import ConfirmDialog from './ConfirmDialog.svelte';
+  import { toast } from '$lib/stores/toast';
 
   interface Field {
     id: number;
@@ -11,20 +13,22 @@
     sensitive?: number;
   }
 
-  interface Record {
+  interface RecordData {
     id: number;
     values: globalThis.Record<number, string>;
   }
 
   interface Props {
-    record: Record;
+    record: RecordData;
     fields: Field[];
     index?: number;
   }
 
   let { record, fields, index = 0 }: Props = $props();
   let expanded = $state(index === 0);
-  let revealed = $state<Record<number, boolean>>({});
+  let revealed = $state<globalThis.Record<number, boolean>>({});
+  let confirmDelete = $state(false);
+  let deleteForm: HTMLFormElement;
 
   function toggleReveal(fieldId: number) {
     revealed[fieldId] = !revealed[fieldId];
@@ -81,12 +85,31 @@
       </span>
       <span class="summary" class:placeholder={!hasValue}>{hasValue ? firstValue : 'Fill in fields below...'}</span>
     </button>
-    <form method="POST" action="?/deleteRecord" use:enhance>
+    <form
+      bind:this={deleteForm}
+      method="POST"
+      action="?/deleteRecord"
+      use:enhance={() => {
+        return async ({ update }) => {
+          toast.success('Record deleted');
+          await update();
+        };
+      }}
+    >
       <input type="hidden" name="recordId" value={record.id} />
-      <button type="submit" class="delete-btn" title="Delete record">
+      <button type="button" class="delete-btn" title="Delete record" onclick={() => confirmDelete = true}>
         <Trash2 size={14} strokeWidth={1.75} />
       </button>
     </form>
+    <ConfirmDialog
+      open={confirmDelete}
+      title="Delete Record"
+      message="Are you sure you want to delete this record? This cannot be undone."
+      confirmLabel="Delete"
+      destructive
+      onconfirm={() => { confirmDelete = false; deleteForm.requestSubmit(); }}
+      oncancel={() => confirmDelete = false}
+    />
   </div>
 
   {#if expanded}

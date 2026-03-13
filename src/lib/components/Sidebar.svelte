@@ -7,6 +7,8 @@
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
   import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw, Sun, Moon, Lock, Unlock, Shield, UserCheck } from 'lucide-svelte';
+  import ConfirmDialog from './ConfirmDialog.svelte';
+  import { toast } from '$lib/stores/toast';
 
   interface BookCategory {
     id: number;
@@ -24,9 +26,23 @@
     bookEnabled?: boolean;
     bookMode?: boolean;
     bookCategories?: BookCategory[];
+    localAuth?: string | null;
   }
 
-  let { config, user, collapsed = $bindable(false), bookEnabled = false, bookMode = false, bookCategories = [] }: Props = $props();
+  let { config, user, collapsed = $bindable(false), bookEnabled = false, bookMode = false, bookCategories = [], localAuth = null }: Props = $props();
+
+  async function handleSignout() {
+    if (localAuth) {
+      await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' })
+      });
+      window.location.href = '/login';
+    } else {
+      window.location.href = '/auth/signout';
+    }
+  }
 
   let currentSlug = $derived($page.params.slug || '');
 
@@ -85,8 +101,11 @@
     await invalidateAll();
   }
 
+  let confirmDeleteCat = $state<number | null>(null);
+
   async function deleteCategory(id: number) {
     await fetch(`/api/book/categories?id=${id}`, { method: 'DELETE' });
+    toast.success('Category deleted');
     await invalidateAll();
   }
 
@@ -103,8 +122,11 @@
     await invalidateAll();
   }
 
+  let confirmDeleteSec = $state<number | null>(null);
+
   async function deleteSection(id: number) {
     await fetch(`/api/book/sections?id=${id}`, { method: 'DELETE' });
+    toast.success('Section deleted');
     await invalidateAll();
   }
 
@@ -214,11 +236,14 @@
       if (passwordAction === 'setPassword') {
         encryptionHasPassword = true;
         encryptionUnlocked = true;
+        toast.success('Encryption password set');
       } else if (passwordAction === 'unlock') {
         encryptionUnlocked = true;
+        toast.success('Sensitive fields unlocked');
       } else if (passwordAction === 'removePassword') {
         encryptionHasPassword = false;
         encryptionUnlocked = false;
+        toast.success('Encryption removed');
       }
       passwordInput = '';
       await invalidateAll();
@@ -235,6 +260,7 @@
     });
     encryptionUnlocked = false;
     backupMenuOpen = false;
+    toast.info('Sensitive fields locked');
     await invalidateAll();
   }
 
@@ -282,11 +308,13 @@
         body: JSON.stringify(data)
       });
       if (!res.ok) throw new Error(await res.text());
-      importStatus = 'Restored!';
+      importStatus = null;
+      backupMenuOpen = false;
+      toast.success('JSON import complete');
       await invalidateAll();
-      setTimeout(() => { backupMenuOpen = false; importStatus = null; }, 1500);
     } catch (err) {
-      importStatus = 'Import failed';
+      importStatus = null;
+      toast.error('Import failed');
     }
     input.value = '';
   }
@@ -305,11 +333,13 @@
         body: buffer
       });
       if (!res.ok) throw new Error(await res.text());
-      importStatus = 'Restored!';
+      importStatus = null;
+      backupMenuOpen = false;
+      toast.success('Database restored');
       await invalidateAll();
-      setTimeout(() => { backupMenuOpen = false; importStatus = null; }, 1500);
     } catch (err) {
-      importStatus = 'Restore failed';
+      importStatus = null;
+      toast.error('Restore failed');
     }
     input.value = '';
   }
@@ -366,7 +396,7 @@
                   <button
                     class="inline-delete"
                     title="Delete category"
-                    onclick={(e) => { e.stopPropagation(); deleteCategory(cat.id); }}
+                    onclick={(e) => { e.stopPropagation(); confirmDeleteCat = cat.id; }}
                   >
                     <X size={12} strokeWidth={2} />
                   </button>
@@ -388,7 +418,7 @@
                         <button
                           class="inline-delete sec"
                           title="Delete section"
-                          onclick={() => deleteSection(sec.id)}
+                          onclick={() => confirmDeleteSec = sec.id}
                         >
                           <X size={10} strokeWidth={2} />
                         </button>
@@ -616,6 +646,26 @@
     </div>
   {/if}
 
+  <!-- Confirm dialogs -->
+  <ConfirmDialog
+    open={confirmDeleteCat !== null}
+    title="Delete Category"
+    message="This will permanently delete the category and all its sections, fields, and data."
+    confirmLabel="Delete"
+    destructive
+    onconfirm={() => { if (confirmDeleteCat !== null) { deleteCategory(confirmDeleteCat); confirmDeleteCat = null; } }}
+    oncancel={() => confirmDeleteCat = null}
+  />
+  <ConfirmDialog
+    open={confirmDeleteSec !== null}
+    title="Delete Section"
+    message="This will permanently delete the section and all its data."
+    confirmLabel="Delete"
+    destructive
+    onconfirm={() => { if (confirmDeleteSec !== null) { deleteSection(confirmDeleteSec); confirmDeleteSec = null; } }}
+    oncancel={() => confirmDeleteSec = null}
+  />
+
   <!-- Footer -->
   <div class="sidebar-footer">
     {#if !collapsed}
@@ -650,10 +700,10 @@
         {user.name?.charAt(0).toUpperCase() || '?'}
       </div>
     {/if}
-    {#if !bookMode}
-      <a href="/auth/signout" class="signout-btn" title="Sign out">
+    {#if !bookMode || localAuth}
+      <button class="signout-btn" title="Sign out" onclick={handleSignout}>
         <LogOut size={16} strokeWidth={1.75} />
-      </a>
+      </button>
     {/if}
   </div>
 </aside>
@@ -1416,14 +1466,13 @@
     opacity: 0.6;
   }
 
-  /* Mobile */
+  /* Mobile — sidebar is full-width in overlay mode, controlled by parent */
   @media (max-width: 768px) {
     .sidebar {
-      width: var(--sidebar-collapsed-width);
-    }
-    .sidebar:not(.collapsed) {
       width: 280px;
-      box-shadow: var(--shadow-lg);
+    }
+    .sidebar.collapsed {
+      width: 280px;
     }
   }
 </style>

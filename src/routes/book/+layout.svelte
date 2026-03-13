@@ -23,4 +23,10 @@
     background: var(--border-color);
     border-radius: 3px;
   }
+
+  @media (max-width: 768px) {
+    .book-content {
+      padding: 20px 16px;
+    }
+  }
 </style>

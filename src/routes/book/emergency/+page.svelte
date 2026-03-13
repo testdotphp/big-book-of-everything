@@ -1,6 +1,8 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import { ChevronRight, Plus, Trash2, Copy, Check } from 'lucide-svelte';
+  import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+  import { toast } from '$lib/stores/toast';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -9,6 +11,7 @@
   let newName = $state('');
   let expiresInDays = $state('');
   let copied = $state<number | null>(null);
+  let confirmRevokeId = $state<number | null>(null);
 
   async function createToken() {
     const name = newName.trim();
@@ -21,11 +24,13 @@
     newName = '';
     expiresInDays = '';
     showCreate = false;
+    toast.success('Access link created');
     await invalidateAll();
   }
 
   async function revokeToken(id: number) {
     await fetch(`/api/book/emergency?id=${id}`, { method: 'DELETE' });
+    toast.success('Access link revoked');
     await invalidateAll();
   }
 
@@ -33,6 +38,7 @@
     const url = `${window.location.origin}/book/emergency/${token}`;
     navigator.clipboard.writeText(url);
     copied = id;
+    toast.success('Link copied to clipboard');
     setTimeout(() => { copied = null; }, 2000);
   }
 
@@ -86,7 +92,7 @@
             <Copy size={14} strokeWidth={1.75} />
           {/if}
         </button>
-        <button class="token-action delete" title="Revoke" onclick={() => revokeToken(token.id)}>
+        <button class="token-action delete" title="Revoke" onclick={() => confirmRevokeId = token.id}>
           <Trash2 size={14} strokeWidth={1.75} />
         </button>
       </div>
@@ -120,6 +126,16 @@
     Create Access Link
   </button>
 {/if}
+
+<ConfirmDialog
+  open={confirmRevokeId !== null}
+  title="Revoke Access Link"
+  message="This link will stop working immediately. Anyone using it will lose access."
+  confirmLabel="Revoke"
+  destructive
+  onconfirm={() => { if (confirmRevokeId !== null) { revokeToken(confirmRevokeId); confirmRevokeId = null; } }}
+  oncancel={() => confirmRevokeId = null}
+/>
 
 <style>
   .breadcrumb {

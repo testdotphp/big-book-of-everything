@@ -16,8 +16,17 @@ export const load: LayoutServerLoad = async (event) => {
     ? { name: 'Big Book of Everything', icon: 'book-open', theme: '#4CAF50', items: [] }
     : getPortalConfig();
 
-  // Protect all routes except auth callbacks (skip in book mode — no auth needed)
-  if (!bookMode && !session?.user && !event.url.pathname.startsWith('/auth') && event.url.pathname !== '/login') {
+  // Determine auth mode
+  const localAuthMode = env.LOCAL_AUTH?.toLowerCase() || null;
+  const isLocalAuth = localAuthMode === 'password' || localAuthMode === 'users';
+
+  // Protect routes
+  const isPublicPath = event.url.pathname.startsWith('/auth') || event.url.pathname.startsWith('/api/auth') || event.url.pathname === '/login';
+  if (!bookMode && !session?.user && !isPublicPath) {
+    throw redirect(302, '/login');
+  }
+  // In book mode with local auth, still require login (except public paths)
+  if (bookMode && isLocalAuth && !session?.user && !isPublicPath) {
     throw redirect(302, '/login');
   }
 
@@ -43,6 +52,7 @@ export const load: LayoutServerLoad = async (event) => {
     config,
     bookEnabled,
     bookMode,
-    bookCategories
+    bookCategories,
+    localAuth: isLocalAuth ? localAuthMode : null
   };
 };

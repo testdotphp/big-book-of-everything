@@ -97,4 +97,75 @@ a {
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
+/* Page content wrapper */
+.page-content {
+  height: 100%;
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 90;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  padding: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mobile backdrop */
+.mobile-backdrop {
+  display: none;
+}
+
+/* Sidebar wrap for mobile overlay */
+.sidebar-wrap {
+  display: contents;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0 !important;
+  }
+
+  .page-content {
+    padding: 60px 16px 24px;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99;
+  }
+
+  .sidebar-wrap {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-wrap.mobile-open {
+    transform: translateX(0);
+  }
+}
+
 /* Utility: theme-tinted backgrounds derived from --theme-color */
