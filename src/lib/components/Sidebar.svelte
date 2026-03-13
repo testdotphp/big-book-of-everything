@@ -5,7 +5,7 @@
   import Icon from './Icon.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw } from 'lucide-svelte';
 
   interface BookCategory {
     id: number;
@@ -115,6 +115,39 @@
   function handleSectionKeydown(e: KeyboardEvent, categoryId: number) {
     if (e.key === 'Enter') addSection(categoryId);
     if (e.key === 'Escape') { addingSectionForCat = null; newSectionName = ''; }
+  }
+
+  // Update checking (Electron only)
+  let updateAvailable = $state(false);
+  let updateVersion = $state('');
+  let appVersion = $state('');
+  let autoUpdate = $state(true);
+
+  const isElectron = typeof window !== 'undefined' && (window as any).electronAPI?.isElectron;
+
+  if (typeof window !== 'undefined' && isElectron) {
+    const api = (window as any).electronAPI;
+    api.getAppVersion().then((v: string) => { appVersion = v; });
+    api.getAutoUpdate().then((v: boolean) => { autoUpdate = v; });
+    api.onUpdateStatus((data: any) => {
+      updateAvailable = data.updateAvailable;
+      updateVersion = data.latestVersion;
+      if (!appVersion) appVersion = data.currentVersion;
+    });
+  }
+
+  function checkForUpdates() {
+    if (isElectron) {
+      (window as any).electronAPI.checkForUpdates();
+    }
+    backupMenuOpen = false;
+  }
+
+  function toggleAutoUpdate() {
+    autoUpdate = !autoUpdate;
+    if (isElectron) {
+      (window as any).electronAPI.setAutoUpdate(autoUpdate);
+    }
   }
 
   // Backup/restore menu
@@ -414,6 +447,23 @@
           <Settings size={15} strokeWidth={1.75} />
           <span>Cloud Backup Settings</span>
         </a>
+        {#if isElectron}
+          <div class="backup-divider"></div>
+          <button class="backup-menu-item" onclick={checkForUpdates}>
+            <RefreshCw size={15} strokeWidth={1.75} />
+            <span>Check for Updates</span>
+            {#if updateAvailable}
+              <span class="update-badge">New</span>
+            {/if}
+          </button>
+          <button class="backup-menu-item" onclick={toggleAutoUpdate}>
+            <span class="auto-update-toggle" class:enabled={autoUpdate}></span>
+            <span>Auto-check on startup</span>
+          </button>
+          {#if appVersion}
+            <div class="version-label">v{appVersion}</div>
+          {/if}
+        {/if}
       {/if}
     </div>
   {/if}
@@ -425,6 +475,9 @@
         {#if bookEnabled}
           <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
             <HardDriveDownload size={16} strokeWidth={1.75} />
+            {#if updateAvailable}
+              <span class="update-dot"></span>
+            {/if}
           </button>
         {/if}
       </div>
@@ -893,6 +946,7 @@
   }
 
   .footer-btn {
+    position: relative;
     color: var(--text-muted);
     padding: 6px;
     border-radius: var(--radius-sm);
@@ -1064,6 +1118,65 @@
     color: var(--theme-color);
     text-align: center;
     font-weight: 500;
+  }
+
+  .update-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: var(--theme-color);
+    color: var(--bg-primary);
+  }
+
+  .update-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--theme-color);
+    border: 1.5px solid var(--bg-primary);
+  }
+
+  .auto-update-toggle {
+    width: 28px;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--border-color);
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .auto-update-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .auto-update-toggle.enabled {
+    background: var(--theme-color);
+  }
+
+  .auto-update-toggle.enabled::after {
+    transform: translateX(12px);
+    background: var(--bg-primary);
+  }
+
+  .version-label {
+    padding: 4px 14px 2px;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.6;
   }
 
   /* Mobile */

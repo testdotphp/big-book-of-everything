@@ -1,7 +1,12 @@
-// Minimal preload script — contextIsolation enabled, nodeIntegration disabled.
-// Placeholder for any future bridge APIs between main and renderer.
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  isElectron: true
+  isElectron: true,
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  getAutoUpdate: () => ipcRenderer.invoke('get-auto-update'),
+  setAutoUpdate: (enabled) => ipcRenderer.invoke('set-auto-update', enabled),
+  onUpdateStatus: (callback) => {
+    ipcRenderer.on('update-status', (_event, data) => callback(data));
+  }
 });
