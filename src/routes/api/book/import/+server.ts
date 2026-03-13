@@ -94,7 +94,8 @@ async function importJson(request: Request) {
 					name: f.name,
 					slug: f.slug,
 					fieldType: f.fieldType || 'text',
-					sortOrder: f.sortOrder || 0
+					sortOrder: f.sortOrder || 0,
+					sensitive: f.sensitive || 0
 				}).returning().get();
 				fieldMap[f.slug] = fieldResult.id;
 			}

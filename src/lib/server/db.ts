@@ -40,6 +40,14 @@ export function getDb() {
   return db;
 }
 
+const SENSITIVE_SLUGS = new Set([
+  'ssn', 'ssn-fein', 'password', 'password-pin', 'pin', 'atm-pin',
+  'card-number', 'credit-card-number-s', 'security-code',
+  'account-number', 'bank-account-number',
+  'combination', 'website-id', 'website-password',
+  'bank-website-id', 'bank-website-password'
+]);
+
 function seedBookStructure(db: ReturnType<typeof drizzle<typeof schema>>) {
   const seedPath = resolve('configs/book-structure.json');
   if (!existsSync(seedPath)) return;
@@ -65,7 +73,8 @@ function seedBookStructure(db: ReturnType<typeof drizzle<typeof schema>>) {
         for (const field of sec.fields) {
           db.insert(schema.fields).values({
             sectionId: secResult.id, name: field.name, slug: field.slug,
-            fieldType: field.fieldType, sortOrder: field.sortOrder
+            fieldType: field.fieldType, sortOrder: field.sortOrder,
+            sensitive: SENSITIVE_SLUGS.has(field.slug) ? 1 : 0
           }).run();
         }
 

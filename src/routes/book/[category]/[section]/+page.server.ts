@@ -3,6 +3,15 @@ import { getDb } from '$lib/server/db';
 import { categories, sections, fields, values, records, uploads } from '$lib/server/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
+import { getEncryptionKey } from '$lib/server/encryption-session';
+import { decrypt, isEncrypted } from '$lib/server/crypto';
+
+function decryptValue(val: string | null | undefined): string {
+  if (!val) return '';
+  const key = getEncryptionKey();
+  if (key && isEncrypted(val)) return decrypt(val, key);
+  return val;
+}
 
 export const load: PageServerLoad = async ({ params }) => {
   const db = getDb();
@@ -53,7 +62,7 @@ export const load: PageServerLoad = async ({ params }) => {
         .from(values)
         .where(and(eq(values.fieldId, f.id), isNull(values.recordId)))
         .get();
-      return { ...f, value: val?.value || '' };
+      return { ...f, value: decryptValue(val?.value) };
     });
     return { category, section, fields: fieldValues, records: null, files: [] };
   } else {
@@ -77,7 +86,7 @@ export const load: PageServerLoad = async ({ params }) => {
           .from(values)
           .where(and(eq(values.fieldId, f.id), eq(values.recordId, r.id)))
           .get();
-        rowValues[f.id] = val?.value || '';
+        rowValues[f.id] = decryptValue(val?.value);
       }
       return { ...r, values: rowValues };
     });

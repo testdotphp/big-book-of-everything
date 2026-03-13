@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { Eye, EyeOff } from 'lucide-svelte';
 
   interface FieldWithValue {
     id: number;
@@ -7,6 +8,7 @@
     slug: string;
     fieldType: string;
     value: string;
+    sensitive?: number;
   }
 
   interface Props {
@@ -14,6 +16,11 @@
   }
 
   let { fields }: Props = $props();
+  let revealed = $state<Record<number, boolean>>({});
+
+  function toggleReveal(fieldId: number) {
+    revealed[fieldId] = !revealed[fieldId];
+  }
 
   function inputType(fieldType: string): string {
     switch (fieldType) {
@@ -69,15 +76,27 @@
           <span>{field.value === 'true' ? 'Yes' : 'No'}</span>
         </label>
       {:else}
-        <input
-          id="field-{field.id}"
-          name="value"
-          type={inputType(field.fieldType)}
-          class="kv-input"
-          value={field.value}
-          onblur={(e) => e.currentTarget.form?.requestSubmit()}
-          step={field.fieldType === 'currency' ? '0.01' : undefined}
-        />
+        <div class="kv-input-wrap">
+          <input
+            id="field-{field.id}"
+            name="value"
+            type={field.sensitive && !revealed[field.id] ? 'password' : inputType(field.fieldType)}
+            class="kv-input"
+            class:has-reveal={field.sensitive}
+            value={field.value}
+            onblur={(e) => e.currentTarget.form?.requestSubmit()}
+            step={field.fieldType === 'currency' ? '0.01' : undefined}
+          />
+          {#if field.sensitive}
+            <button type="button" class="reveal-btn" onclick={() => toggleReveal(field.id)} title={revealed[field.id] ? 'Hide' : 'Reveal'}>
+              {#if revealed[field.id]}
+                <EyeOff size={14} strokeWidth={1.75} />
+              {:else}
+                <Eye size={14} strokeWidth={1.75} />
+              {/if}
+            </button>
+          {/if}
+        </div>
       {/if}
     </form>
   {/each}
@@ -139,5 +158,37 @@
     font-size: 13px;
     color: var(--text-primary);
     cursor: pointer;
+  }
+
+  .kv-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .kv-input-wrap .kv-input {
+    width: 100%;
+  }
+
+  .kv-input.has-reveal {
+    padding-right: 36px;
+  }
+
+  .reveal-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    transition: color 0.15s;
+  }
+
+  .reveal-btn:hover {
+    color: var(--text-primary);
   }
 </style>

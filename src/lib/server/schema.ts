@@ -34,7 +34,8 @@ export const fields = sqliteTable('fields', {
   })
     .notNull()
     .default('text'),
-  sortOrder: integer('sort_order').notNull().default(0)
+  sortOrder: integer('sort_order').notNull().default(0),
+  sensitive: integer('sensitive').notNull().default(0)
 });
 
 export const records = sqliteTable('records', {
@@ -69,4 +70,12 @@ export const uploads = sqliteTable('uploads', {
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value')
+});
+
+export const emergencyTokens = sqliteTable('emergency_tokens', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  token: text('token').notNull().unique(),
+  name: text('name').notNull(),
+  expiresAt: text('expires_at'),
+  createdAt: text('created_at').notNull()
 });

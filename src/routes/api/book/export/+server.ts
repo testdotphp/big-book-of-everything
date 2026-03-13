@@ -113,7 +113,8 @@ function exportJson() {
 							name: f.name,
 							slug: f.slug,
 							fieldType: f.fieldType,
-							sortOrder: f.sortOrder
+							sortOrder: f.sortOrder,
+							sensitive: f.sensitive || 0
 						})),
 						records: recordsWithValues,
 						keyValues: kvEntries,

@@ -1,0 +1,1 @@
+ALTER TABLE `fields` ADD `sensitive` integer DEFAULT 0 NOT NULL;

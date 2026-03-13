@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { ChevronDown, Trash2 } from 'lucide-svelte';
+  import { ChevronDown, Trash2, Eye, EyeOff } from 'lucide-svelte';
 
   interface Field {
     id: number;
@@ -8,6 +8,7 @@
     slug: string;
     fieldType: string;
     sortOrder: number;
+    sensitive?: number;
   }
 
   interface Record {
@@ -23,6 +24,11 @@
 
   let { record, fields, index = 0 }: Props = $props();
   let expanded = $state(index === 0);
+  let revealed = $state<Record<number, boolean>>({});
+
+  function toggleReveal(fieldId: number) {
+    revealed[fieldId] = !revealed[fieldId];
+  }
 
   function inputType(fieldType: string): string {
     switch (fieldType) {
@@ -120,15 +126,27 @@
               <span>{record.values[field.id] === 'true' ? 'Yes' : 'No'}</span>
             </label>
           {:else}
-            <input
-              id="card-{record.id}-{field.id}"
-              name="value"
-              type={inputType(field.fieldType)}
-              class="field-input"
-              value={record.values[field.id] || ''}
-              onblur={(e) => e.currentTarget.form?.requestSubmit()}
-              step={field.fieldType === 'currency' ? '0.01' : undefined}
-            />
+            <div class="field-input-wrap">
+              <input
+                id="card-{record.id}-{field.id}"
+                name="value"
+                type={field.sensitive && !revealed[field.id] ? 'password' : inputType(field.fieldType)}
+                class="field-input"
+                class:has-reveal={field.sensitive}
+                value={record.values[field.id] || ''}
+                onblur={(e) => e.currentTarget.form?.requestSubmit()}
+                step={field.fieldType === 'currency' ? '0.01' : undefined}
+              />
+              {#if field.sensitive}
+                <button type="button" class="reveal-btn" onclick={() => toggleReveal(field.id)} title={revealed[field.id] ? 'Hide' : 'Reveal'}>
+                  {#if revealed[field.id]}
+                    <EyeOff size={12} strokeWidth={1.75} />
+                  {:else}
+                    <Eye size={12} strokeWidth={1.75} />
+                  {/if}
+                </button>
+              {/if}
+            </div>
           {/if}
         </form>
       {/each}
@@ -283,6 +301,34 @@
     color: var(--text-primary);
     cursor: pointer;
     padding: 7px 0;
+  }
+
+  .field-input-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .field-input.has-reveal {
+    padding-right: 30px;
+  }
+
+  .reveal-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    transition: color 0.15s;
+  }
+
+  .reveal-btn:hover {
+    color: var(--text-primary);
   }
 
   @media (max-width: 480px) {

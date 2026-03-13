@@ -3,9 +3,10 @@
   import { invalidateAll } from '$app/navigation';
   import NavItem from './NavItem.svelte';
   import Icon from './Icon.svelte';
+  import SearchBar from './SearchBar.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw, Sun, Moon, Lock, Unlock, Shield, UserCheck } from 'lucide-svelte';
 
   interface BookCategory {
     id: number;
@@ -117,6 +118,26 @@
     if (e.key === 'Escape') { addingSectionForCat = null; newSectionName = ''; }
   }
 
+  // Theme toggle
+  let darkMode = $state(true);
+
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('theme');
+    darkMode = saved !== 'light';
+    if (!darkMode) document.documentElement.setAttribute('data-theme', 'light');
+  }
+
+  function toggleTheme() {
+    darkMode = !darkMode;
+    if (darkMode) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
   // Update checking (Electron only)
   let updateAvailable = $state(false);
   let updateVersion = $state('');
@@ -148,6 +169,73 @@
     if (isElectron) {
       (window as any).electronAPI.setAutoUpdate(autoUpdate);
     }
+  }
+
+  // Encryption state
+  let encryptionHasPassword = $state(false);
+  let encryptionUnlocked = $state(false);
+  let showPasswordPrompt = $state(false);
+  let passwordInput = $state('');
+  let passwordAction = $state<'unlock' | 'setPassword' | 'removePassword'>('unlock');
+  let passwordError = $state('');
+
+  if (typeof window !== 'undefined') {
+    fetch('/api/book/encryption')
+      .then(r => r.json())
+      .then(d => {
+        encryptionHasPassword = d.hasPassword;
+        encryptionUnlocked = d.unlocked;
+      })
+      .catch(() => {});
+  }
+
+  function openPasswordPrompt(action: 'unlock' | 'setPassword' | 'removePassword') {
+    passwordAction = action;
+    passwordInput = '';
+    passwordError = '';
+    showPasswordPrompt = true;
+    backupMenuOpen = false;
+  }
+
+  async function submitPassword() {
+    passwordError = '';
+    try {
+      const res = await fetch('/api/book/encryption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: passwordAction, password: passwordInput })
+      });
+      if (!res.ok) {
+        const msg = await res.json().catch(() => ({ message: 'Failed' }));
+        passwordError = msg.message || 'Failed';
+        return;
+      }
+      showPasswordPrompt = false;
+      if (passwordAction === 'setPassword') {
+        encryptionHasPassword = true;
+        encryptionUnlocked = true;
+      } else if (passwordAction === 'unlock') {
+        encryptionUnlocked = true;
+      } else if (passwordAction === 'removePassword') {
+        encryptionHasPassword = false;
+        encryptionUnlocked = false;
+      }
+      passwordInput = '';
+      await invalidateAll();
+    } catch {
+      passwordError = 'Request failed';
+    }
+  }
+
+  async function lockEncryption() {
+    await fetch('/api/book/encryption', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'lock' })
+    });
+    encryptionUnlocked = false;
+    backupMenuOpen = false;
+    await invalidateAll();
   }
 
   // Backup/restore menu
@@ -246,6 +334,11 @@
       </div>
     {/if}
   </div>
+
+  <!-- Search (book mode only) -->
+  {#if bookEnabled && !collapsed}
+    <SearchBar />
+  {/if}
 
   <!-- Navigation -->
   <nav class="nav">
@@ -447,6 +540,31 @@
           <Settings size={15} strokeWidth={1.75} />
           <span>Cloud Backup Settings</span>
         </a>
+        <a href="/book/emergency" class="backup-menu-item" onclick={() => backupMenuOpen = false}>
+          <UserCheck size={15} strokeWidth={1.75} />
+          <span>Emergency Access</span>
+        </a>
+        <div class="backup-divider"></div>
+        {#if !encryptionHasPassword}
+          <button class="backup-menu-item" onclick={() => openPasswordPrompt('setPassword')}>
+            <Shield size={15} strokeWidth={1.75} />
+            <span>Set Encryption Password</span>
+          </button>
+        {:else if encryptionUnlocked}
+          <button class="backup-menu-item" onclick={lockEncryption}>
+            <Lock size={15} strokeWidth={1.75} />
+            <span>Lock Sensitive Fields</span>
+          </button>
+          <button class="backup-menu-item" onclick={() => openPasswordPrompt('removePassword')}>
+            <Shield size={15} strokeWidth={1.75} />
+            <span>Remove Encryption</span>
+          </button>
+        {:else if encryptionHasPassword}
+          <button class="backup-menu-item" onclick={() => openPasswordPrompt('unlock')}>
+            <Unlock size={15} strokeWidth={1.75} />
+            <span>Unlock Sensitive Fields</span>
+          </button>
+        {/if}
         {#if isElectron}
           <div class="backup-divider"></div>
           <button class="backup-menu-item" onclick={checkForUpdates}>
@@ -468,10 +586,47 @@
     </div>
   {/if}
 
+  <!-- Password prompt -->
+  {#if showPasswordPrompt}
+    <div class="password-overlay" onclick={() => showPasswordPrompt = false}></div>
+    <div class="password-dialog">
+      <div class="password-title">
+        {#if passwordAction === 'setPassword'}Set Encryption Password
+        {:else if passwordAction === 'unlock'}Unlock Sensitive Fields
+        {:else}Remove Encryption
+        {/if}
+      </div>
+      <input
+        type="password"
+        class="password-input"
+        placeholder="Enter password..."
+        bind:value={passwordInput}
+        onkeydown={(e) => { if (e.key === 'Enter') submitPassword(); if (e.key === 'Escape') showPasswordPrompt = false; }}
+        autofocus
+      />
+      {#if passwordError}
+        <div class="password-error">{passwordError}</div>
+      {/if}
+      <div class="password-actions">
+        <button class="password-submit" onclick={submitPassword}>
+          {passwordAction === 'setPassword' ? 'Set Password' : passwordAction === 'unlock' ? 'Unlock' : 'Remove'}
+        </button>
+        <button class="password-cancel" onclick={() => showPasswordPrompt = false}>Cancel</button>
+      </div>
+    </div>
+  {/if}
+
   <!-- Footer -->
   <div class="sidebar-footer">
     {#if !collapsed}
       <div class="sidebar-footer-left">
+        <button class="footer-btn" title={darkMode ? 'Light mode' : 'Dark mode'} onclick={toggleTheme}>
+          {#if darkMode}
+            <Sun size={16} strokeWidth={1.75} />
+          {:else}
+            <Moon size={16} strokeWidth={1.75} />
+          {/if}
+        </button>
         {#if bookEnabled}
           <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
             <HardDriveDownload size={16} strokeWidth={1.75} />
@@ -1170,6 +1325,88 @@
   .auto-update-toggle.enabled::after {
     transform: translateX(12px);
     background: var(--bg-primary);
+  }
+
+  .password-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 299;
+  }
+
+  .password-dialog {
+    position: absolute;
+    bottom: 62px;
+    left: 8px;
+    right: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-lg);
+    z-index: 300;
+  }
+
+  .password-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .password-input {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+  }
+
+  .password-input:focus {
+    outline: none;
+    border-color: var(--theme-color);
+  }
+
+  .password-error {
+    font-size: 12px;
+    color: #ef4444;
+    margin-bottom: 8px;
+  }
+
+  .password-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .password-submit {
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .password-cancel {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    padding: 7px 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
   }
 
   .version-label {
