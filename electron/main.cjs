@@ -193,15 +193,43 @@ function checkForUpdates(silent = false) {
         }
 
         if (isNewerVersion(currentVersion, latestVersion)) {
+          // Find the right asset for this platform
+          const assets = release.assets || [];
+          const platform = process.platform;
+          const arch = process.arch;
+          let asset = null;
+
+          if (platform === 'darwin') {
+            asset = assets.find(a => a.name.endsWith('.dmg') && a.name.includes(arch === 'arm64' ? 'arm64' : 'x64'));
+            if (!asset) asset = assets.find(a => a.name.endsWith('.dmg'));
+          } else if (platform === 'linux') {
+            asset = assets.find(a => a.name.endsWith('.AppImage'));
+          } else if (platform === 'win32') {
+            asset = assets.find(a => a.name.endsWith('.exe'));
+          }
+
+          const buttons = asset ? ['Download', 'View Release', 'Later'] : ['View Release', 'Later'];
+
           dialog.showMessageBox(mainWindow, {
             type: 'info',
             title: 'Update Available',
             message: `A new version is available: v${latestVersion}\nYou are running v${currentVersion}.`,
             detail: release.name || '',
-            buttons: ['Download', 'Later'],
+            buttons,
             defaultId: 0
-          }).then(({ response }) => {
-            if (response === 0) {
+          }).then(async ({ response }) => {
+            if (asset && response === 0) {
+              // Download the asset to a user-chosen location
+              const defaultName = asset.name;
+              const { filePath } = await dialog.showSaveDialog(mainWindow, {
+                title: 'Save Update',
+                defaultPath: path.join(app.getPath('downloads'), defaultName),
+                filters: [{ name: 'All Files', extensions: ['*'] }]
+              });
+              if (filePath) {
+                downloadAsset(asset.browser_download_url, filePath, latestVersion);
+              }
+            } else if ((asset && response === 1) || (!asset && response === 0)) {
               shell.openExternal(release.html_url || `https://github.com/${GITHUB_REPO}/releases/latest`);
             }
           });
@@ -227,6 +255,85 @@ function checkForUpdates(silent = false) {
       });
     }
   });
+}
+
+function downloadAsset(url, savePath, version) {
+  if (mainWindow) {
+    mainWindow.webContents.send('download-progress', { percent: 0, version });
+  }
+
+  const follow = (downloadUrl) => {
+    https.get(downloadUrl, { headers: { 'User-Agent': 'Big-Book-of-Everything' } }, (res) => {
+      // Follow redirects (GitHub sends 302 to the actual file)
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        return follow(res.headers.location);
+      }
+
+      if (res.statusCode !== 200) {
+        dialog.showMessageBox(mainWindow, {
+          type: 'error',
+          title: 'Download Failed',
+          message: `Server returned status ${res.statusCode}`,
+          buttons: ['OK']
+        });
+        return;
+      }
+
+      const totalBytes = parseInt(res.headers['content-length'] || '0', 10);
+      let downloaded = 0;
+      const file = fs.createWriteStream(savePath);
+
+      res.on('data', (chunk) => {
+        downloaded += chunk.length;
+        if (totalBytes > 0 && mainWindow) {
+          mainWindow.webContents.send('download-progress', {
+            percent: Math.round((downloaded / totalBytes) * 100),
+            version
+          });
+        }
+      });
+
+      res.pipe(file);
+
+      file.on('finish', () => {
+        file.close();
+        if (mainWindow) {
+          mainWindow.webContents.send('download-progress', { percent: 100, version });
+        }
+        dialog.showMessageBox(mainWindow, {
+          type: 'info',
+          title: 'Download Complete',
+          message: `v${version} has been downloaded.`,
+          detail: savePath,
+          buttons: ['Show in Folder', 'OK'],
+          defaultId: 0
+        }).then(({ response }) => {
+          if (response === 0) {
+            shell.showItemInFolder(savePath);
+          }
+        });
+      });
+
+      file.on('error', (err) => {
+        fs.unlink(savePath, () => {});
+        dialog.showMessageBox(mainWindow, {
+          type: 'error',
+          title: 'Download Failed',
+          message: err.message,
+          buttons: ['OK']
+        });
+      });
+    }).on('error', (err) => {
+      dialog.showMessageBox(mainWindow, {
+        type: 'error',
+        title: 'Download Failed',
+        message: err.message,
+        buttons: ['OK']
+      });
+    });
+  };
+
+  follow(url);
 }
 
 function isNewerVersion(current, latest) {
