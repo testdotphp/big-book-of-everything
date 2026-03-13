@@ -1,7 +1,7 @@
 import type { LayoutServerLoad } from './$types';
 import { getPortalConfig } from '$lib/server/config';
 import { isBookEnabled, getDb } from '$lib/server/db';
-import { categories, sections } from '$lib/server/schema';
+import { categories, sections, settings } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
@@ -50,12 +50,19 @@ export const load: LayoutServerLoad = async (event) => {
     });
   }
 
+  // Load theme preference
+  const themeRow = bookEnabled || bookMode
+    ? getDb().select().from(settings).where(eq(settings.key, 'theme')).get()
+    : null;
+  const theme = themeRow?.value || 'dark';
+
   return {
     session,
     config,
     bookEnabled,
     bookMode,
     bookCategories,
-    localAuth: isLocalAuth ? localAuthMode : null
+    localAuth: isLocalAuth ? localAuthMode : null,
+    theme
   };
 };

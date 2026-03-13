@@ -6,7 +6,7 @@
   import SearchBar from './SearchBar.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw, Sun, Moon, Lock, Unlock, Shield, UserCheck } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw, Lock, Unlock, Shield, UserCheck } from 'lucide-svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
   import { toast } from '$lib/stores/toast';
 
@@ -138,26 +138,6 @@
   function handleSectionKeydown(e: KeyboardEvent, categoryId: number) {
     if (e.key === 'Enter') addSection(categoryId);
     if (e.key === 'Escape') { addingSectionForCat = null; newSectionName = ''; }
-  }
-
-  // Theme toggle
-  let darkMode = $state(true);
-
-  if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('theme');
-    darkMode = saved !== 'light';
-    if (!darkMode) document.documentElement.setAttribute('data-theme', 'light');
-  }
-
-  function toggleTheme() {
-    darkMode = !darkMode;
-    if (darkMode) {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('theme', 'light');
-    }
   }
 
   // Update checking (Electron only)
@@ -670,13 +650,6 @@
   <div class="sidebar-footer">
     {#if !collapsed}
       <div class="sidebar-footer-left">
-        <button class="footer-btn" title={darkMode ? 'Light mode' : 'Dark mode'} onclick={toggleTheme}>
-          {#if darkMode}
-            <Sun size={16} strokeWidth={1.75} />
-          {:else}
-            <Moon size={16} strokeWidth={1.75} />
-          {/if}
-        </button>
         {#if bookEnabled}
           <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
             <HardDriveDownload size={16} strokeWidth={1.75} />

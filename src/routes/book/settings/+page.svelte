@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
-  import { ChevronRight, CheckCircle, XCircle, CloudUpload, RotateCcw, Trash2 } from 'lucide-svelte';
+  import { enhance } from '$app/forms';
+  import { ChevronRight, CheckCircle, XCircle, CloudUpload, RotateCcw, Trash2, Palette } from 'lucide-svelte';
   import Icon from '$lib/components/Icon.svelte';
   import type { PageData } from './$types';
 
@@ -152,6 +153,17 @@
     return new Date(iso).toLocaleString();
   }
 
+  // Theme picker
+  const themes = [
+    { slug: 'dark', name: 'Dark', colors: ['#0c0c14', '#12121e', '#181828', '#ececf1'] },
+    { slug: 'light', name: 'Light', colors: ['#f5f5f7', '#ffffff', '#f0f0f3', '#1a1a1e'] },
+    { slug: 'nord', name: 'Nord', colors: ['#2e3440', '#3b4252', '#434c5e', '#eceff4'] },
+    { slug: 'dracula', name: 'Dracula', colors: ['#1e1f29', '#282a36', '#2d2f3f', '#f8f8f2'] },
+    { slug: 'solarized-light', name: 'Solarized', colors: ['#fdf6e3', '#eee8d5', '#e8e1cc', '#073642'] }
+  ];
+
+  let selectedTheme = $state(data.theme || 'dark');
+
   // Load backups on mount if provider is configured
   $effect(() => {
     if (data.provider) loadCloudBackups();
@@ -159,16 +171,48 @@
 </script>
 
 <svelte:head>
-  <title>Backup Settings | Big Book</title>
+  <title>Settings | Big Book</title>
 </svelte:head>
 
 <nav class="breadcrumb">
   <a href="/book">Big Book</a>
   <ChevronRight size={14} strokeWidth={2} />
-  <span>Backup Settings</span>
+  <span>Settings</span>
 </nav>
 
-<h1>Cloud Backup</h1>
+<h1>Settings</h1>
+<p class="subtitle">Appearance and cloud backup configuration.</p>
+
+<div class="settings-card">
+  <h2><Palette size={16} strokeWidth={2} /> Theme</h2>
+  <form method="POST" action="?/setTheme" use:enhance={() => {
+    return async ({ update }) => {
+      await update();
+      await invalidateAll();
+    };
+  }}>
+    <input type="hidden" name="theme" value={selectedTheme} />
+    <div class="theme-grid">
+      {#each themes as theme}
+        <button
+          type="submit"
+          class="theme-option"
+          class:active={selectedTheme === theme.slug}
+          onclick={() => selectedTheme = theme.slug}
+        >
+          <div class="theme-swatches">
+            {#each theme.colors as color}
+              <span class="swatch" style="background: {color}"></span>
+            {/each}
+          </div>
+          <span class="theme-name">{theme.name}</span>
+        </button>
+      {/each}
+    </div>
+  </form>
+</div>
+
+<h2 class="section-heading">Cloud Backup</h2>
 <p class="subtitle">Configure automatic cloud backups for your data.</p>
 
 {#if status}
@@ -594,5 +638,71 @@
   .backup-meta {
     font-size: 11px;
     color: var(--text-muted);
+  }
+
+  .section-heading {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 32px;
+    margin-bottom: 4px;
+  }
+
+  .theme-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 90px;
+    font-family: var(--font-body);
+  }
+
+  .theme-option:hover {
+    border-color: var(--text-muted);
+  }
+
+  .theme-option.active {
+    border-color: var(--theme-color);
+    background: color-mix(in srgb, var(--theme-color) 8%, var(--bg-primary));
+  }
+
+  .theme-swatches {
+    display: flex;
+    gap: 4px;
+  }
+
+  .swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+  }
+
+  .theme-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .theme-option.active .theme-name {
+    color: var(--theme-color);
+  }
+
+  h2 :global(svg) {
+    vertical-align: -2px;
+    margin-right: 4px;
   }
 </style>

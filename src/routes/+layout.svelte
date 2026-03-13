@@ -11,6 +11,17 @@
   let sidebarCollapsed = $state(false);
   let mobileMenuOpen = $state(false);
 
+  // Apply theme from server and sync to localStorage
+  $effect(() => {
+    const theme = data.theme || 'dark';
+    if (theme === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('theme', theme);
+  });
+
   // Close mobile menu on navigation
   let prevPath = $state('');
   $effect(() => {
