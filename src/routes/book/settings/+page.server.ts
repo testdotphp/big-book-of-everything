@@ -5,12 +5,15 @@ import { settings } from '$lib/server/schema';
 import { eq, like } from 'drizzle-orm';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import { env } from '$env/dynamic/private';
+import { getLocalUsers } from '$lib/server/local-auth';
 
 export const load: PageServerLoad = async () => {
 	const config = getProviderConfig();
 	const lastBackup = getSetting('backup_last');
 	const db = getDb();
 	const themeRow = db.select().from(settings).where(eq(settings.key, 'theme')).get();
+	const fontSizeRow = db.select().from(settings).where(eq(settings.key, 'font_size')).get();
 
 	// Load icon pack state
 	const iconPackRow = db.select().from(settings).where(eq(settings.key, 'icon_pack')).get();
@@ -39,14 +42,21 @@ export const load: PageServerLoad = async () => {
 		if ('secretAccessKey' in displayConfig) displayConfig.secretAccessKey = displayConfig.secretAccessKey ? '••••••••' : '';
 	}
 
+	const localAuthMode = env.LOCAL_AUTH?.toLowerCase() || null;
+	const isUsersMode = localAuthMode === 'users';
+	const users = isUsersMode ? getLocalUsers() : [];
+
 	return {
 		config: displayConfig,
 		provider: config?.provider || null,
 		lastBackup,
 		theme: themeRow?.value || 'dark',
+		fontSize: fontSizeRow?.value || 'medium',
 		activeIconPack,
 		downloadedPacks,
-		iconRegistry: registry.packs
+		iconRegistry: registry.packs,
+		users,
+		isUsersMode
 	};
 };
 
@@ -120,5 +130,22 @@ export const actions: Actions = {
 		}
 
 		return { success: true, theme };
+	},
+
+	setFontSize: async ({ request }) => {
+		const formData = await request.formData();
+		const fontSize = String(formData.get('fontSize') || 'medium');
+		const validSizes = ['small', 'medium', 'large'];
+		if (!validSizes.includes(fontSize)) return { success: false };
+
+		const db = getDb();
+		const existing = db.select().from(settings).where(eq(settings.key, 'font_size')).get();
+		if (existing) {
+			db.update(settings).set({ value: fontSize }).where(eq(settings.key, 'font_size')).run();
+		} else {
+			db.insert(settings).values({ key: 'font_size', value: fontSize }).run();
+		}
+
+		return { success: true, fontSize };
 	}
 };

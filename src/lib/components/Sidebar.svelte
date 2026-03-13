@@ -6,7 +6,7 @@
   import SearchBar from './SearchBar.svelte';
   import { isNavGroup } from '$lib/types';
   import type { PortalConfig } from '$lib/types';
-  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, HardDriveDownload, HardDriveUpload, Database, FileJson, RefreshCw, Lock, Unlock, Shield, UserCheck } from 'lucide-svelte';
+  import { LogOut, ChevronLeft, ChevronRight, ChevronDown, Plus, X, Settings, RefreshCw } from 'lucide-svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
   import { toast } from '$lib/stores/toast';
 
@@ -79,7 +79,10 @@
   }
 
   function toggleBookCat(catSlug: string) {
-    bookCatToggles[catSlug] = !isBookCatExpanded(catSlug);
+    const wasExpanded = isBookCatExpanded(catSlug);
+    // Collapse all categories, then toggle the clicked one
+    bookCatToggles = {};
+    bookCatToggles[catSlug] = !wasExpanded;
   }
 
   // Inline add forms
@@ -163,7 +166,6 @@
     if (isElectron) {
       (window as any).electronAPI.checkForUpdates();
     }
-    backupMenuOpen = false;
   }
 
   function toggleAutoUpdate() {
@@ -173,166 +175,7 @@
     }
   }
 
-  // Encryption state
-  let encryptionHasPassword = $state(false);
-  let encryptionUnlocked = $state(false);
-  let showPasswordPrompt = $state(false);
-  let passwordInput = $state('');
-  let passwordConfirm = $state('');
-  let passwordAction = $state<'unlock' | 'setPassword' | 'removePassword'>('unlock');
-  let passwordError = $state('');
 
-  if (typeof window !== 'undefined') {
-    fetch('/api/book/encryption')
-      .then(r => r.json())
-      .then(d => {
-        encryptionHasPassword = d.hasPassword;
-        encryptionUnlocked = d.unlocked;
-      })
-      .catch(() => {});
-  }
-
-  function openPasswordPrompt(action: 'unlock' | 'setPassword' | 'removePassword') {
-    passwordAction = action;
-    passwordInput = '';
-    passwordConfirm = '';
-    passwordError = '';
-    showPasswordPrompt = true;
-    backupMenuOpen = false;
-  }
-
-  async function submitPassword() {
-    passwordError = '';
-    if (passwordAction === 'setPassword' && passwordInput !== passwordConfirm) {
-      passwordError = 'Passwords do not match';
-      return;
-    }
-    if (passwordAction === 'setPassword' && passwordInput.length < 4) {
-      passwordError = 'Password must be at least 4 characters';
-      return;
-    }
-    try {
-      const res = await fetch('/api/book/encryption', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: passwordAction, password: passwordInput })
-      });
-      if (!res.ok) {
-        const msg = await res.json().catch(() => ({ message: 'Failed' }));
-        passwordError = msg.message || 'Failed';
-        return;
-      }
-      showPasswordPrompt = false;
-      if (passwordAction === 'setPassword') {
-        encryptionHasPassword = true;
-        encryptionUnlocked = true;
-        toast.success('Encryption password set');
-      } else if (passwordAction === 'unlock') {
-        encryptionUnlocked = true;
-        toast.success('Sensitive fields unlocked');
-      } else if (passwordAction === 'removePassword') {
-        encryptionHasPassword = false;
-        encryptionUnlocked = false;
-        toast.success('Encryption removed');
-      }
-      passwordInput = '';
-      await invalidateAll();
-    } catch {
-      passwordError = 'Request failed';
-    }
-  }
-
-  async function lockEncryption() {
-    await fetch('/api/book/encryption', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'lock' })
-    });
-    encryptionUnlocked = false;
-    backupMenuOpen = false;
-    toast.info('Sensitive fields locked');
-    await invalidateAll();
-  }
-
-  // Backup/restore menu
-  let backupMenuOpen = $state(false);
-  let importStatus = $state<string | null>(null);
-  let fileInput: HTMLInputElement;
-  let sqliteInput: HTMLInputElement;
-
-  function toggleBackupMenu() {
-    backupMenuOpen = !backupMenuOpen;
-    importStatus = null;
-  }
-
-  function exportJson() {
-    window.location.href = '/api/book/export';
-    backupMenuOpen = false;
-  }
-
-  function exportSqlite() {
-    window.location.href = '/api/book/export?format=sqlite';
-    backupMenuOpen = false;
-  }
-
-  function triggerJsonImport() {
-    fileInput?.click();
-  }
-
-  function triggerSqliteImport() {
-    sqliteInput?.click();
-  }
-
-  async function handleJsonImport(e: Event) {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    importStatus = 'Importing...';
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      const res = await fetch('/api/book/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) throw new Error(await res.text());
-      importStatus = null;
-      backupMenuOpen = false;
-      toast.success('JSON import complete');
-      await invalidateAll();
-    } catch (err) {
-      importStatus = null;
-      toast.error('Import failed');
-    }
-    input.value = '';
-  }
-
-  async function handleSqliteImport(e: Event) {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    importStatus = 'Restoring database...';
-    try {
-      const buffer = await file.arrayBuffer();
-      const res = await fetch('/api/book/import?format=sqlite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/octet-stream' },
-        body: buffer
-      });
-      if (!res.ok) throw new Error(await res.text());
-      importStatus = null;
-      backupMenuOpen = false;
-      toast.success('Database restored');
-      await invalidateAll();
-    } catch (err) {
-      importStatus = null;
-      toast.error('Restore failed');
-    }
-    input.value = '';
-  }
 </script>
 
 <aside class="sidebar" class:collapsed>
@@ -346,12 +189,21 @@
       {/if}
     </button>
     {#if !collapsed}
-      <div class="portal-identity">
-        <span class="portal-icon">
-          <Icon name={config.icon} size={16} />
-        </span>
-        <span class="portal-name">{config.name}</span>
-      </div>
+      {#if bookMode}
+        <a href="/book" class="portal-identity">
+          <span class="portal-icon">
+            <Icon name={config.icon} size={16} />
+          </span>
+          <span class="portal-name">{config.name}</span>
+        </a>
+      {:else}
+        <div class="portal-identity">
+          <span class="portal-icon">
+            <Icon name={config.icon} size={16} />
+          </span>
+          <span class="portal-name">{config.name}</span>
+        </div>
+      {/if}
     {/if}
   </div>
 
@@ -527,124 +379,6 @@
     {/if}
   </nav>
 
-  <!-- Hidden file inputs for import -->
-  <input type="file" accept=".json" bind:this={fileInput} onchange={handleJsonImport} style="display:none" />
-  <input type="file" accept=".db,.sqlite,.sqlite3" bind:this={sqliteInput} onchange={handleSqliteImport} style="display:none" />
-
-  <!-- Backup menu dropdown -->
-  {#if backupMenuOpen}
-    <div class="backup-menu">
-      <div class="backup-menu-title">Backup & Restore</div>
-      {#if importStatus}
-        <div class="backup-status">{importStatus}</div>
-      {:else}
-        <button class="backup-menu-item" onclick={exportJson}>
-          <FileJson size={15} strokeWidth={1.75} />
-          <span>Export JSON</span>
-        </button>
-        <button class="backup-menu-item" onclick={exportSqlite}>
-          <Database size={15} strokeWidth={1.75} />
-          <span>Export Database</span>
-        </button>
-        <div class="backup-divider"></div>
-        <button class="backup-menu-item" onclick={triggerJsonImport}>
-          <HardDriveUpload size={15} strokeWidth={1.75} />
-          <span>Import JSON</span>
-        </button>
-        <button class="backup-menu-item" onclick={triggerSqliteImport}>
-          <HardDriveUpload size={15} strokeWidth={1.75} />
-          <span>Import Database</span>
-        </button>
-        <div class="backup-divider"></div>
-        <a href="/book/settings" class="backup-menu-item" onclick={() => backupMenuOpen = false}>
-          <Settings size={15} strokeWidth={1.75} />
-          <span>Settings</span>
-        </a>
-        <a href="/book/emergency" class="backup-menu-item" onclick={() => backupMenuOpen = false}>
-          <UserCheck size={15} strokeWidth={1.75} />
-          <span>Emergency Access</span>
-        </a>
-        <div class="backup-divider"></div>
-        {#if !encryptionHasPassword}
-          <button class="backup-menu-item" onclick={() => openPasswordPrompt('setPassword')}>
-            <Shield size={15} strokeWidth={1.75} />
-            <span>Set Encryption Password</span>
-          </button>
-        {:else if encryptionUnlocked}
-          <button class="backup-menu-item" onclick={lockEncryption}>
-            <Lock size={15} strokeWidth={1.75} />
-            <span>Lock Sensitive Fields</span>
-          </button>
-          <button class="backup-menu-item" onclick={() => openPasswordPrompt('removePassword')}>
-            <Shield size={15} strokeWidth={1.75} />
-            <span>Remove Encryption</span>
-          </button>
-        {:else if encryptionHasPassword}
-          <button class="backup-menu-item" onclick={() => openPasswordPrompt('unlock')}>
-            <Unlock size={15} strokeWidth={1.75} />
-            <span>Unlock Sensitive Fields</span>
-          </button>
-        {/if}
-        {#if isElectron}
-          <div class="backup-divider"></div>
-          <button class="backup-menu-item" onclick={checkForUpdates}>
-            <RefreshCw size={15} strokeWidth={1.75} />
-            <span>Check for Updates</span>
-            {#if updateAvailable}
-              <span class="update-badge">New</span>
-            {/if}
-          </button>
-          <button class="backup-menu-item" onclick={toggleAutoUpdate}>
-            <span class="auto-update-toggle" class:enabled={autoUpdate}></span>
-            <span>Auto-check on startup</span>
-          </button>
-          {#if appVersion}
-            <div class="version-label">v{appVersion}</div>
-          {/if}
-        {/if}
-      {/if}
-    </div>
-  {/if}
-
-  <!-- Password prompt -->
-  {#if showPasswordPrompt}
-    <div class="password-overlay" onclick={() => showPasswordPrompt = false}></div>
-    <div class="password-dialog">
-      <div class="password-title">
-        {#if passwordAction === 'setPassword'}Set Encryption Password
-        {:else if passwordAction === 'unlock'}Unlock Sensitive Fields
-        {:else}Remove Encryption
-        {/if}
-      </div>
-      <input
-        type="password"
-        class="password-input"
-        placeholder="Enter password..."
-        bind:value={passwordInput}
-        onkeydown={(e) => { if (e.key === 'Enter' && passwordAction !== 'setPassword') submitPassword(); if (e.key === 'Escape') showPasswordPrompt = false; }}
-        autofocus
-      />
-      {#if passwordAction === 'setPassword'}
-        <input
-          type="password"
-          class="password-input"
-          placeholder="Confirm password..."
-          bind:value={passwordConfirm}
-          onkeydown={(e) => { if (e.key === 'Enter') submitPassword(); if (e.key === 'Escape') showPasswordPrompt = false; }}
-        />
-      {/if}
-      {#if passwordError}
-        <div class="password-error">{passwordError}</div>
-      {/if}
-      <div class="password-actions">
-        <button class="password-submit" onclick={submitPassword}>
-          {passwordAction === 'setPassword' ? 'Set Password' : passwordAction === 'unlock' ? 'Unlock' : 'Remove'}
-        </button>
-        <button class="password-cancel" onclick={() => showPasswordPrompt = false}>Cancel</button>
-      </div>
-    </div>
-  {/if}
-
   <!-- Confirm dialogs -->
   <ConfirmDialog
     open={confirmDeleteCat !== null}
@@ -673,12 +407,6 @@
           <a href="/book/settings" class="footer-btn" title="Settings">
             <Settings size={16} strokeWidth={1.75} />
           </a>
-          <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
-            <HardDriveDownload size={16} strokeWidth={1.75} />
-            {#if updateAvailable}
-              <span class="update-dot"></span>
-            {/if}
-          </button>
         {/if}
       </div>
       <div class="user-info">
@@ -770,6 +498,8 @@
     align-items: center;
     gap: 8px;
     min-width: 0;
+    text-decoration: none;
+    color: inherit;
   }
 
   .portal-icon {
@@ -1262,204 +992,7 @@
     background: var(--theme-color);
   }
 
-  /* Backup menu */
-  .backup-menu {
-    position: absolute;
-    bottom: 62px;
-    left: 8px;
-    right: 8px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 8px 0;
-    box-shadow: var(--shadow-lg);
-    z-index: 200;
-  }
 
-  .backup-menu-title {
-    padding: 6px 14px 8px;
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .backup-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 8px 14px;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-family: var(--font-body);
-    font-size: 13px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .backup-menu-item:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .backup-divider {
-    height: 1px;
-    margin: 4px 12px;
-    background: var(--border-subtle);
-  }
-
-  .backup-status {
-    padding: 12px 14px;
-    font-size: 13px;
-    color: var(--theme-color);
-    text-align: center;
-    font-weight: 500;
-  }
-
-  .update-badge {
-    margin-left: auto;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 8px;
-    background: var(--theme-color);
-    color: var(--bg-primary);
-  }
-
-  .update-dot {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--theme-color);
-    border: 1.5px solid var(--bg-primary);
-  }
-
-  .auto-update-toggle {
-    width: 28px;
-    height: 16px;
-    border-radius: 8px;
-    background: var(--border-color);
-    position: relative;
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-
-  .auto-update-toggle::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--text-muted);
-    transition: transform 0.2s, background 0.2s;
-  }
-
-  .auto-update-toggle.enabled {
-    background: var(--theme-color);
-  }
-
-  .auto-update-toggle.enabled::after {
-    transform: translateX(12px);
-    background: var(--bg-primary);
-  }
-
-  .password-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 299;
-  }
-
-  .password-dialog {
-    position: absolute;
-    bottom: 62px;
-    left: 8px;
-    right: 8px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 16px;
-    box-shadow: var(--shadow-lg);
-    z-index: 300;
-  }
-
-  .password-title {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 10px;
-  }
-
-  .password-input {
-    width: 100%;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: 13px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-  }
-
-  .password-input:focus {
-    outline: none;
-    border-color: var(--theme-color);
-  }
-
-  .password-error {
-    font-size: 12px;
-    color: #ef4444;
-    margin-bottom: 8px;
-  }
-
-  .password-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .password-submit {
-    background: var(--theme-color);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 7px 14px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .password-cancel {
-    background: none;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    color: var(--text-muted);
-    padding: 7px 12px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  .version-label {
-    padding: 4px 14px 2px;
-    font-size: 11px;
-    color: var(--text-muted);
-    opacity: 0.6;
-  }
 
   /* Mobile — sidebar is full-width in overlay mode, controlled by parent */
   @media (max-width: 768px) {

@@ -10,6 +10,7 @@ import {
 	hasAnyLocalUsers,
 	getLocalUsers,
 	deleteLocalUser,
+	getLocalUserRole,
 	createSessionToken,
 	storeSession,
 	deleteSession,
@@ -32,7 +33,7 @@ function getLocalAuthMode(): string | null {
 	return null;
 }
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ cookies }) => {
 	const mode = getLocalAuthMode();
 	if (!mode) return json({ enabled: false });
 
@@ -40,11 +41,19 @@ export const GET: RequestHandler = async () => {
 		return json({ enabled: true, mode: 'password', needsSetup: !isPasswordSet() });
 	}
 
+	let currentRole: string | null = null;
+	const token = cookies.get('local_session');
+	if (token) {
+		const session = getSession(token);
+		if (session) currentRole = session.role;
+	}
+
 	return json({
 		enabled: true,
 		mode: 'users',
 		needsSetup: !hasAnyLocalUsers(),
-		users: getLocalUsers().map((u) => ({ username: u.username, name: u.name }))
+		users: getLocalUsers().map((u) => ({ username: u.username, name: u.name, role: u.role })),
+		currentRole
 	});
 };
 
@@ -100,24 +109,28 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	// --- Multi-user mode ---
 	if (mode === 'users') {
 		if (action === 'register') {
+			if (hasAnyLocalUsers()) {
+				return json({ error: 'Registration is closed. Ask an admin to add you.' }, { status: 403 });
+			}
 			const { username, password, name } = body;
-			if (!username?.trim() || !password || password.length < 4) {
+			if (!username?.trim() || !password || (password as string).length < 4) {
 				return json({ error: 'Username and password (4+ chars) required' }, { status: 400 });
 			}
-			const ok = createLocalUser(username.trim().toLowerCase(), password, name?.trim() || username.trim());
+			const role = 'admin';
+			const ok = createLocalUser(username.trim().toLowerCase(), password as string, (name as string)?.trim() || username.trim(), role);
 			if (!ok) return json({ error: 'Username already exists' }, { status: 409 });
 			const token = createSessionToken();
-			storeSession(token, username.trim().toLowerCase(), name?.trim() || username.trim());
+			storeSession(token, username.trim().toLowerCase(), (name as string)?.trim() || username.trim(), role);
 			cookies.set(COOKIE_NAME, token, cookieOpts());
 			return json({ ok: true });
 		}
 
 		if (action === 'login') {
 			const { username, password } = body;
-			const user = verifyLocalUser(username?.trim()?.toLowerCase(), password);
+			const user = verifyLocalUser(username?.trim()?.toLowerCase(), password as string);
 			if (!user) return json({ error: 'Invalid username or password' }, { status: 401 });
 			const token = createSessionToken();
-			storeSession(token, username.trim().toLowerCase(), user.name);
+			storeSession(token, username.trim().toLowerCase(), user.name, user.role);
 			cookies.set(COOKIE_NAME, token, cookieOpts());
 			return json({ ok: true });
 		}
@@ -130,14 +143,32 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		}
 
 		if (action === 'deleteUser') {
-			// Require authenticated session to delete users
 			const sessionToken = cookies.get(COOKIE_NAME);
-			if (!sessionToken || !getSession(sessionToken)) {
-				throw error(401, 'Authentication required');
+			const session = sessionToken ? getSession(sessionToken) : null;
+			if (!session || session.role !== 'admin') {
+				throw error(401, 'Admin access required');
 			}
 			const { username } = body;
 			if (!username) return json({ error: 'Username required' }, { status: 400 });
+			if (username === session.userId) {
+				return json({ error: 'Cannot delete your own account' }, { status: 400 });
+			}
 			deleteLocalUser(username as string);
+			return json({ ok: true });
+		}
+
+		if (action === 'addUser') {
+			const sessionToken = cookies.get(COOKIE_NAME);
+			const session = sessionToken ? getSession(sessionToken) : null;
+			if (!session || session.role !== 'admin') {
+				throw error(401, 'Admin access required');
+			}
+			const { username, password, name } = body;
+			if (!username?.trim() || !password || (password as string).length < 4) {
+				return json({ error: 'Username and password (4+ chars) required' }, { status: 400 });
+			}
+			const ok = createLocalUser(username.trim().toLowerCase(), password as string, (name as string)?.trim() || username.trim(), 'user');
+			if (!ok) return json({ error: 'Username already exists' }, { status: 409 });
 			return json({ ok: true });
 		}
 	}

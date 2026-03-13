@@ -23,6 +23,12 @@
     localStorage.setItem('theme', theme);
   });
 
+  // Apply font size
+  $effect(() => {
+    const fs = data.fontSize || 'medium';
+    document.documentElement.setAttribute('data-font-size', fs);
+  });
+
   // Set icon pack store from server data
   $effect(() => {
     iconPackData.set(data.iconPackIcons || null);

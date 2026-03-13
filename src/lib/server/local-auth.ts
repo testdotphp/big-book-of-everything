@@ -56,16 +56,16 @@ export function createSessionToken(): string {
 const SESSION_KEY_PREFIX = 'session:';
 const SESSION_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-export function storeSession(token: string, userId: string, userName: string): void {
+export function storeSession(token: string, userId: string, userName: string, role: string = 'user'): void {
 	const db = getDb();
 	const expires = new Date(Date.now() + SESSION_DURATION).toISOString();
-	const value = JSON.stringify({ userId, userName, expires });
+	const value = JSON.stringify({ userId, userName, role, expires });
 	db.insert(settings).values({ key: `${SESSION_KEY_PREFIX}${token}`, value }).run();
 }
 
 export function getSession(
 	token: string
-): { userId: string; userName: string; expires: string } | null {
+): { userId: string; userName: string; role: string; expires: string } | null {
 	const db = getDb();
 	const row = db
 		.select()
@@ -82,7 +82,7 @@ export function getSession(
 				.run();
 			return null;
 		}
-		return data;
+		return { userId: data.userId, userName: data.userName, role: data.role || 'admin', expires: data.expires };
 	} catch {
 		return null;
 	}
@@ -117,36 +117,36 @@ export function cleanupExpiredSessions(): void {
 
 const USERS_KEY_PREFIX = 'local_user:';
 
-export function getLocalUsers(): { username: string; name: string }[] {
+export function getLocalUsers(): { username: string; name: string; role: string }[] {
 	const db = getDb();
 	const rows = db.select().from(settings).where(like(settings.key, `${USERS_KEY_PREFIX}%`)).all();
 	return rows.map((r) => {
 		const data = JSON.parse(r.value || '{}');
-		return { username: r.key.slice(USERS_KEY_PREFIX.length), name: data.name || '' };
+		return { username: r.key.slice(USERS_KEY_PREFIX.length), name: data.name || '', role: data.role || 'admin' };
 	});
 }
 
-export function createLocalUser(username: string, password: string, name: string): boolean {
+export function createLocalUser(username: string, password: string, name: string, role: 'admin' | 'user' = 'user'): boolean {
 	const db = getDb();
 	const key = `${USERS_KEY_PREFIX}${username}`;
 	const existing = db.select().from(settings).where(eq(settings.key, key)).get();
 	if (existing) return false;
 	const hash = hashPassword(password);
-	db.insert(settings).values({ key, value: JSON.stringify({ name, hash }) }).run();
+	db.insert(settings).values({ key, value: JSON.stringify({ name, hash, role }) }).run();
 	return true;
 }
 
 export function verifyLocalUser(
 	username: string,
 	password: string
-): { name: string } | null {
+): { name: string; role: string } | null {
 	const db = getDb();
 	const key = `${USERS_KEY_PREFIX}${username}`;
 	const row = db.select().from(settings).where(eq(settings.key, key)).get();
 	if (!row?.value) return null;
 	const data = JSON.parse(row.value);
 	if (!verifyPassword(password, data.hash)) return null;
-	return { name: data.name };
+	return { name: data.name, role: data.role || 'admin' };
 }
 
 export function deleteLocalUser(username: string): void {
@@ -154,6 +154,14 @@ export function deleteLocalUser(username: string): void {
 	db.delete(settings)
 		.where(eq(settings.key, `${USERS_KEY_PREFIX}${username}`))
 		.run();
+}
+
+export function getLocalUserRole(username: string): string {
+	const db = getDb();
+	const row = db.select().from(settings).where(eq(settings.key, `${USERS_KEY_PREFIX}${username}`)).get();
+	if (!row?.value) return 'user';
+	const data = JSON.parse(row.value);
+	return data.role || 'admin';
 }
 
 export function hasAnyLocalUsers(): boolean {

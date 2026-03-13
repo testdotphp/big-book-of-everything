@@ -55,6 +55,9 @@ export const load: LayoutServerLoad = async (event) => {
   const themeRow = db2?.select().from(settings).where(eq(settings.key, 'theme')).get();
   const theme = themeRow?.value || 'dark';
 
+  const fontSizeRow = db2?.select().from(settings).where(eq(settings.key, 'font_size')).get();
+  const fontSize = fontSizeRow?.value || 'medium';
+
   const iconPackRow = db2?.select().from(settings).where(eq(settings.key, 'icon_pack')).get();
   const iconPack = iconPackRow?.value || 'lucide';
 
@@ -78,6 +81,7 @@ export const load: LayoutServerLoad = async (event) => {
     bookCategories,
     localAuth: isLocalAuth ? localAuthMode : null,
     theme,
+    fontSize,
     iconPack,
     iconPackIcons
   };

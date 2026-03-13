@@ -57,7 +57,7 @@ const localAuthHandle: Handle = async ({ event, resolve }) => {
     const session = getSession(token);
     if (session) {
       event.locals.auth = async () => ({
-        user: { id: session.userId, name: session.userName, email: '' },
+        user: { id: session.userId, name: session.userName, email: '', role: session.role },
         expires: session.expires
       });
       return resolve(event);

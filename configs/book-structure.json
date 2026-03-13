@@ -366,7 +366,7 @@
           "slug": "current-resume",
           "type": "placeholder",
           "sortOrder": 5,
-          "description": "Keep a  copy of your current resume in a pouch or page protector on this page."
+          "description": "Upload copies of current resumes for all family members."
         },
         {
           "name": "Employment History",
@@ -547,7 +547,7 @@
           "slug": "transcripts",
           "type": "placeholder",
           "sortOrder": 8,
-          "description": "Keep a  copy of all your college transcripts in a pouch or page protector on this page."
+          "description": "Upload copies of college transcripts for all family members."
         },
         {
           "name": "Military History",
@@ -680,7 +680,7 @@
           "slug": "credit-report",
           "type": "placeholder",
           "sortOrder": 11,
-          "description": "Keep a current copy of your credit report(s) in a pouch or page protector on this page. You can go to annualcreditreport.com."
+          "description": "Upload a current copy of your credit report(s). You can request free reports at annualcreditreport.com."
         }
       ]
     },
@@ -3345,7 +3345,7 @@
           "slug": "funeral-receipts",
           "type": "placeholder",
           "sortOrder": 8,
-          "description": "Keep all funeral related expenses and receipts in a pouch or page protector on this page."
+          "description": "Upload all funeral-related expenses and receipts here."
         }
       ]
     }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import { enhance } from '$app/forms';
-  import { ChevronRight, CheckCircle, XCircle, CloudUpload, RotateCcw, Trash2, Palette, Package, Download, Check, X } from 'lucide-svelte';
+  import { ChevronRight, CheckCircle, XCircle, CloudUpload, RotateCcw, Trash2, Palette, Package, Download, Check, X, HardDriveDownload, HardDriveUpload, Database, FileJson, Shield, Lock, Unlock, UserCheck, ExternalLink, Users, UserPlus, Type } from 'lucide-svelte';
   import Icon from '$lib/components/Icon.svelte';
   import type { PageData } from './$types';
 
@@ -164,8 +164,249 @@
 
   let selectedTheme = $state(data.theme || 'dark');
 
+  const fontSizes = [
+    { slug: 'small', name: 'Small' },
+    { slug: 'medium', name: 'Medium' },
+    { slug: 'large', name: 'Large' }
+  ];
+  let selectedFontSize = $state(data.fontSize || 'medium');
+
   // Icon packs
   let iconPackLoading = $state<string | null>(null);
+
+  // Local backup state
+  let importStatus = $state<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+  let jsonInput: HTMLInputElement;
+  let sqliteInput: HTMLInputElement;
+
+  function exportJson() {
+    window.location.href = '/api/book/export?format=json';
+  }
+
+  function exportSqlite() {
+    window.location.href = '/api/book/export?format=sqlite';
+  }
+
+  async function handleJsonImport(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    importStatus = { type: 'info', message: 'Importing JSON...' };
+    try {
+      const text = await file.text();
+      const res = await fetch('/api/book/import?format=json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: text
+      });
+      const result = await res.json();
+      if (res.ok) {
+        importStatus = { type: 'success', message: result.message || 'Import successful' };
+        await invalidateAll();
+      } else {
+        importStatus = { type: 'error', message: result.message || 'Import failed' };
+      }
+    } catch {
+      importStatus = { type: 'error', message: 'Import request failed' };
+    }
+    input.value = '';
+  }
+
+  async function handleSqliteImport(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    importStatus = { type: 'info', message: 'Importing database...' };
+    try {
+      const res = await fetch('/api/book/import?format=sqlite', {
+        method: 'POST',
+        body: await file.arrayBuffer()
+      });
+      const result = await res.json();
+      if (res.ok) {
+        importStatus = { type: 'success', message: result.message || 'Import successful' };
+        await invalidateAll();
+      } else {
+        importStatus = { type: 'error', message: result.message || 'Import failed' };
+      }
+    } catch {
+      importStatus = { type: 'error', message: 'Import request failed' };
+    }
+    input.value = '';
+  }
+
+  // Encryption state
+  let encryptionHasPassword = $state(false);
+  let encryptionUnlocked = $state(false);
+  let passwordInput = $state('');
+  let passwordConfirm = $state('');
+  let passwordError = $state('');
+  let encryptionLoading = $state(false);
+  let showRemoveEncryption = $state(false);
+
+  async function loadEncryptionStatus() {
+    try {
+      const res = await fetch('/api/book/encryption');
+      const data = await res.json();
+      encryptionHasPassword = data.hasPassword;
+      encryptionUnlocked = data.unlocked;
+    } catch { /* ignore */ }
+  }
+
+  async function setEncryptionPassword() {
+    if (!passwordInput) { passwordError = 'Password required'; return; }
+    if (passwordInput !== passwordConfirm) { passwordError = 'Passwords do not match'; return; }
+    encryptionLoading = true;
+    passwordError = '';
+    try {
+      const res = await fetch('/api/book/encryption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'setPassword', password: passwordInput })
+      });
+      if (res.ok) {
+        passwordInput = '';
+        passwordConfirm = '';
+        await loadEncryptionStatus();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        passwordError = (err as any).message || 'Failed to set password';
+      }
+    } catch {
+      passwordError = 'Request failed';
+    }
+    encryptionLoading = false;
+  }
+
+  async function unlockEncryption() {
+    if (!passwordInput) { passwordError = 'Password required'; return; }
+    encryptionLoading = true;
+    passwordError = '';
+    try {
+      const res = await fetch('/api/book/encryption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'unlock', password: passwordInput })
+      });
+      if (res.ok) {
+        passwordInput = '';
+        await loadEncryptionStatus();
+        await invalidateAll();
+      } else {
+        passwordError = 'Wrong password';
+      }
+    } catch {
+      passwordError = 'Request failed';
+    }
+    encryptionLoading = false;
+  }
+
+  async function lockEncryption() {
+    await fetch('/api/book/encryption', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'lock' })
+    });
+    await loadEncryptionStatus();
+    await invalidateAll();
+  }
+
+  async function removeEncryptionPassword() {
+    if (!passwordInput) { passwordError = 'Password required to remove encryption'; return; }
+    encryptionLoading = true;
+    passwordError = '';
+    try {
+      const res = await fetch('/api/book/encryption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'removePassword', password: passwordInput })
+      });
+      if (res.ok) {
+        passwordInput = '';
+        await loadEncryptionStatus();
+        await invalidateAll();
+      } else {
+        passwordError = 'Wrong password';
+      }
+    } catch {
+      passwordError = 'Request failed';
+    }
+    encryptionLoading = false;
+  }
+
+  // ---- User management ----
+  let newUsername = $state('');
+  let newPassword = $state('');
+  let newDisplayName = $state('');
+  let userStatus = $state<{ type: 'success' | 'error'; message: string } | null>(null);
+  let userLoading = $state(false);
+  let userList = $state(data.users || []);
+
+  // Current user role from layout session
+  let currentRole = $derived((data as any).session?.user?.role || 'user');
+  let isAdmin = $derived(currentRole === 'admin');
+
+  async function addUser() {
+    if (!newUsername.trim() || !newPassword || newPassword.length < 4) {
+      userStatus = { type: 'error', message: 'Username and password (4+ chars) required.' };
+      return;
+    }
+    userLoading = true;
+    userStatus = null;
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'addUser', username: newUsername.trim(), password: newPassword, name: newDisplayName.trim() || newUsername.trim() })
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        userStatus = { type: 'error', message: result.error || 'Failed to add user.' };
+      } else {
+        userStatus = { type: 'success', message: `User "${newUsername.trim()}" added.` };
+        newUsername = '';
+        newPassword = '';
+        newDisplayName = '';
+        await refreshUsers();
+      }
+    } catch {
+      userStatus = { type: 'error', message: 'Network error.' };
+    }
+    userLoading = false;
+  }
+
+  async function removeUser(username: string) {
+    if (!confirm(`Remove user "${username}"? They will lose access to the app.`)) return;
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteUser', username })
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        userStatus = { type: 'error', message: result.error || 'Failed to remove user.' };
+      } else {
+        userStatus = { type: 'success', message: `User "${username}" removed.` };
+        await refreshUsers();
+      }
+    } catch {
+      userStatus = { type: 'error', message: 'Network error.' };
+    }
+  }
+
+  async function refreshUsers() {
+    try {
+      const res = await fetch('/api/auth');
+      const result = await res.json();
+      if (result.users) userList = result.users;
+    } catch { /* ignore */ }
+  }
+
+  // Load encryption status and backups on mount
+  $effect(() => {
+    loadEncryptionStatus();
+  });
 
   // Load backups on mount if provider is configured
   $effect(() => {
@@ -194,6 +435,12 @@
     {#each themes as theme}
       <form method="POST" action="?/setTheme" use:enhance={() => {
         selectedTheme = theme.slug;
+        // Apply theme immediately for instant visual feedback
+        if (theme.slug === 'dark') {
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          document.documentElement.setAttribute('data-theme', theme.slug);
+        }
         return async ({ update }) => {
           await update();
           await invalidateAll();
@@ -211,6 +458,32 @@
             {/each}
           </div>
           <span class="theme-name">{theme.name}</span>
+        </button>
+      </form>
+    {/each}
+  </div>
+</div>
+
+<div class="settings-card">
+  <h3 class="card-title"><Type size={16} strokeWidth={2} /> Font Size</h3>
+  <div class="font-size-grid">
+    {#each fontSizes as fs}
+      <form method="POST" action="?/setFontSize" use:enhance={() => {
+        selectedFontSize = fs.slug;
+        document.documentElement.setAttribute('data-font-size', fs.slug);
+        return async ({ update }) => {
+          await update();
+          await invalidateAll();
+        };
+      }}>
+        <input type="hidden" name="fontSize" value={fs.slug} />
+        <button
+          type="submit"
+          class="font-size-option"
+          class:active={selectedFontSize === fs.slug}
+        >
+          <span class="fs-preview" data-size={fs.slug}>Aa</span>
+          <span class="fs-name">{fs.name}</span>
         </button>
       </form>
     {/each}
@@ -295,8 +568,164 @@
   </div>
 </div>
 
+{#if data.isUsersMode && isAdmin}
+<h2 class="section-heading">User Management</h2>
+<p class="subtitle">Add and remove users who can access the Big Book.</p>
+
+<div class="settings-card">
+  <h3 class="card-title"><Users size={16} strokeWidth={2} /> Users</h3>
+
+  {#if userStatus}
+    <div class="status-message {userStatus.type}">
+      {#if userStatus.type === 'success'}<CheckCircle size={14} />{:else}<XCircle size={14} />{/if}
+      {userStatus.message}
+      <button class="close-btn" onclick={() => userStatus = null}><X size={12} /></button>
+    </div>
+  {/if}
+
+  <div class="user-list">
+    {#each userList as user}
+      <div class="user-row">
+        <div class="user-info">
+          <span class="user-name">{user.name}</span>
+          <span class="user-username">@{user.username}</span>
+          {#if user.role === 'admin'}
+            <span class="user-badge admin">Admin</span>
+          {/if}
+        </div>
+        {#if user.role !== 'admin'}
+          <button class="btn danger-outline btn-sm" onclick={() => removeUser(user.username)}>
+            <Trash2 size={13} strokeWidth={2} />
+            Remove
+          </button>
+        {/if}
+      </div>
+    {/each}
+  </div>
+
+  <div class="add-user-form">
+    <h4>Add a new user</h4>
+    <div class="form-row">
+      <input type="text" placeholder="Username" bind:value={newUsername} class="enc-input" />
+      <input type="text" placeholder="Display name" bind:value={newDisplayName} class="enc-input" />
+    </div>
+    <div class="form-row">
+      <input type="password" placeholder="Password (4+ chars)" bind:value={newPassword} class="enc-input" />
+      <button class="btn primary" onclick={addUser} disabled={userLoading}>
+        <UserPlus size={15} strokeWidth={2} />
+        {userLoading ? 'Adding...' : 'Add User'}
+      </button>
+    </div>
+  </div>
+</div>
+{/if}
+
 <h2 class="section-heading">Data &amp; Backup</h2>
-<p class="subtitle">Cloud backup, export, and restore options.</p>
+<p class="subtitle">Local and cloud backup, encryption, and restore options.</p>
+
+<div class="settings-card">
+  <h3 class="card-title"><HardDriveDownload size={16} strokeWidth={2} /> Local Export</h3>
+  <p class="card-desc">Download your data to your device.</p>
+  <div class="actions">
+    <button class="btn secondary" onclick={exportJson}>
+      <FileJson size={15} strokeWidth={2} />
+      Export as JSON
+    </button>
+    <button class="btn secondary" onclick={exportSqlite}>
+      <Database size={15} strokeWidth={2} />
+      Export as Database
+    </button>
+  </div>
+</div>
+
+<div class="settings-card">
+  <h3 class="card-title"><HardDriveUpload size={16} strokeWidth={2} /> Local Import</h3>
+  <p class="card-desc">Restore data from a local backup file. This will replace all current data.</p>
+  {#if importStatus}
+    <div class="status" class:success={importStatus.type === 'success'} class:error={importStatus.type === 'error'} class:info={importStatus.type === 'info'}>
+      {#if importStatus.type === 'success'}<CheckCircle size={16} strokeWidth={2} />{/if}
+      {#if importStatus.type === 'error'}<XCircle size={16} strokeWidth={2} />{/if}
+      <span>{importStatus.message}</span>
+      <button class="status-close" onclick={() => importStatus = null}>&times;</button>
+    </div>
+  {/if}
+  <div class="actions">
+    <button class="btn secondary" onclick={() => jsonInput.click()}>
+      <FileJson size={15} strokeWidth={2} />
+      Import JSON
+    </button>
+    <button class="btn secondary" onclick={() => sqliteInput.click()}>
+      <Database size={15} strokeWidth={2} />
+      Import Database
+    </button>
+  </div>
+  <input bind:this={jsonInput} type="file" accept=".json" class="hidden-input" onchange={handleJsonImport} />
+  <input bind:this={sqliteInput} type="file" accept=".db,.sqlite,.sqlite3" class="hidden-input" onchange={handleSqliteImport} />
+</div>
+
+<div class="settings-card">
+  <h3 class="card-title"><Shield size={16} strokeWidth={2} /> Encryption</h3>
+  {#if !encryptionHasPassword}
+    <p class="card-desc">Protect sensitive fields (SSN, passwords, account numbers) with a password. Once set, sensitive data is encrypted at rest.</p>
+    <div class="encryption-form">
+      <input type="password" class="enc-input" placeholder="Set encryption password..." bind:value={passwordInput} />
+      <input type="password" class="enc-input" placeholder="Confirm password..." bind:value={passwordConfirm} />
+      {#if passwordError}<p class="enc-error">{passwordError}</p>{/if}
+      <button class="btn primary" onclick={setEncryptionPassword} disabled={encryptionLoading}>
+        <Lock size={14} strokeWidth={2} />
+        Set Password
+      </button>
+    </div>
+  {:else if encryptionUnlocked}
+    <p class="card-desc">
+      <span class="enc-status unlocked"><Unlock size={14} strokeWidth={2} /> Unlocked</span>
+      Sensitive fields are decrypted and visible.
+    </p>
+    <div class="actions">
+      <button class="btn secondary" onclick={lockEncryption}>
+        <Lock size={14} strokeWidth={2} />
+        Lock
+      </button>
+      <button class="btn danger-outline" onclick={() => { showRemoveEncryption = !showRemoveEncryption; passwordInput = ''; passwordError = ''; }}>
+        Remove Encryption
+      </button>
+    </div>
+    {#if showRemoveEncryption}
+      <div class="encryption-form" style="margin-top: 12px;">
+        <input type="password" class="enc-input" placeholder="Enter current password to confirm..." bind:value={passwordInput}
+          onkeydown={(e) => { if (e.key === 'Enter') removeEncryptionPassword(); }} />
+        {#if passwordError}<p class="enc-error">{passwordError}</p>{/if}
+        <button class="btn small danger" onclick={removeEncryptionPassword} disabled={encryptionLoading}>Confirm Remove</button>
+      </div>
+    {/if}
+  {:else}
+    <p class="card-desc">
+      <span class="enc-status locked"><Lock size={14} strokeWidth={2} /> Locked</span>
+      Sensitive fields are encrypted. Enter your password to view them.
+    </p>
+    <div class="encryption-form">
+      <input type="password" class="enc-input" placeholder="Enter encryption password..." bind:value={passwordInput}
+        onkeydown={(e) => { if (e.key === 'Enter') unlockEncryption(); }} />
+      {#if passwordError}<p class="enc-error">{passwordError}</p>{/if}
+      <button class="btn primary" onclick={unlockEncryption} disabled={encryptionLoading}>
+        <Unlock size={14} strokeWidth={2} />
+        Unlock
+      </button>
+    </div>
+  {/if}
+</div>
+
+<div class="settings-card">
+  <h3 class="card-title"><UserCheck size={16} strokeWidth={2} /> Emergency Access</h3>
+  <p class="card-desc">Create shareable read-only links for trusted family members or emergency contacts.</p>
+  <a href="/book/emergency" class="btn secondary">
+    <ExternalLink size={14} strokeWidth={2} />
+    Manage Access Links
+  </a>
+</div>
+
+<h2 class="section-heading">Cloud Backup</h2>
+<p class="subtitle">Sync backups to a cloud provider.</p>
 
 {#if status}
   <div class="status" class:success={status.type === 'success'} class:error={status.type === 'error'} class:info={status.type === 'info'}>
@@ -308,7 +737,7 @@
 {/if}
 
 <div class="settings-card">
-  <h3 class="card-title">Provider</h3>
+  <h3 class="card-title"><CloudUpload size={16} strokeWidth={2} /> Provider</h3>
   <select class="select" bind:value={provider}>
     <option value="">Select a provider...</option>
     <option value="webdav">WebDAV (Nextcloud, ownCloud, Synology)</option>
@@ -793,6 +1222,63 @@
     color: var(--text-secondary);
   }
 
+  .font-size-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .font-size-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 90px;
+    font-family: var(--font-body);
+  }
+
+  .font-size-option:hover {
+    border-color: var(--text-muted);
+  }
+
+  .font-size-option.active {
+    border-color: var(--theme-color);
+    background: color-mix(in srgb, var(--theme-color) 8%, var(--bg-primary));
+  }
+
+  .fs-preview {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .fs-preview[data-size='small'] {
+    font-size: 14px;
+  }
+
+  .fs-preview[data-size='medium'] {
+    font-size: 20px;
+  }
+
+  .fs-preview[data-size='large'] {
+    font-size: 26px;
+  }
+
+  .fs-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .font-size-option.active .fs-name {
+    color: var(--theme-color);
+  }
+
   .theme-option.active .theme-name {
     color: var(--theme-color);
   }
@@ -907,5 +1393,153 @@
   .btn.danger:hover:not(:disabled) {
     background: rgba(239, 68, 68, 0.1);
     border-color: #ef4444;
+  }
+
+  .btn.danger-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: none;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .btn.danger-outline:hover {
+    color: #ef4444;
+    border-color: #ef4444;
+  }
+
+  .hidden-input {
+    display: none;
+  }
+
+  .encryption-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 360px;
+  }
+
+  .enc-input {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+
+  .enc-input:focus {
+    outline: none;
+    border-color: var(--theme-color);
+  }
+
+  .enc-error {
+    font-size: 12px;
+    color: #ef4444;
+  }
+
+  .enc-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .enc-status.unlocked {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+  }
+
+  .enc-status.locked {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+  }
+
+  /* User management */
+  .user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0.75rem;
+    background: var(--color-surface-alt, rgba(255,255,255,0.03));
+    border-radius: 6px;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .user-name {
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .user-username {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  .user-badge {
+    font-size: 0.7rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .user-badge.admin {
+    background: var(--color-accent, #4CAF50);
+    color: #fff;
+  }
+
+  .btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .add-user-form {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+  }
+
+  .add-user-form h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-row input {
+    flex: 1;
   }
 </style>
