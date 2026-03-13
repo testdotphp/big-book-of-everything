@@ -5,7 +5,7 @@
   import PersonGroup from '$lib/components/PersonGroup.svelte';
   import PlaceholderSection from '$lib/components/PlaceholderSection.svelte';
   import RecordCard from '$lib/components/RecordCard.svelte';
-  import { ChevronRight, Plus, Settings, Trash2, X } from 'lucide-svelte';
+  import { ChevronRight, Plus, Printer, Settings, Trash2, X } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -53,6 +53,9 @@
 <div class="header">
   <h1>{data.section.name}</h1>
   <span class="type-badge">{data.section.type === 'table' ? 'Table' : data.section.type === 'placeholder' ? 'Info' : 'Key-Value'}</span>
+  <a href="/book/print" class="print-link" title="Print Book">
+    <Printer size={16} strokeWidth={1.75} />
+  </a>
   {#if data.section.type !== 'placeholder'}
     <button
       class="settings-btn"
@@ -131,7 +134,11 @@
   {#if data.fields.length === 0}
     <div class="empty-state">
       <p class="empty-title">No fields defined</p>
-      <p class="empty-desc">Open field settings to add fields to this section.</p>
+      <p class="empty-desc">Add fields to start creating records in this section.</p>
+      <button class="empty-action-btn" onclick={() => { showFieldManager = true; showAddField = true; }}>
+        <Plus size={14} strokeWidth={2} />
+        Add first field
+      </button>
     </div>
   {:else if data.records.length === 0}
     <div class="empty-state">
@@ -248,6 +255,26 @@
     margin-bottom: 16px;
   }
 
+  .empty-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .empty-action-btn:hover {
+    opacity: 0.9;
+  }
+
   .add-row-btn {
     display: inline-flex;
     align-items: center;
@@ -282,6 +309,20 @@
     margin-bottom: 12px;
   }
 
+  .print-link {
+    margin-left: auto;
+    color: var(--text-muted);
+    padding: 5px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .print-link:hover {
+    background: var(--bg-hover);
+    color: var(--theme-color);
+  }
+
   .settings-btn {
     background: none;
     border: 1px solid var(--border-color);
@@ -291,7 +332,6 @@
     padding: 5px;
     display: inline-flex;
     transition: color 0.15s, border-color 0.15s;
-    margin-left: auto;
   }
 
   .settings-btn:hover,

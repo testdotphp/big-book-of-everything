@@ -178,6 +178,7 @@
   let encryptionUnlocked = $state(false);
   let showPasswordPrompt = $state(false);
   let passwordInput = $state('');
+  let passwordConfirm = $state('');
   let passwordAction = $state<'unlock' | 'setPassword' | 'removePassword'>('unlock');
   let passwordError = $state('');
 
@@ -194,6 +195,7 @@
   function openPasswordPrompt(action: 'unlock' | 'setPassword' | 'removePassword') {
     passwordAction = action;
     passwordInput = '';
+    passwordConfirm = '';
     passwordError = '';
     showPasswordPrompt = true;
     backupMenuOpen = false;
@@ -201,6 +203,14 @@
 
   async function submitPassword() {
     passwordError = '';
+    if (passwordAction === 'setPassword' && passwordInput !== passwordConfirm) {
+      passwordError = 'Passwords do not match';
+      return;
+    }
+    if (passwordAction === 'setPassword' && passwordInput.length < 4) {
+      passwordError = 'Password must be at least 4 characters';
+      return;
+    }
     try {
       const res = await fetch('/api/book/encryption', {
         method: 'POST',
@@ -611,9 +621,18 @@
         class="password-input"
         placeholder="Enter password..."
         bind:value={passwordInput}
-        onkeydown={(e) => { if (e.key === 'Enter') submitPassword(); if (e.key === 'Escape') showPasswordPrompt = false; }}
+        onkeydown={(e) => { if (e.key === 'Enter' && passwordAction !== 'setPassword') submitPassword(); if (e.key === 'Escape') showPasswordPrompt = false; }}
         autofocus
       />
+      {#if passwordAction === 'setPassword'}
+        <input
+          type="password"
+          class="password-input"
+          placeholder="Confirm password..."
+          bind:value={passwordConfirm}
+          onkeydown={(e) => { if (e.key === 'Enter') submitPassword(); if (e.key === 'Escape') showPasswordPrompt = false; }}
+        />
+      {/if}
       {#if passwordError}
         <div class="password-error">{passwordError}</div>
       {/if}
@@ -651,6 +670,9 @@
     {#if !collapsed}
       <div class="sidebar-footer-left">
         {#if bookEnabled}
+          <a href="/book/settings" class="footer-btn" title="Settings">
+            <Settings size={16} strokeWidth={1.75} />
+          </a>
           <button class="footer-btn" title="Backup & Restore" onclick={toggleBackupMenu}>
             <HardDriveDownload size={16} strokeWidth={1.75} />
             {#if updateAvailable}

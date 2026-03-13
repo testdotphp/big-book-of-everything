@@ -184,24 +184,26 @@
 </nav>
 
 <h1>Settings</h1>
-<p class="subtitle">Appearance and cloud backup configuration.</p>
+
+<h2 class="section-heading">Appearance</h2>
+<p class="subtitle">Theme and icon customization.</p>
 
 <div class="settings-card">
-  <h2><Palette size={16} strokeWidth={2} /> Theme</h2>
-  <form method="POST" action="?/setTheme" use:enhance={() => {
-    return async ({ update }) => {
-      await update();
-      await invalidateAll();
-    };
-  }}>
-    <input type="hidden" name="theme" value={selectedTheme} />
-    <div class="theme-grid">
-      {#each themes as theme}
+  <h3 class="card-title"><Palette size={16} strokeWidth={2} /> Theme</h3>
+  <div class="theme-grid">
+    {#each themes as theme}
+      <form method="POST" action="?/setTheme" use:enhance={() => {
+        selectedTheme = theme.slug;
+        return async ({ update }) => {
+          await update();
+          await invalidateAll();
+        };
+      }}>
+        <input type="hidden" name="theme" value={theme.slug} />
         <button
           type="submit"
           class="theme-option"
           class:active={selectedTheme === theme.slug}
-          onclick={() => selectedTheme = theme.slug}
         >
           <div class="theme-swatches">
             {#each theme.colors as color}
@@ -210,14 +212,14 @@
           </div>
           <span class="theme-name">{theme.name}</span>
         </button>
-      {/each}
-    </div>
-  </form>
+      </form>
+    {/each}
+  </div>
 </div>
 
 <div class="settings-card">
-  <h2><Package size={16} strokeWidth={2} /> Icon Pack</h2>
-  <p class="card-desc">Choose an icon style for categories and sections. Lucide is built-in; others can be downloaded.</p>
+  <h3 class="card-title"><Package size={16} strokeWidth={2} /> Icon Pack</h3>
+  <p class="card-desc">Choose an icon style for categories and sections. Lucide is the built-in default. Additional icon packs will be available in a future update.</p>
 
   <div class="icon-pack-grid">
     {#each data.iconRegistry as pack}
@@ -293,8 +295,8 @@
   </div>
 </div>
 
-<h2 class="section-heading">Cloud Backup</h2>
-<p class="subtitle">Configure automatic cloud backups for your data.</p>
+<h2 class="section-heading">Data &amp; Backup</h2>
+<p class="subtitle">Cloud backup, export, and restore options.</p>
 
 {#if status}
   <div class="status" class:success={status.type === 'success'} class:error={status.type === 'error'} class:info={status.type === 'info'}>
@@ -306,7 +308,7 @@
 {/if}
 
 <div class="settings-card">
-  <h2>Provider</h2>
+  <h3 class="card-title">Provider</h3>
   <select class="select" bind:value={provider}>
     <option value="">Select a provider...</option>
     <option value="webdav">WebDAV (Nextcloud, ownCloud, Synology)</option>
@@ -411,7 +413,7 @@
 
 {#if data.provider}
   <div class="settings-card">
-    <h2>Backup Now</h2>
+    <h3 class="card-title">Backup Now</h3>
     <p class="card-desc">
       {#if data.lastBackup}
         Last backup: {formatDate(data.lastBackup)}
@@ -432,7 +434,7 @@
   </div>
 
   <div class="settings-card">
-    <h2>Cloud Backups</h2>
+    <h3 class="card-title">Cloud Backups</h3>
     {#if loadingBackups}
       <p class="card-desc">Loading...</p>
     {:else if backups.length === 0}
@@ -544,6 +546,19 @@
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .card-title :global(svg) {
+    vertical-align: -2px;
+    margin-right: 4px;
   }
 
   .card-desc {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
-  import { ChevronRight, Plus, Trash2 } from 'lucide-svelte';
+  import { ChevronRight, Plus, Trash2, Printer } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -26,6 +26,9 @@
     <h1>{data.category.name}</h1>
     <p class="subtitle">{data.sections.length} {data.sections.length === 1 ? 'section' : 'sections'}</p>
   </div>
+  <a href="/book/print" class="print-link" title="Print Book">
+    <Printer size={16} strokeWidth={1.75} />
+  </a>
 </div>
 
 {#if data.sections.length === 0}
@@ -147,6 +150,20 @@
     font-size: 13px;
     color: var(--text-muted);
     margin-top: 2px;
+  }
+
+  .print-link {
+    margin-left: auto;
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .print-link:hover {
+    background: var(--bg-hover);
+    color: var(--theme-color);
   }
 
   .empty-state {
