@@ -548,7 +548,7 @@
         <div class="backup-divider"></div>
         <a href="/book/settings" class="backup-menu-item" onclick={() => backupMenuOpen = false}>
           <Settings size={15} strokeWidth={1.75} />
-          <span>Cloud Backup Settings</span>
+          <span>Settings</span>
         </a>
         <a href="/book/emergency" class="backup-menu-item" onclick={() => backupMenuOpen = false}>
           <UserCheck size={15} strokeWidth={1.75} />
