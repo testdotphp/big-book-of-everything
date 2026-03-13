@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import { enhance } from '$app/forms';
-  import { ChevronRight, CheckCircle, XCircle, CloudUpload, RotateCcw, Trash2, Palette } from 'lucide-svelte';
+  import { ChevronRight, CheckCircle, XCircle, CloudUpload, RotateCcw, Trash2, Palette, Package, Download, Check, X } from 'lucide-svelte';
   import Icon from '$lib/components/Icon.svelte';
   import type { PageData } from './$types';
 
@@ -164,6 +164,9 @@
 
   let selectedTheme = $state(data.theme || 'dark');
 
+  // Icon packs
+  let iconPackLoading = $state<string | null>(null);
+
   // Load backups on mount if provider is configured
   $effect(() => {
     if (data.provider) loadCloudBackups();
@@ -210,6 +213,84 @@
       {/each}
     </div>
   </form>
+</div>
+
+<div class="settings-card">
+  <h2><Package size={16} strokeWidth={2} /> Icon Pack</h2>
+  <p class="card-desc">Choose an icon style for categories and sections. Lucide is built-in; others can be downloaded.</p>
+
+  <div class="icon-pack-grid">
+    {#each data.iconRegistry as pack}
+      {@const isActive = data.activeIconPack === pack.slug}
+      {@const isDownloaded = data.downloadedPacks.includes(pack.slug)}
+      {@const isLucide = pack.slug === 'lucide'}
+      <div class="icon-pack-card" class:active={isActive}>
+        <div class="pack-header">
+          <span class="pack-name">{pack.name}</span>
+          {#if isActive}
+            <span class="pack-badge active-badge">Active</span>
+          {:else if isDownloaded || isLucide}
+            <span class="pack-badge downloaded-badge">Ready</span>
+          {/if}
+        </div>
+        <p class="pack-desc">{pack.description}</p>
+        <div class="pack-preview">
+          {#each pack.preview as iconName}
+            <span class="preview-icon"><Icon name={iconName} size={16} /></span>
+          {/each}
+        </div>
+        <div class="pack-meta">{pack.author} &middot; {pack.license}</div>
+        <div class="pack-actions">
+          {#if isActive}
+            <span class="pack-status"><Check size={13} strokeWidth={2.5} /> In use</span>
+          {:else if isLucide}
+            <form method="POST" action="?/activateIconPack" use:enhance={() => {
+              iconPackLoading = pack.slug;
+              return async ({ update }) => { await update(); iconPackLoading = null; await invalidateAll(); };
+            }}>
+              <input type="hidden" name="slug" value={pack.slug} />
+              <button type="submit" class="btn small" disabled={iconPackLoading !== null}>
+                <Check size={13} strokeWidth={2} /> Activate
+              </button>
+            </form>
+          {:else if isDownloaded}
+            <form method="POST" action="?/activateIconPack" use:enhance={() => {
+              iconPackLoading = pack.slug;
+              return async ({ update }) => { await update(); iconPackLoading = null; await invalidateAll(); };
+            }}>
+              <input type="hidden" name="slug" value={pack.slug} />
+              <button type="submit" class="btn small" disabled={iconPackLoading !== null}>
+                <Check size={13} strokeWidth={2} /> Activate
+              </button>
+            </form>
+            <form method="POST" action="?/removeIconPack" use:enhance={() => {
+              iconPackLoading = pack.slug;
+              return async ({ update }) => { await update(); iconPackLoading = null; await invalidateAll(); };
+            }}>
+              <input type="hidden" name="slug" value={pack.slug} />
+              <button type="submit" class="btn small danger" disabled={iconPackLoading !== null}>
+                <X size={13} strokeWidth={2} /> Remove
+              </button>
+            </form>
+          {:else}
+            <form method="POST" action="?/downloadIconPack" use:enhance={() => {
+              iconPackLoading = pack.slug;
+              return async ({ update }) => { await update(); iconPackLoading = null; await invalidateAll(); };
+            }}>
+              <input type="hidden" name="slug" value={pack.slug} />
+              <button type="submit" class="btn small" disabled={iconPackLoading !== null}>
+                {#if iconPackLoading === pack.slug}
+                  Installing...
+                {:else}
+                  <Download size={13} strokeWidth={2} /> Download
+                {/if}
+              </button>
+            </form>
+          {/if}
+        </div>
+      </div>
+    {/each}
+  </div>
 </div>
 
 <h2 class="section-heading">Cloud Backup</h2>
@@ -704,5 +785,112 @@
   h2 :global(svg) {
     vertical-align: -2px;
     margin-right: 4px;
+  }
+
+  .icon-pack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .icon-pack-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s;
+  }
+
+  .icon-pack-card.active {
+    border-color: var(--theme-color);
+  }
+
+  .pack-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .pack-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .pack-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .active-badge {
+    background: color-mix(in srgb, var(--theme-color) 15%, transparent);
+    color: var(--theme-color);
+  }
+
+  .downloaded-badge {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+  }
+
+  .pack-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .pack-preview {
+    display: flex;
+    gap: 6px;
+    color: var(--text-secondary);
+    padding: 6px 0;
+  }
+
+  .preview-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pack-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .pack-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    align-items: center;
+  }
+
+  .pack-actions form {
+    display: contents;
+  }
+
+  .pack-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--theme-color);
+  }
+
+  .btn.danger {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .btn.danger:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
   }
 </style>

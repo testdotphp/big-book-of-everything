@@ -3,6 +3,7 @@
   import { fade } from 'svelte/transition';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import Toast from '$lib/components/Toast.svelte';
+  import { iconPackData } from '$lib/stores/icon-pack';
   import type { LayoutData } from './$types';
   import '../app.css';
 
@@ -20,6 +21,11 @@
       document.documentElement.setAttribute('data-theme', theme);
     }
     localStorage.setItem('theme', theme);
+  });
+
+  // Set icon pack store from server data
+  $effect(() => {
+    iconPackData.set(data.iconPackIcons || null);
   });
 
   // Close mobile menu on navigation

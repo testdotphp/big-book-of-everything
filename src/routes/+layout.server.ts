@@ -50,11 +50,25 @@ export const load: LayoutServerLoad = async (event) => {
     });
   }
 
-  // Load theme preference
-  const themeRow = bookEnabled || bookMode
-    ? getDb().select().from(settings).where(eq(settings.key, 'theme')).get()
-    : null;
+  // Load theme and icon pack preferences
+  const db2 = bookEnabled || bookMode ? getDb() : null;
+  const themeRow = db2?.select().from(settings).where(eq(settings.key, 'theme')).get();
   const theme = themeRow?.value || 'dark';
+
+  const iconPackRow = db2?.select().from(settings).where(eq(settings.key, 'icon_pack')).get();
+  const iconPack = iconPackRow?.value || 'lucide';
+
+  // Load icon pack SVG data if not using built-in Lucide
+  let iconPackIcons: Record<string, string> | null = null;
+  if (iconPack !== 'lucide' && db2) {
+    const dataRow = db2.select().from(settings).where(eq(settings.key, `icon_pack_data:${iconPack}`)).get();
+    if (dataRow?.value) {
+      try {
+        const parsed = JSON.parse(dataRow.value);
+        iconPackIcons = parsed.icons || null;
+      } catch { /* invalid data, fall back to lucide */ }
+    }
+  }
 
   return {
     session,
@@ -63,6 +77,8 @@ export const load: LayoutServerLoad = async (event) => {
     bookMode,
     bookCategories,
     localAuth: isLocalAuth ? localAuthMode : null,
-    theme
+    theme,
+    iconPack,
+    iconPackIcons
   };
 };

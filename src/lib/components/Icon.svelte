@@ -12,6 +12,7 @@
     User, Folder, Users, CreditCard
   } from 'lucide-svelte';
   import type { ComponentType } from 'svelte';
+  import { iconPackData } from '$lib/stores/icon-pack';
 
   interface Props {
     name: string;
@@ -77,9 +78,30 @@
     'credit-card': CreditCard,
   };
 
+  // Check if the active icon pack has this icon as custom SVG
+  let customSvg = $derived($iconPackData?.[name] || null);
   let IconComponent = $derived(iconMap[name] || Box);
 </script>
 
-{#if IconComponent}
+{#if customSvg}
+  <span class="custom-icon" style="width: {size}px; height: {size}px;">
+    {@html customSvg}
+  </span>
+{:else if IconComponent}
   <IconComponent {size} strokeWidth={1.75} />
 {/if}
+
+<style>
+  .custom-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+  }
+
+  .custom-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+    color: currentColor;
+  }
+</style>
