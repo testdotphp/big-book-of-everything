@@ -56,14 +56,20 @@ export const load: PageServerLoad = async ({ params }) => {
     .all();
 
   if (section.type === 'key_value') {
-    const fieldValues = fieldList.map((f) => {
-      const val = db
-        .select()
-        .from(values)
-        .where(and(eq(values.fieldId, f.id), isNull(values.recordId)))
-        .get();
-      return { ...f, value: decryptValue(val?.value) };
-    });
+    // Batch: get all KV values for this section's fields at once
+    const fieldIds = fieldList.map(f => f.id);
+    const allValues = fieldIds.length > 0
+      ? db.select().from(values)
+          .where(and(isNull(values.recordId)))
+          .all()
+          .filter(v => fieldIds.includes(v.fieldId))
+      : [];
+    const valueMap = new Map(allValues.map(v => [v.fieldId, v.value]));
+
+    const fieldValues = fieldList.map((f) => ({
+      ...f,
+      value: decryptValue(valueMap.get(f.id))
+    }));
     return { category, section, fields: fieldValues, records: null, files: [] };
   } else {
     // Detect "who" field for person grouping (exclude Final Arrangements)
@@ -78,15 +84,26 @@ export const load: PageServerLoad = async ({ params }) => {
       .orderBy(records.sortOrder)
       .all();
 
+    // Batch: get all values for all records in this section at once
+    const recordIds = recordList.map(r => r.id);
+    const allValues = recordIds.length > 0
+      ? db.select().from(values).all()
+          .filter(v => v.recordId !== null && recordIds.includes(v.recordId))
+      : [];
+
+    // Index by recordId → fieldId → value
+    const valueIndex = new Map<number, Map<number, string>>();
+    for (const v of allValues) {
+      if (v.recordId === null) continue;
+      if (!valueIndex.has(v.recordId)) valueIndex.set(v.recordId, new Map());
+      valueIndex.get(v.recordId)!.set(v.fieldId, v.value || '');
+    }
+
     const recordsWithValues = recordList.map((r) => {
       const rowValues: Record<number, string> = {};
+      const rValues = valueIndex.get(r.id);
       for (const f of fieldList) {
-        const val = db
-          .select()
-          .from(values)
-          .where(and(eq(values.fieldId, f.id), eq(values.recordId, r.id)))
-          .get();
-        rowValues[f.id] = decryptValue(val?.value);
+        rowValues[f.id] = decryptValue(rValues?.get(f.id));
       }
       return { ...r, values: rowValues };
     });

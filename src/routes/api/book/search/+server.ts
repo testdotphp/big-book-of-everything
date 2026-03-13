@@ -23,7 +23,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		})
 		.from(values)
 		.innerJoin(fields, eq(fields.id, values.fieldId))
-		.where(like(values.value, pattern))
+		.where(and(like(values.value, pattern), eq(fields.sensitive, 0)))
 		.limit(50)
 		.all();
 

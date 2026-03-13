@@ -72,10 +72,15 @@
     }
   }
 
+  function escapeHtml(str: string): string {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function highlight(text: string, q: string): string {
-    if (!q.trim()) return text;
+    if (!q.trim()) return escapeHtml(text);
+    const safeText = escapeHtml(text);
     const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+    return safeText.replace(new RegExp(`(${escapeHtml(escaped)})`, 'gi'), '<mark>$1</mark>');
   }
 </script>
 

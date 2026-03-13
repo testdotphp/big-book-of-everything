@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 import { getDb } from './db';
 import { settings } from './schema';
-import { eq } from 'drizzle-orm';
+import { eq, like } from 'drizzle-orm';
 
 // ---- Password hashing ----
 
@@ -95,19 +95,35 @@ export function deleteSession(token: string): void {
 		.run();
 }
 
+/** Remove all expired sessions from the database */
+export function cleanupExpiredSessions(): void {
+	const db = getDb();
+	const rows = db.select().from(settings).where(like(settings.key, `${SESSION_KEY_PREFIX}%`)).all();
+	const now = new Date();
+	for (const row of rows) {
+		try {
+			const data = JSON.parse(row.value || '{}');
+			if (data.expires && new Date(data.expires) < now) {
+				db.delete(settings).where(eq(settings.key, row.key)).run();
+			}
+		} catch {
+			// Malformed session — remove it
+			db.delete(settings).where(eq(settings.key, row.key)).run();
+		}
+	}
+}
+
 // ---- Local users mode ----
 
 const USERS_KEY_PREFIX = 'local_user:';
 
 export function getLocalUsers(): { username: string; name: string }[] {
 	const db = getDb();
-	const rows = db.select().from(settings).all();
-	return rows
-		.filter((r) => r.key.startsWith(USERS_KEY_PREFIX))
-		.map((r) => {
-			const data = JSON.parse(r.value || '{}');
-			return { username: r.key.slice(USERS_KEY_PREFIX.length), name: data.name || '' };
-		});
+	const rows = db.select().from(settings).where(like(settings.key, `${USERS_KEY_PREFIX}%`)).all();
+	return rows.map((r) => {
+		const data = JSON.parse(r.value || '{}');
+		return { username: r.key.slice(USERS_KEY_PREFIX.length), name: data.name || '' };
+	});
 }
 
 export function createLocalUser(username: string, password: string, name: string): boolean {

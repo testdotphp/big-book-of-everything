@@ -1,5 +1,6 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { checkRateLimit } from '$lib/server/rate-limit';
 import {
 	verifyLocalPassword,
 	setLocalPassword,
@@ -11,10 +12,19 @@ import {
 	deleteLocalUser,
 	createSessionToken,
 	storeSession,
-	deleteSession
+	deleteSession,
+	getSession
 } from '$lib/server/local-auth';
 
 const COOKIE_NAME = 'local_session';
+
+function isSecure(): boolean {
+	return env.ORIGIN?.startsWith('https') || false;
+}
+
+function cookieOpts() {
+	return { path: '/', httpOnly: true, sameSite: 'lax' as const, maxAge: 30 * 24 * 60 * 60, secure: isSecure() };
+}
 
 function getLocalAuthMode(): string | null {
 	const mode = env.LOCAL_AUTH?.toLowerCase();
@@ -42,8 +52,20 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const mode = getLocalAuthMode();
 	if (!mode) return json({ error: 'Local auth not enabled' }, { status: 400 });
 
-	const body = await request.json();
+	let body: Record<string, unknown>;
+	try {
+		body = await request.json();
+	} catch {
+		throw error(400, 'Invalid JSON body');
+	}
 	const { action } = body;
+
+	// Rate limit login/setup attempts
+	if (action === 'login' || action === 'setup' || action === 'register') {
+		if (!checkRateLimit('auth')) {
+			throw error(429, 'Too many attempts. Try again later.');
+		}
+	}
 
 	// --- Single password mode ---
 	if (mode === 'password') {
@@ -54,7 +76,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			setLocalPassword(password);
 			const token = createSessionToken();
 			storeSession(token, 'local', 'Local User');
-			cookies.set(COOKIE_NAME, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 });
+			cookies.set(COOKIE_NAME, token, cookieOpts());
 			return json({ ok: true });
 		}
 
@@ -63,7 +85,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			if (!verifyLocalPassword(password)) return json({ error: 'Incorrect password' }, { status: 401 });
 			const token = createSessionToken();
 			storeSession(token, 'local', 'Local User');
-			cookies.set(COOKIE_NAME, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 });
+			cookies.set(COOKIE_NAME, token, cookieOpts());
 			return json({ ok: true });
 		}
 
@@ -86,7 +108,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			if (!ok) return json({ error: 'Username already exists' }, { status: 409 });
 			const token = createSessionToken();
 			storeSession(token, username.trim().toLowerCase(), name?.trim() || username.trim());
-			cookies.set(COOKIE_NAME, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 });
+			cookies.set(COOKIE_NAME, token, cookieOpts());
 			return json({ ok: true });
 		}
 
@@ -96,7 +118,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			if (!user) return json({ error: 'Invalid username or password' }, { status: 401 });
 			const token = createSessionToken();
 			storeSession(token, username.trim().toLowerCase(), user.name);
-			cookies.set(COOKIE_NAME, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 });
+			cookies.set(COOKIE_NAME, token, cookieOpts());
 			return json({ ok: true });
 		}
 
@@ -108,9 +130,14 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		}
 
 		if (action === 'deleteUser') {
+			// Require authenticated session to delete users
+			const sessionToken = cookies.get(COOKIE_NAME);
+			if (!sessionToken || !getSession(sessionToken)) {
+				throw error(401, 'Authentication required');
+			}
 			const { username } = body;
 			if (!username) return json({ error: 'Username required' }, { status: 400 });
-			deleteLocalUser(username);
+			deleteLocalUser(username as string);
 			return json({ ok: true });
 		}
 	}

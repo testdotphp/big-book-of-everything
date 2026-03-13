@@ -2,8 +2,9 @@ import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { settings, fields, values } from '$lib/server/schema';
 import { eq, and } from 'drizzle-orm';
-import { deriveKey, hashPassword, encrypt, decrypt, isEncrypted } from '$lib/server/crypto';
+import { deriveKey, hashPassword, verifyPasswordHash, encrypt, decrypt, isEncrypted } from '$lib/server/crypto';
 import { setEncryptionKey, clearEncryptionKey, getEncryptionKey } from '$lib/server/encryption-session';
+import { checkRateLimit } from '$lib/server/rate-limit';
 
 // GET: check encryption status
 export const GET: RequestHandler = async () => {
@@ -18,14 +19,26 @@ export const GET: RequestHandler = async () => {
 // POST: actions — setPassword, encrypt, decrypt, removePassword
 export const POST: RequestHandler = async ({ request }) => {
 	const db = getDb();
-	const body = await request.json();
-	const { action, password, newPassword } = body;
+	let body: Record<string, unknown>;
+	try {
+		body = await request.json();
+	} catch {
+		throw error(400, 'Invalid JSON body');
+	}
+	const { action, password, newPassword } = body as { action: string; password?: string; newPassword?: string };
+
+	// Rate limit password-related actions
+	if (action === 'unlock' || action === 'setPassword' || action === 'changePassword' || action === 'verify') {
+		if (!checkRateLimit('encryption')) {
+			throw error(429, 'Too many attempts. Try again later.');
+		}
+	}
 
 	if (action === 'unlock') {
 		if (!password) throw error(400, 'Password required');
 		const existing = db.select().from(settings).where(eq(settings.key, 'encryption_hash')).get();
 		if (!existing?.value) return json({ success: true });
-		if (hashPassword(password) !== existing.value) throw error(403, 'Wrong password');
+		if (!verifyPasswordHash(password, existing.value)) throw error(403, 'Wrong password');
 		setEncryptionKey(password);
 		return json({ success: true });
 	}
@@ -60,7 +73,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const existing = db.select().from(settings).where(eq(settings.key, 'encryption_hash')).get();
 		if (!existing?.value) throw error(400, 'No password set');
-		if (hashPassword(password) !== existing.value) throw error(403, 'Wrong password');
+		if (!verifyPasswordHash(password, existing.value)) throw error(403, 'Wrong password');
 
 		// Decrypt with old key, re-encrypt with new
 		const oldKey = deriveKey(password);
@@ -70,6 +83,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const newHash = hashPassword(newPassword);
 		db.update(settings).set({ value: newHash }).where(eq(settings.key, 'encryption_hash')).run();
+		setEncryptionKey(newPassword);
 
 		return json({ success: true });
 	}
@@ -79,7 +93,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const existing = db.select().from(settings).where(eq(settings.key, 'encryption_hash')).get();
 		if (!existing?.value) throw error(400, 'No password set');
-		if (hashPassword(password) !== existing.value) throw error(403, 'Wrong password');
+		if (!verifyPasswordHash(password, existing.value)) throw error(403, 'Wrong password');
 
 		// Decrypt all values
 		const key = deriveKey(password);
@@ -94,7 +108,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		if (!password) throw error(400, 'Password required');
 		const existing = db.select().from(settings).where(eq(settings.key, 'encryption_hash')).get();
 		if (!existing?.value) return json({ valid: true });
-		return json({ valid: hashPassword(password) === existing.value });
+		return json({ valid: verifyPasswordHash(password, existing.value) });
 	}
 
 	throw error(400, 'Unknown action');

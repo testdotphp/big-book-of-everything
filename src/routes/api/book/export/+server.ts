@@ -75,12 +75,7 @@ function exportJson() {
 						};
 					});
 
-					// Key-value entries (values without a recordId)
-					const kvValues = db.select().from(values)
-						.where(eq(values.recordId, 0)).all()
-						.filter(() => false); // placeholder — KV values have null recordId
-
-					// Get KV values (recordId IS NULL) via raw approach
+					// Get KV values (recordId IS NULL)
 					const kvEntries = sec.type === 'key_value'
 						? allFields.map((f) => {
 							const val = db.select().from(values)

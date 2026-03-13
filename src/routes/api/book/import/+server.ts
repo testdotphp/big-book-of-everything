@@ -45,7 +45,18 @@ async function importSqlite(request: Request) {
 }
 
 async function importJson(request: Request) {
-	const data = await request.json();
+	// Check Content-Length before reading body (50MB limit)
+	const contentLength = Number(request.headers.get('content-length') || 0);
+	if (contentLength > 50 * 1024 * 1024) {
+		throw error(413, 'Import file too large (max 50MB)');
+	}
+
+	let data: Record<string, unknown>;
+	try {
+		data = await request.json();
+	} catch {
+		throw error(400, 'Invalid JSON body');
+	}
 
 	if (!data.categories || !Array.isArray(data.categories)) {
 		throw error(400, 'Invalid backup format: missing categories array');
@@ -53,103 +64,108 @@ async function importJson(request: Request) {
 
 	const db = getDb();
 
-	// Clear all existing data (uploads → values → records → fields → sections → categories)
-	db.delete(uploads).run();
-	db.delete(values).run();
-	db.delete(records).run();
-	db.delete(fields).run();
-	db.delete(sections).run();
-	db.delete(categories).run();
+	// Wrap entire import in a transaction for atomicity
+	const importTransaction = db.transaction(() => {
+		// Clear all existing data (uploads → values → records → fields → sections → categories)
+		db.delete(uploads).run();
+		db.delete(values).run();
+		db.delete(records).run();
+		db.delete(fields).run();
+		db.delete(sections).run();
+		db.delete(categories).run();
 
-	// Import categories
-	for (const cat of data.categories) {
-		const catResult = db.insert(categories).values({
-			name: cat.name,
-			slug: cat.slug,
-			icon: cat.icon || 'folder',
-			sortOrder: cat.sortOrder || 0,
-			seeded: cat.seeded || 0
-		}).returning().get();
-
-		if (!cat.sections) continue;
-
-		for (const sec of cat.sections) {
-			const secResult = db.insert(sections).values({
-				categoryId: catResult.id,
-				name: sec.name,
-				slug: sec.slug,
-				type: sec.type || 'key_value',
-				sortOrder: sec.sortOrder || 0,
-				description: sec.description || null,
-				seeded: sec.seeded || 0
+		// Import categories
+		for (const cat of data.categories as Record<string, unknown>[]) {
+			const catResult = db.insert(categories).values({
+				name: cat.name as string,
+				slug: cat.slug as string,
+				icon: (cat.icon as string) || 'folder',
+				sortOrder: (cat.sortOrder as number) || 0,
+				seeded: (cat.seeded as number) || 0
 			}).returning().get();
 
-			if (!sec.fields) continue;
+			if (!cat.sections) continue;
 
-			// Build field slug → id map for value restoration
-			const fieldMap: Record<string, number> = {};
-			for (const f of sec.fields) {
-				const fieldResult = db.insert(fields).values({
-					sectionId: secResult.id,
-					name: f.name,
-					slug: f.slug,
-					fieldType: f.fieldType || 'text',
-					sortOrder: f.sortOrder || 0,
-					sensitive: f.sensitive || 0
+			for (const sec of cat.sections as Record<string, unknown>[]) {
+				const secResult = db.insert(sections).values({
+					categoryId: catResult.id,
+					name: sec.name as string,
+					slug: sec.slug as string,
+					type: (sec.type as string) || 'key_value',
+					sortOrder: (sec.sortOrder as number) || 0,
+					description: (sec.description as string) || null,
+					seeded: (sec.seeded as number) || 0
 				}).returning().get();
-				fieldMap[f.slug] = fieldResult.id;
-			}
 
-			// Restore key-value entries
-			if (sec.keyValues) {
-				for (const kv of sec.keyValues) {
-					if (kv.value !== null && kv.value !== undefined && fieldMap[kv.fieldSlug]) {
-						db.insert(values).values({
-							fieldId: fieldMap[kv.fieldSlug],
-							recordId: null,
-							value: String(kv.value)
+				if (!sec.fields) continue;
+
+				// Build field slug → id map for value restoration
+				const fieldMap: Record<string, number> = {};
+				for (const f of sec.fields as Record<string, unknown>[]) {
+					const fieldResult = db.insert(fields).values({
+						sectionId: secResult.id,
+						name: f.name as string,
+						slug: f.slug as string,
+						fieldType: (f.fieldType as string) || 'text',
+						sortOrder: (f.sortOrder as number) || 0,
+						sensitive: (f.sensitive as number) || 0
+					}).returning().get();
+					fieldMap[f.slug as string] = fieldResult.id;
+				}
+
+				// Restore key-value entries
+				if (sec.keyValues) {
+					for (const kv of sec.keyValues as Record<string, unknown>[]) {
+						if (kv.value !== null && kv.value !== undefined && fieldMap[kv.fieldSlug as string]) {
+							db.insert(values).values({
+								fieldId: fieldMap[kv.fieldSlug as string],
+								recordId: null,
+								value: String(kv.value)
+							}).run();
+						}
+					}
+				}
+
+				// Restore uploads for placeholder sections
+				if (sec.uploads) {
+					for (const u of sec.uploads as Record<string, unknown>[]) {
+						db.insert(uploads).values({
+							sectionId: secResult.id,
+							filename: u.filename as string,
+							mimeType: u.mimeType as string,
+							size: u.size as number,
+							data: u.data as string,
+							uploadedAt: u.uploadedAt as string
 						}).run();
 					}
 				}
-			}
 
-			// Restore uploads for placeholder sections
-			if (sec.uploads) {
-				for (const u of sec.uploads) {
-					db.insert(uploads).values({
-						sectionId: secResult.id,
-						filename: u.filename,
-						mimeType: u.mimeType,
-						size: u.size,
-						data: u.data,
-						uploadedAt: u.uploadedAt
-					}).run();
-				}
-			}
+				// Restore table records
+				if (sec.records) {
+					for (const rec of sec.records as Record<string, unknown>[]) {
+						const recResult = db.insert(records).values({
+							sectionId: secResult.id,
+							sortOrder: (rec.sortOrder as number) || 0
+						}).returning().get();
 
-			// Restore table records
-			if (sec.records) {
-				for (const rec of sec.records) {
-					const recResult = db.insert(records).values({
-						sectionId: secResult.id,
-						sortOrder: rec.sortOrder || 0
-					}).returning().get();
-
-					if (rec.values) {
-						for (const v of rec.values) {
-							if (v.value !== null && v.value !== undefined && fieldMap[v.fieldSlug]) {
-								db.insert(values).values({
-									fieldId: fieldMap[v.fieldSlug],
-									recordId: recResult.id,
-									value: String(v.value)
-								}).run();
+						if (rec.values) {
+							for (const v of rec.values as Record<string, unknown>[]) {
+								if (v.value !== null && v.value !== undefined && fieldMap[v.fieldSlug as string]) {
+									db.insert(values).values({
+										fieldId: fieldMap[v.fieldSlug as string],
+										recordId: recResult.id,
+										value: String(v.value)
+									}).run();
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
+	});
+
+	importTransaction();
 
 	return json({ success: true, message: 'Data restored from JSON backup' });
 }

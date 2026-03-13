@@ -8,6 +8,19 @@ export const load: PageServerLoad = async () => {
 
 	const allCategories = db.select().from(categories).orderBy(categories.sortOrder).all();
 
+	// Batch: load all values at once to avoid N+1 queries
+	const allValues = db.select().from(values).all();
+	const kvValueMap = new Map<number, string>(); // fieldId → value (for KV with null recordId)
+	const recordValueMap = new Map<number, Map<number, string>>(); // recordId → fieldId → value
+	for (const v of allValues) {
+		if (v.recordId === null) {
+			kvValueMap.set(v.fieldId, v.value || '');
+		} else {
+			if (!recordValueMap.has(v.recordId)) recordValueMap.set(v.recordId, new Map());
+			recordValueMap.get(v.recordId)!.set(v.fieldId, v.value || '');
+		}
+	}
+
 	const data = allCategories.map((cat) => {
 		const allSections = db
 			.select()
@@ -27,14 +40,11 @@ export const load: PageServerLoad = async () => {
 					.all();
 
 				if (sec.type === 'key_value') {
-					const kvData = allFields.map((f) => {
-						const val = db
-							.select()
-							.from(values)
-							.where(and(eq(values.fieldId, f.id), isNull(values.recordId)))
-							.get();
-						return { name: f.name, value: val?.value || '', sensitive: f.sensitive };
-					});
+					const kvData = allFields.map((f) => ({
+						name: f.name,
+						value: kvValueMap.get(f.id) || '',
+						sensitive: f.sensitive
+					}));
 					return { ...sec, fields: allFields, keyValues: kvData, records: [] };
 				}
 
@@ -48,13 +58,9 @@ export const load: PageServerLoad = async () => {
 
 				const recs = allRecords.map((r) => {
 					const rowValues: Record<number, string> = {};
+					const rValues = recordValueMap.get(r.id);
 					for (const f of allFields) {
-						const val = db
-							.select()
-							.from(values)
-							.where(and(eq(values.fieldId, f.id), eq(values.recordId, r.id)))
-							.get();
-						rowValues[f.id] = val?.value || '';
+						rowValues[f.id] = rValues?.get(f.id) || '';
 					}
 					return { id: r.id, values: rowValues };
 				});

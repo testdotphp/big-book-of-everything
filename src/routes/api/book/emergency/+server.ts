@@ -4,8 +4,14 @@ import { emergencyTokens } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 
+function requireAuth(event: { locals: App.Locals }) {
+	// This endpoint is protected by the layout auth redirect, but verify explicitly
+	if (!event.locals.auth) throw error(401, 'Authentication required');
+}
+
 // GET: list tokens
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async (event) => {
+	requireAuth(event);
 	const db = getDb();
 	const tokens = db.select().from(emergencyTokens).all();
 	return json({
@@ -21,9 +27,16 @@ export const GET: RequestHandler = async () => {
 };
 
 // POST: create token
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async (event) => {
+	requireAuth(event);
 	const db = getDb();
-	const { name, expiresInDays } = await request.json();
+	let body: Record<string, unknown>;
+	try {
+		body = await event.request.json();
+	} catch {
+		throw error(400, 'Invalid JSON body');
+	}
+	const { name, expiresInDays } = body as { name?: string; expiresInDays?: number };
 
 	if (!name) throw error(400, 'Name required');
 
@@ -47,8 +60,10 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 // DELETE: revoke token
-export const DELETE: RequestHandler = async ({ url }) => {
+export const DELETE: RequestHandler = async (event) => {
+	requireAuth(event);
 	const db = getDb();
+	const url = event.url;
 	const id = Number(url.searchParams.get('id'));
 	if (!id) throw error(400, 'Token ID required');
 

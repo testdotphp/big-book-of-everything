@@ -8,6 +8,8 @@ function isAuthEnabled(): boolean {
   return !!(env.OIDC_ISSUER && env.OIDC_CLIENT_ID && env.OIDC_CLIENT_SECRET && env.AUTH_SECRET);
 }
 
+let lastCleanup: number | null = null;
+
 function getLocalAuthMode(): string | null {
   const mode = env.LOCAL_AUTH?.toLowerCase();
   if (mode === 'password' || mode === 'users') return mode;
@@ -42,7 +44,13 @@ function getOidcProvider(): Provider {
 // Local auth handle — checks cookie-based sessions
 const localAuthHandle: Handle = async ({ event, resolve }) => {
   // Lazy import to avoid loading DB at module level when not needed
-  const { getSession } = await import('$lib/server/local-auth');
+  const { getSession, cleanupExpiredSessions } = await import('$lib/server/local-auth');
+
+  // Periodically clean up expired sessions (at most once per hour)
+  if (!lastCleanup || Date.now() - lastCleanup > 3600_000) {
+    lastCleanup = Date.now();
+    cleanupExpiredSessions();
+  }
 
   const token = event.cookies.get('local_session');
   if (token) {

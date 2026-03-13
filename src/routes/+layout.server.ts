@@ -21,7 +21,10 @@ export const load: LayoutServerLoad = async (event) => {
   const isLocalAuth = localAuthMode === 'password' || localAuthMode === 'users';
 
   // Protect routes
-  const isPublicPath = event.url.pathname.startsWith('/auth') || event.url.pathname.startsWith('/api/auth') || event.url.pathname === '/login';
+  const isPublicPath = event.url.pathname.startsWith('/auth')
+    || event.url.pathname.startsWith('/api/auth')
+    || event.url.pathname === '/login'
+    || /^\/book\/emergency\/[^/]+/.test(event.url.pathname);
   if (!bookMode && !session?.user && !isPublicPath) {
     throw redirect(302, '/login');
   }
